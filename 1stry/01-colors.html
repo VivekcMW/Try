@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Colors — Lokul DS</title>
+<link rel="stylesheet" href="./tokens.css" />
+<link rel="stylesheet" href="./shared.css" />
+<style>
+  .scale-row { display: flex; gap: 0; border-radius: var(--radius-xl); overflow: hidden; border: 1px solid var(--color-border); margin-bottom: 2rem; }
+  .scale-cell { flex: 1; }
+  .scale-cell__block { height: 80px; }
+  .scale-cell__label { padding: 0.5rem 0.625rem; background: white; border-top: 1px solid var(--color-border); }
+  .scale-cell__step  { font-size: 0.65rem; font-weight: 700; color: var(--color-text-secondary); }
+  .scale-cell__hex   { font-size: 0.6rem; font-family: var(--font-mono); color: var(--color-text-disabled); margin-top: 1px; }
+
+  .semantic-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; }
+  .semantic-card {
+    border-radius: var(--radius-xl); overflow: hidden; border: 1px solid var(--color-border);
+  }
+  .semantic-card__top { height: 56px; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; }
+  .semantic-card__body { padding: 0.75rem 0.875rem; background: white; }
+  .semantic-card__name { font-size: var(--text-sm); font-weight: 600; color: var(--color-heading); }
+  .semantic-card__desc { font-size: var(--text-xs); color: var(--color-text-secondary); margin-top: 2px; }
+  .semantic-card__hex  { font-size: 0.65rem; font-family: var(--font-mono); color: var(--color-text-disabled); margin-top: 4px; }
+
+  @media (max-width: 768px) { .scale-cell__hex { display: none; } }
+</style>
+</head>
+<body>
+<nav class="dev-nav">
+  <span class="dev-nav__brand">LOKUL <span>DS</span></span>
+  <a href="./index.html" class="dev-nav__link">Index</a>
+  <a href="./01-colors.html" class="dev-nav__link active">Colors</a>
+  <a href="./02-typography.html" class="dev-nav__link">Typography</a>
+  <a href="./03-spacing.html" class="dev-nav__link">Spacing</a>
+  <a href="./04-buttons.html" class="dev-nav__link">Buttons</a>
+  <a href="./05-inputs.html" class="dev-nav__link">Inputs</a>
+  <a href="./06-badges-tags.html" class="dev-nav__link">Badges</a>
+  <a href="./07-cards.html" class="dev-nav__link">Cards</a>
+  <a href="./08-navigation.html" class="dev-nav__link">Navigation</a>
+  <a href="./09-feed.html" class="dev-nav__link">Feed</a>
+  <a href="./10-alerts.html" class="dev-nav__link">Alerts</a>
+  <a href="./11-empty-states.html" class="dev-nav__link">Empty states</a>
+  <a href="./12-dark-mode.html" class="dev-nav__link">Dark mode</a>
+  <a href="./landing.html" class="dev-nav__link">Landing</a>
+</nav>
+
+<div class="page-body pb-16">
+<div class="ds-container">
+
+  <div class="page-title">
+    <div class="page-title__eyebrow">01 · Design Tokens</div>
+    <h1>Colors</h1>
+    <p>APAC-optimized palette — Deep Indigo primary, Saffron/Amber accent, Warm Slate neutrals. All semantic colors meet WCAG AA contrast on white backgrounds.</p>
+  </div>
+
+  <!-- Brand: Indigo -->
+  <div class="mb-6"><p class="section-label">Brand — Deep Indigo</p>
+  <p style="font-size:var(--text-sm); color:var(--color-text-secondary); margin-bottom:1rem;">Primary CTA color. Signals trust, modernity, reliable technology across all APAC markets.</p></div>
+  <div class="scale-row">
+    <div class="scale-cell"><div class="scale-cell__block" style="background:#eef2ff"></div><div class="scale-cell__label"><div class="scale-cell__step">50</div><div class="scale-cell__hex">#eef2ff</div></div></div>
+    <div class="scale-cell"><div class="scale-cell__block" style="background:#e0e7ff"></div><div class="scale-cell__label"><div class="scale-cell__step">100</div><div class="scale-cell__hex">#e0e7ff</div></div></div>
+    <div class="scale-cell"><div class="scale-cell__block" style="background:#c7d2fe"></div><div class="scale-cell__label"><div class="scale-cell__step">200</div><div class="scale-cell__hex">#c7d2fe</div></div></div>
+    <div class="scale-cell"><div class="scale-cell__block" style="background:#a5b4fc"></div><div class="scale-cell__label"><div class="scale-cell__step">300</div><div class="scale-cell__hex">#a5b4fc</div></div></div>
+    <div class="scale-cell"><div class="scale-cell__block" style="background:#818cf8"></div><div class="scale-cell__label"><div class="scale-cell__step">400</div><div class="scale-cell__hex">#818cf8</div></div></div>
+    <div class="scale-cell"><div class="scale-cell__block" style="background:#6366f1"></div><div class="scale-cell__label"><div class="scale-cell__step">500</div><div class="scale-cell__hex">#6366f1</div></div></div>
+    <div class="scale-cell" style="outline: 3px solid var(--color-brand-600); outline-offset: -3px; border-radius:0;"><div class="scale-cell__block" style="background:#4f46e5"></div><div class="scale-cell__label"><div class="scale-cell__step" style="color:var(--color-brand-600);">600 ★</div><div class="scale-cell__hex">#4f46e5</div></div></div>
+    <div class="scale-cell"><div class="scale-cell__block" style="background:#4338ca"></div><div class="scale-cell__label"><div class="scale-cell__step">700</div><div class="scale-cell__hex">#4338ca</div></div></div>
+    <div class="scale-cell"><div class="scale-cell__block" style="background:#3730a3"></div><div class="scale-cell__label"><div class="scale-cell__step">800</div><div class="scale-cell__hex">#3730a3</div></div></div>
+    <div class="scale-cell"><div class="scale-cell__block" style="background:#312e81"></div><div class="scale-cell__label"><div class="scale-cell__step">900</div><div class="scale-cell__hex">#312e81</div></div></div>
+  </div>
+
+  <!-- Accent: Saffron/Amber -->
+  <div class="mb-6"><p class="section-label">Accent — Saffron / Amber</p>
+  <p style="font-size:var(--text-sm); color:var(--color-text-secondary); margin-bottom:1rem;">Culturally resonant across India, SE Asia, and Japan. The Indigo + Saffron combination echoes the Indian tricolor — an instant subliminal trust signal.</p></div>
+  <div class="scale-row">
+    <div class="scale-cell"><div class="scale-cell__block" style="background:#fffbeb"></div><div class="scale-cell__label"><div class="scale-cell__step">50</div><div class="scale-cell__hex">#fffbeb</div></div></div>
+    <div class="scale-cell"><div class="scale-cell__block" style="background:#fef3c7"></div><div class="scale-cell__label"><div class="scale-cell__step">100</div><div class="scale-cell__hex">#fef3c7</div></div></div>
+    <div class="scale-cell"><div class="scale-cell__block" style="background:#fde68a"></div><div class="scale-cell__label"><div class="scale-cell__step">200</div><div class="scale-cell__hex">#fde68a</div></div></div>
+    <div class="scale-cell"><div class="scale-cell__block" style="background:#fcd34d"></div><div class="scale-cell__label"><div class="scale-cell__step">300</div><div class="scale-cell__hex">#fcd34d</div></div></div>
+    <div class="scale-cell"><div class="scale-cell__block" style="background:#fbbf24"></div><div class="scale-cell__label"><div class="scale-cell__step">400</div><div class="scale-cell__hex">#fbbf24</div></div></div>
+    <div class="scale-cell" style="outline: 3px solid var(--color-accent-600); outline-offset: -3px; border-radius:0;"><div class="scale-cell__block" style="background:#f59e0b"></div><div class="scale-cell__label"><div class="scale-cell__step" style="color:var(--color-accent-600);">500 ★</div><div class="scale-cell__hex">#f59e0b</div></div></div>
+    <div class="scale-cell"><div class="scale-cell__block" style="background:#d97706"></div><div class="scale-cell__label"><div class="scale-cell__step">600</div><div class="scale-cell__hex">#d97706</div></div></div>
+    <div class="scale-cell"><div class="scale-cell__block" style="background:#b45309"></div><div class="scale-cell__label"><div class="scale-cell__step">700</div><div class="scale-cell__hex">#b45309</div></div></div>
+    <div class="scale-cell"><div class="scale-cell__block" style="background:#92400e"></div><div class="scale-cell__label"><div class="scale-cell__step">800</div><div class="scale-cell__hex">#92400e</div></div></div>
+    <div class="scale-cell"><div class="scale-cell__block" style="background:#78350f"></div><div class="scale-cell__label"><div class="scale-cell__step">900</div><div class="scale-cell__hex">#78350f</div></div></div>
+  </div>
+
+  <!-- Neutral: Warm Slate -->
+  <div class="mb-6"><p class="section-label">Neutral — Warm Slate</p>
+  <p style="font-size:var(--text-sm); color:var(--color-text-secondary); margin-bottom:1rem;">Warmer than cold gray. Slate undertones feel more human and organic — right for a community product.</p></div>
+  <div class="scale-row">
+    <div class="scale-cell"><div class="scale-cell__block" style="background:#f8fafc"></div><div class="scale-cell__label"><div class="scale-cell__step">50</div><div class="scale-cell__hex">#f8fafc</div></div></div>
+    <div class="scale-cell"><div class="scale-cell__block" style="background:#f1f5f9"></div><div class="scale-cell__label"><div class="scale-cell__step">100</div><div class="scale-cell__hex">#f1f5f9</div></div></div>
+    <div class="scale-cell"><div class="scale-cell__block" style="background:#e2e8f0"></div><div class="scale-cell__label"><div class="scale-cell__step">200</div><div class="scale-cell__hex">#e2e8f0</div></div></div>
+    <div class="scale-cell"><div class="scale-cell__block" style="background:#cbd5e1"></div><div class="scale-cell__label"><div class="scale-cell__step">300</div><div class="scale-cell__hex">#cbd5e1</div></div></div>
+    <div class="scale-cell"><div class="scale-cell__block" style="background:#94a3b8"></div><div class="scale-cell__label"><div class="scale-cell__step">400</div><div class="scale-cell__hex">#94a3b8</div></div></div>
+    <div class="scale-cell"><div class="scale-cell__block" style="background:#64748b"></div><div class="scale-cell__label"><div class="scale-cell__step">500</div><div class="scale-cell__hex">#64748b</div></div></div>
+    <div class="scale-cell"><div class="scale-cell__block" style="background:#475569"></div><div class="scale-cell__label"><div class="scale-cell__step">600</div><div class="scale-cell__hex">#475569</div></div></div>
+    <div class="scale-cell"><div class="scale-cell__block" style="background:#334155"></div><div class="scale-cell__label"><div class="scale-cell__step">700</div><div class="scale-cell__hex">#334155</div></div></div>
+    <div class="scale-cell"><div class="scale-cell__block" style="background:#1e293b"></div><div class="scale-cell__label"><div class="scale-cell__step">800</div><div class="scale-cell__hex">#1e293b</div></div></div>
+    <div class="scale-cell"><div class="scale-cell__block" style="background:#0f172a"></div><div class="scale-cell__label"><div class="scale-cell__step">900</div><div class="scale-cell__hex">#0f172a</div></div></div>
+  </div>
+
+  <!-- Semantic -->
+  <p class="section-label">Semantic Colors</p>
+  <div class="semantic-grid mb-8">
+    <div class="semantic-card">
+      <div class="semantic-card__top" style="background:var(--color-success-bg);">✓</div>
+      <div class="semantic-card__body">
+        <div class="semantic-card__name" style="color:var(--color-success);">Success</div>
+        <div class="semantic-card__desc">Confirmed actions, verified content</div>
+        <div class="semantic-card__hex">Text #065f46 · BG #d1fae5</div>
+      </div>
+    </div>
+    <div class="semantic-card">
+      <div class="semantic-card__top" style="background:var(--color-warning-bg);">⚠</div>
+      <div class="semantic-card__body">
+        <div class="semantic-card__name" style="color:var(--color-warning);">Warning</div>
+        <div class="semantic-card__desc">Caution, pending review, moderate risk</div>
+        <div class="semantic-card__hex">Text #92400e · BG #fef3c7</div>
+      </div>
+    </div>
+    <div class="semantic-card">
+      <div class="semantic-card__top" style="background:var(--color-danger-bg);">✕</div>
+      <div class="semantic-card__body">
+        <div class="semantic-card__name" style="color:var(--color-danger);">Danger</div>
+        <div class="semantic-card__desc">Safety alerts, errors, destructive actions</div>
+        <div class="semantic-card__hex">Text #9f1239 · BG #ffe4e6</div>
+      </div>
+    </div>
+    <div class="semantic-card">
+      <div class="semantic-card__top" style="background:var(--color-info-bg);">ℹ</div>
+      <div class="semantic-card__body">
+        <div class="semantic-card__name" style="color:var(--color-info);">Info</div>
+        <div class="semantic-card__desc">Informational notices, neutral updates</div>
+        <div class="semantic-card__hex">Text #075985 · BG #e0f2fe</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Surface tokens -->
+  <p class="section-label">Surface &amp; Text Tokens</p>
+  <div class="ds-card stack--3">
+    <div style="display:flex; flex-wrap:wrap; gap:0.75rem;">
+      <div style="flex:1; min-width:180px; background:var(--color-background); border:1px solid var(--color-border); border-radius:var(--radius-lg); padding:1rem;">
+        <div class="scale-cell__step">--color-background</div>
+        <div class="scale-cell__hex">#ffffff</div>
+      </div>
+      <div style="flex:1; min-width:180px; background:var(--color-surface-muted); border:1px solid var(--color-border); border-radius:var(--radius-lg); padding:1rem;">
+        <div class="scale-cell__step">--color-surface-muted</div>
+        <div class="scale-cell__hex">#f8fafc</div>
+      </div>
+      <div style="flex:1; min-width:180px; background:var(--color-border); border-radius:var(--radius-lg); padding:1rem;">
+        <div class="scale-cell__step">--color-border</div>
+        <div class="scale-cell__hex">#e2e8f0</div>
+      </div>
+    </div>
+    <div style="display:flex; flex-wrap:wrap; gap:0.75rem;">
+      <div style="flex:1; min-width:180px; padding:1rem; border-radius:var(--radius-lg); border:1px solid var(--color-border);">
+        <div style="font-size:var(--text-base); font-weight:700; color:var(--color-heading);">--color-heading</div>
+        <div class="scale-cell__hex">#0f172a</div>
+      </div>
+      <div style="flex:1; min-width:180px; padding:1rem; border-radius:var(--radius-lg); border:1px solid var(--color-border);">
+        <div style="font-size:var(--text-base); color:var(--color-foreground);">--color-foreground</div>
+        <div class="scale-cell__hex">#1e293b</div>
+      </div>
+      <div style="flex:1; min-width:180px; padding:1rem; border-radius:var(--radius-lg); border:1px solid var(--color-border);">
+        <div style="font-size:var(--text-base); color:var(--color-text-secondary);">--color-text-secondary</div>
+        <div class="scale-cell__hex">#475569</div>
+      </div>
+      <div style="flex:1; min-width:180px; padding:1rem; border-radius:var(--radius-lg); border:1px solid var(--color-border);">
+        <div style="font-size:var(--text-base); color:var(--color-text-disabled);">--color-text-disabled</div>
+        <div class="scale-cell__hex">#94a3b8</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Navigation — Lokul DS</title>
+<link rel="stylesheet" href="./tokens.css" />
+<link rel="stylesheet" href="./shared.css" />
+<style>
+  /* ── Demo header ── */
+  .demo-header {
+    position: sticky; top: 40px; z-index: 10;
+    background: white; border: 1px solid var(--color-border);
+    border-radius: var(--radius-2xl);
+    padding: 0 1.25rem;
+    display: flex; align-items: center; gap: 1rem;
+    height: 60px;
+    box-shadow: var(--shadow-sm);
+    margin-bottom: 2rem;
+  }
+  .demo-header__logo { font-size: var(--text-xl); font-weight: 800; color: var(--color-brand-600); }
+  .demo-header__nav  { display: flex; gap: 0.25rem; margin-left: auto; }
+  .demo-header__link {
+    padding: 0.375rem 0.875rem;
+    font-size: var(--text-sm); font-weight: 500;
+    color: var(--color-text-secondary);
+    border-radius: var(--radius-lg);
+    text-decoration: none;
+    transition: background 150ms, color 150ms;
+  }
+  .demo-header__link:hover,
+  .demo-header__link.active { background: var(--color-brand-50); color: var(--color-brand-600); }
+  .demo-header__cta { margin-left: 0.5rem; }
+
+  /* ── Sidebar ── */
+  .demo-sidebar-wrap { display: flex; gap: 1.5rem; margin-bottom: 2rem; }
+  .demo-sidebar {
+    width: 240px; flex-shrink: 0;
+    background: white; border: 1px solid var(--color-border);
+    border-radius: var(--radius-2xl); padding: 1rem;
+    box-shadow: var(--shadow-sm);
+  }
+  .sidebar__logo { font-size: var(--text-lg); font-weight: 800; color: var(--color-brand-600); padding: 0.375rem 0.5rem 1rem; }
+  .sidebar__group { margin-bottom: 1rem; }
+  .sidebar__group-label { font-size: 0.6rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-text-disabled); padding: 0 0.5rem; margin-bottom: 0.25rem; }
+  .sidebar__item {
+    display: flex; align-items: center; gap: 0.625rem;
+    padding: 0.5rem 0.625rem; border-radius: var(--radius-lg);
+    font-size: var(--text-sm); font-weight: 500; color: var(--color-text-secondary);
+    text-decoration: none; cursor: pointer;
+    transition: background 150ms, color 150ms;
+  }
+  .sidebar__item:hover,
+  .sidebar__item.active { background: var(--color-brand-50); color: var(--color-brand-600); font-weight: 600; }
+  .sidebar__item svg { flex-shrink: 0; }
+  .sidebar__content { flex: 1; background: var(--color-surface-muted); border-radius: var(--radius-2xl); padding: 2rem; display: flex; align-items: center; justify-content: center; }
+
+  /* ── Tabs ── */
+  .demo-tabs { display: flex; border-bottom: 2px solid var(--color-border); gap: 0; margin-bottom: 2rem; }
+  .demo-tab {
+    padding: 0.625rem 1.25rem; font-size: var(--text-sm); font-weight: 500;
+    color: var(--color-text-secondary); border-bottom: 2px solid transparent;
+    margin-bottom: -2px; cursor: pointer; transition: color 150ms, border-color 150ms;
+  }
+  .demo-tab:hover { color: var(--color-brand-600); }
+  .demo-tab.active { color: var(--color-brand-600); border-bottom-color: var(--color-brand-600); font-weight: 600; }
+
+  /* ── Breadcrumb ── */
+  .demo-breadcrumb { display: flex; align-items: center; gap: 0.375rem; font-size: var(--text-sm); }
+  .demo-breadcrumb a { color: var(--color-brand-600); font-weight: 500; text-decoration: none; }
+  .demo-breadcrumb span { color: var(--color-text-disabled); }
+  .demo-breadcrumb__current { color: var(--color-foreground); font-weight: 500; }
+
+  /* ── Bottom nav ── */
+  .demo-bottom-nav {
+    display: flex; background: white;
+    border: 1px solid var(--color-border); border-radius: var(--radius-2xl);
+    overflow: hidden; box-shadow: var(--shadow-md);
+    max-width: 390px; margin: 0 auto;
+  }
+  .bottom-nav__item {
+    flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px;
+    padding: 0.625rem 0; cursor: pointer;
+    font-size: 0.6rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;
+    color: var(--color-text-disabled); transition: color 150ms;
+  }
+  .bottom-nav__item.active { color: var(--color-brand-600); }
+  .bottom-nav__item svg { flex-shrink: 0; }
+</style>
+</head>
+<body>
+<nav class="dev-nav">
+  <span class="dev-nav__brand">LOKUL <span>DS</span></span>
+  <a href="./index.html" class="dev-nav__link">Index</a>
+  <a href="./01-colors.html" class="dev-nav__link">Colors</a>
+  <a href="./02-typography.html" class="dev-nav__link">Typography</a>
+  <a href="./03-spacing.html" class="dev-nav__link">Spacing</a>
+  <a href="./04-buttons.html" class="dev-nav__link">Buttons</a>
+  <a href="./05-inputs.html" class="dev-nav__link">Inputs</a>
+  <a href="./06-badges-tags.html" class="dev-nav__link">Badges</a>
+  <a href="./07-cards.html" class="dev-nav__link">Cards</a>
+  <a href="./08-navigation.html" class="dev-nav__link active">Navigation</a>
+  <a href="./09-feed.html" class="dev-nav__link">Feed</a>
+  <a href="./10-alerts.html" class="dev-nav__link">Alerts</a>
+  <a href="./11-empty-states.html" class="dev-nav__link">Empty states</a>
+  <a href="./12-dark-mode.html" class="dev-nav__link">Dark mode</a>
+  <a href="./landing.html" class="dev-nav__link">Landing</a>
+</nav>
+
+<div class="page-body pb-16">
+<div class="ds-container">
+
+  <div class="page-title">
+    <div class="page-title__eyebrow">08 · Components</div>
+    <h1>Navigation</h1>
+    <p>Header, sidebar, breadcrumb, tabs, mobile bottom navigation bar.</p>
+  </div>
+
+  <!-- Header -->
+  <p class="section-label">Sticky Header</p>
+  <div class="demo-header">
+    <div class="demo-header__logo">lokul</div>
+    <nav class="demo-header__nav">
+      <a href="#" class="demo-header__link active">Feed</a>
+      <a href="#" class="demo-header__link">Market</a>
+      <a href="#" class="demo-header__link">Events</a>
+      <a href="#" class="demo-header__link">Safety</a>
+    </nav>
+    <div style="display:flex; align-items:center; gap:0.5rem; margin-left:0.75rem;">
+      <button class="ds-button ds-button--sm demo-header__cta">Get early access</button>
+      <div style="width:32px;height:32px;border-radius:50%;background:var(--color-brand-100);display:flex;align-items:center;justify-content:center;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-brand-600)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sidebar -->
+  <p class="section-label">Sidebar</p>
+  <div class="demo-sidebar-wrap">
+    <nav class="demo-sidebar">
+      <div class="sidebar__logo">lokul</div>
+      <div class="sidebar__group">
+        <div class="sidebar__group-label">Community</div>
+        <a href="#" class="sidebar__item active">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          Home Feed
+        </a>
+        <a href="#" class="sidebar__item">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          Safety Alerts
+        </a>
+        <a href="#" class="sidebar__item">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          Events
+        </a>
+      </div>
+      <div class="sidebar__group">
+        <div class="sidebar__group-label">Marketplace</div>
+        <a href="#" class="sidebar__item">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+          Local Services
+        </a>
+        <a href="#" class="sidebar__item">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+          Buy &amp; Sell
+        </a>
+      </div>
+      <div class="sidebar__group">
+        <div class="sidebar__group-label">Account</div>
+        <a href="#" class="sidebar__item">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          Profile
+        </a>
+        <a href="#" class="sidebar__item">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
+          Settings
+        </a>
+      </div>
+    </nav>
+    <div class="sidebar__content">
+      <p style="font-size:var(--text-sm); color:var(--color-text-disabled); text-align:center;">Page content area<br><span style="font-size:var(--text-xs);">shifts right by sidebar width</span></p>
+    </div>
+  </div>
+
+  <!-- Breadcrumb -->
+  <p class="section-label">Breadcrumb</p>
+  <div class="ds-card mb-8">
+    <div class="demo-breadcrumb">
+      <a href="#">Home</a>
+      <span>/</span>
+      <a href="#">Safety</a>
+      <span>/</span>
+      <span class="demo-breadcrumb__current">Road blockage alert — Indiranagar</span>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <p class="section-label">Tab Bar</p>
+  <div class="ds-card mb-8">
+    <div class="demo-tabs">
+      <div class="demo-tab active">All updates</div>
+      <div class="demo-tab">Safety</div>
+      <div class="demo-tab">Community</div>
+      <div class="demo-tab">Events</div>
+      <div class="demo-tab">Market</div>
+    </div>
+    <p style="font-size:var(--text-sm); color:var(--color-text-secondary);">Active tab content area would go here.</p>
+  </div>
+
+  <!-- Mobile bottom nav -->
+  <p class="section-label">Mobile Bottom Navigation</p>
+  <div class="demo-bottom-nav">
+    <div class="bottom-nav__item active">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      Feed
+    </div>
+    <div class="bottom-nav__item">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      Safety
+    </div>
+    <div class="bottom-nav__item" style="position:relative;">
+      <div style="width:44px;height:44px;border-radius:50%;background:var(--color-brand-600);display:flex;align-items:center;justify-content:center;margin-top:-14px;box-shadow:0 4px 12px rgba(79,70,229,0.4);">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      </div>
+      Post
+    </div>
+    <div class="bottom-nav__item">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      Events
+    </div>
+    <div class="bottom-nav__item">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      Profile
+    </div>
+  </div>
+
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Feed — Lokul DS</title>
+<link rel="stylesheet" href="./tokens.css" />
+<link rel="stylesheet" href="./shared.css" />
+<style>
+  .feed-wrap { max-width: 520px; }
+
+  .feed-item {
+    background: white;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-2xl);
+    padding: 1rem 1.25rem;
+    display: flex;
+    gap: 0.875rem;
+    margin-bottom: 0.75rem;
+    transition: box-shadow 150ms;
+  }
+  .feed-item:hover { box-shadow: var(--shadow-sm); }
+  .feed-item__icon-wrap {
+    width: 42px; height: 42px; border-radius: var(--radius-xl);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .feed-item__body { flex: 1; min-width: 0; }
+  .feed-item__header { display: flex; align-items: flex-start; justify-content: space-between; gap: 0.5rem; margin-bottom: 0.25rem; }
+  .feed-item__type-tag {
+    display: inline-flex; align-items: center; gap: 0.3rem;
+    border-radius: var(--radius-xs);
+    padding: 0.15rem 0.45rem;
+    font-size: 0.6rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+  }
+  .feed-item__time { font-size: var(--text-xs); color: var(--color-text-disabled); white-space: nowrap; }
+  .feed-item__title { font-size: var(--text-sm); font-weight: 600; color: var(--color-heading); margin-bottom: 0.25rem; line-height: 1.4; }
+  .feed-item__body-text { font-size: var(--text-sm); color: var(--color-text-secondary); line-height: 1.6; }
+  .feed-item__footer { display: flex; align-items: center; gap: 1rem; margin-top: 0.75rem; }
+  .feed-item__action {
+    display: flex; align-items: center; gap: 0.3rem;
+    font-size: var(--text-xs); color: var(--color-text-disabled);
+    cursor: pointer; transition: color 150ms;
+  }
+  .feed-item__action:hover { color: var(--color-brand-600); }
+  .feed-item__author { font-size: var(--text-xs); color: var(--color-text-disabled); margin-left: auto; }
+
+  /* expanded card */
+  .feed-expanded {
+    background: white;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-2xl);
+    overflow: hidden;
+    margin-bottom: 0.75rem;
+  }
+  .feed-expanded__top {
+    display: flex; align-items: center; gap: 0.875rem;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--color-border);
+  }
+  .feed-expanded__body { padding: 1.25rem; }
+  .feed-expanded__image {
+    width: 100%; height: 180px;
+    border-radius: var(--radius-xl);
+    display: flex; align-items: center; justify-content: center;
+    font-size: var(--text-sm); color: var(--color-text-disabled);
+    margin-bottom: 1rem;
+  }
+  .feed-expanded__footer {
+    display: flex; align-items: center; gap: 0.75rem;
+    padding: 0.875rem 1.25rem;
+    border-top: 1px solid var(--color-border);
+    background: var(--color-surface-muted);
+  }
+</style>
+</head>
+<body>
+<nav class="dev-nav">
+  <span class="dev-nav__brand">LOKUL <span>DS</span></span>
+  <a href="./index.html" class="dev-nav__link">Index</a>
+  <a href="./01-colors.html" class="dev-nav__link">Colors</a>
+  <a href="./02-typography.html" class="dev-nav__link">Typography</a>
+  <a href="./03-spacing.html" class="dev-nav__link">Spacing</a>
+  <a href="./04-buttons.html" class="dev-nav__link">Buttons</a>
+  <a href="./05-inputs.html" class="dev-nav__link">Inputs</a>
+  <a href="./06-badges-tags.html" class="dev-nav__link">Badges</a>
+  <a href="./07-cards.html" class="dev-nav__link">Cards</a>
+  <a href="./08-navigation.html" class="dev-nav__link">Navigation</a>
+  <a href="./09-feed.html" class="dev-nav__link active">Feed</a>
+  <a href="./10-alerts.html" class="dev-nav__link">Alerts</a>
+  <a href="./11-empty-states.html" class="dev-nav__link">Empty states</a>
+  <a href="./12-dark-mode.html" class="dev-nav__link">Dark mode</a>
+  <a href="./landing.html" class="dev-nav__link">Landing</a>
+</nav>
+
+<div class="page-body pb-16">
+<div class="ds-container">
+
+  <div class="page-title">
+    <div class="page-title__eyebrow">09 · Components</div>
+    <h1>Feed</h1>
+    <p>Four feed item types — Safety alert, Community, Local service, Event. Each has a distinct type tag, icon background color, and action row.</p>
+  </div>
+
+  <div class="grid-2" style="gap:2.5rem; align-items:start;">
+
+    <!-- Left: feed list -->
+    <div>
+      <p class="section-label">Feed List View</p>
+      <div class="feed-wrap">
+
+        <!-- Safety -->
+        <div class="feed-item">
+          <div class="feed-item__icon-wrap" style="background:#fee2e2;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <div class="feed-item__body">
+            <div class="feed-item__header">
+              <span class="feed-item__type-tag" style="background:#fee2e2;color:#9f1239;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                Safety
+              </span>
+              <span class="feed-item__time">2 min ago</span>
+            </div>
+            <p class="feed-item__title">Road blockage on MG Road near Metro exit 3</p>
+            <p class="feed-item__body-text">Tree fallen across road. Police notified. Multiple residents confirming. Avoid the area.</p>
+            <div class="feed-item__footer">
+              <span class="feed-item__action">
+                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3z"/><path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>
+                Confirm (47)
+              </span>
+              <span class="feed-item__action">
+                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                Reply (6)
+              </span>
+              <span class="feed-item__action">
+                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                Share
+              </span>
+              <span class="feed-item__author">Priya S. · B-304</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Community -->
+        <div class="feed-item">
+          <div class="feed-item__icon-wrap" style="background:var(--color-brand-50);">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-brand-600)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          </div>
+          <div class="feed-item__body">
+            <div class="feed-item__header">
+              <span class="feed-item__type-tag" style="background:var(--color-brand-100);color:var(--color-brand-800);">
+                <svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+                Community
+              </span>
+              <span class="feed-item__time">18 min ago</span>
+            </div>
+            <p class="feed-item__title">New park development approved for Sector 14</p>
+            <p class="feed-item__body-text">The RWA committee approved the 2.4 crore landscaping project after community voting closed. Construction begins March.</p>
+            <div class="feed-item__footer">
+              <span class="feed-item__action">
+                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3z"/><path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>
+                Like (83)
+              </span>
+              <span class="feed-item__action">
+                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                Comment (12)
+              </span>
+              <span class="feed-item__author">RWA Secretary</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Local service -->
+        <div class="feed-item">
+          <div class="feed-item__icon-wrap" style="background:#f0fdf4;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+          </div>
+          <div class="feed-item__body">
+            <div class="feed-item__header">
+              <span class="feed-item__type-tag" style="background:#dcfce7;color:#14532d;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/></svg>
+                Local Service
+              </span>
+              <span class="feed-item__time">1 hr ago</span>
+            </div>
+            <p class="feed-item__title">Raju's Tiffin — fresh lunch delivery from ₹60</p>
+            <p class="feed-item__body-text">Home-cooked South Indian meals. Dal, rice, sabzi, chapati. Order by 10 AM for same-day delivery. Serves Block A–D.</p>
+            <div class="feed-item__footer">
+              <span class="feed-item__action">⭐ 4.8 (124 reviews)</span>
+              <span class="feed-item__action">
+                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13 19.79 19.79 0 0 1 1.61 4.35 2 2 0 0 1 3.6 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                Contact
+              </span>
+              <span class="feed-item__author">Verified merchant</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Event -->
+        <div class="feed-item">
+          <div class="feed-item__icon-wrap" style="background:#f5f3ff;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          </div>
+          <div class="feed-item__body">
+            <div class="feed-item__header">
+              <span class="feed-item__type-tag" style="background:#ede9fe;color:#4c1d95;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/></svg>
+                Event
+              </span>
+              <span class="feed-item__time">Tomorrow · 10:00 AM</span>
+            </div>
+            <p class="feed-item__title">RWA Annual General Meeting — Block B</p>
+            <p class="feed-item__body-text">All residents invited. Agenda: maintenance charges, security upgrade proposal, park project review.</p>
+            <div class="feed-item__footer">
+              <span class="feed-item__action" style="color:var(--color-brand-600); font-weight:600;">RSVP</span>
+              <span class="feed-item__action">23 going</span>
+              <span class="feed-item__author">RWA Secretary</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Right: expanded item -->
+    <div>
+      <p class="section-label">Expanded Post View</p>
+      <div class="feed-expanded">
+        <div class="feed-expanded__top">
+          <div style="width:42px;height:42px;border-radius:var(--radius-xl);background:var(--color-brand-50);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-brand-600)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          </div>
+          <div>
+            <div style="font-size:var(--text-sm); font-weight:600; color:var(--color-heading);">RWA Secretary</div>
+            <div style="font-size:var(--text-xs); color:var(--color-text-disabled);">Verified · Sector 14 · 18 min ago</div>
+          </div>
+          <span class="feed-item__type-tag" style="background:var(--color-brand-100);color:var(--color-brand-800);margin-left:auto;">Community</span>
+        </div>
+        <div class="feed-expanded__body">
+          <h3 style="font-size:var(--text-xl); font-weight:700; margin-bottom:0.75rem;">New park development approved for Sector 14</h3>
+          <div class="feed-expanded__image" style="background:linear-gradient(135deg, var(--color-brand-50) 0%, #e0e7ff 100%);">
+            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--color-brand-200)" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+          </div>
+          <p style="font-size:var(--text-sm); color:var(--color-foreground); line-height:1.75;">The RWA committee approved the 2.4 crore landscaping project after community voting closed with 78% in favor. Construction begins March 2025. Residents will receive SMS updates as milestones complete.</p>
+          <p style="font-size:var(--text-sm); color:var(--color-foreground); line-height:1.75; margin-top:0.75rem;">Phase 1 includes a walking track, children's play area, and benches. Phase 2 (Q3) adds a covered seating zone and evening lighting.</p>
+          <div style="display:flex; flex-wrap:wrap; gap:0.5rem; margin-top:1rem;">
+            <span class="ds-chip ds-chip--gray">park development</span>
+            <span class="ds-chip ds-chip--gray">community vote</span>
+            <span class="ds-chip ds-chip--gray">Sector 14</span>
+          </div>
+        </div>
+        <div class="feed-expanded__footer">
+          <button style="display:flex;align-items:center;gap:0.375rem;padding:0.4rem 0.875rem;border-radius:var(--radius-full);border:1px solid var(--color-border);background:white;font-size:var(--text-xs);font-weight:600;cursor:pointer;color:var(--color-foreground);">
+            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3z"/><path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>
+            83 likes
+          </button>
+          <button style="display:flex;align-items:center;gap:0.375rem;padding:0.4rem 0.875rem;border-radius:var(--radius-full);border:1px solid var(--color-border);background:white;font-size:var(--text-xs);font-weight:600;cursor:pointer;color:var(--color-foreground);">
+            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            12 comments
+          </button>
+          <button style="display:flex;align-items:center;gap:0.375rem;padding:0.4rem 0.875rem;border-radius:var(--radius-full);border:1px solid var(--color-border);background:white;font-size:var(--text-xs);font-weight:600;cursor:pointer;color:var(--color-foreground);margin-left:auto;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+            Share
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+</div>
+</body>
+</html>

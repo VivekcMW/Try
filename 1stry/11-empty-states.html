@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Empty States — Lokul DS</title>
+<link rel="stylesheet" href="./tokens.css" />
+<link rel="stylesheet" href="./shared.css" />
+<style>
+  .empty-state {
+    display: flex; flex-direction: column; align-items: center;
+    text-align: center; padding: 3rem 2rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-2xl);
+    background: white;
+  }
+  .empty-state__icon-wrap {
+    width: 72px; height: 72px; border-radius: var(--radius-2xl);
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 1.25rem;
+  }
+  .empty-state h3 { font-size: var(--text-xl); font-weight: 700; color: var(--color-heading); margin-bottom: 0.5rem; }
+  .empty-state p  { font-size: var(--text-sm); color: var(--color-text-secondary); line-height: 1.65; max-width: 300px; }
+  .empty-state__actions { display: flex; gap: 0.75rem; margin-top: 1.5rem; flex-wrap: wrap; justify-content: center; }
+
+  /* Skeleton */
+  @keyframes shimmer {
+    0%   { background-position: -600px 0; }
+    100% { background-position: 600px 0; }
+  }
+  .skeleton {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 600px 100%;
+    animation: shimmer 1.4s infinite;
+    border-radius: var(--radius-md);
+  }
+  .skel-card {
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-2xl);
+    padding: 1.25rem;
+    background: white;
+  }
+  .skel-row { display: flex; align-items: flex-start; gap: 0.875rem; }
+</style>
+</head>
+<body>
+<nav class="dev-nav">
+  <span class="dev-nav__brand">LOKUL <span>DS</span></span>
+  <a href="./index.html" class="dev-nav__link">Index</a>
+  <a href="./01-colors.html" class="dev-nav__link">Colors</a>
+  <a href="./02-typography.html" class="dev-nav__link">Typography</a>
+  <a href="./03-spacing.html" class="dev-nav__link">Spacing</a>
+  <a href="./04-buttons.html" class="dev-nav__link">Buttons</a>
+  <a href="./05-inputs.html" class="dev-nav__link">Inputs</a>
+  <a href="./06-badges-tags.html" class="dev-nav__link">Badges</a>
+  <a href="./07-cards.html" class="dev-nav__link">Cards</a>
+  <a href="./08-navigation.html" class="dev-nav__link">Navigation</a>
+  <a href="./09-feed.html" class="dev-nav__link">Feed</a>
+  <a href="./10-alerts.html" class="dev-nav__link">Alerts</a>
+  <a href="./11-empty-states.html" class="dev-nav__link active">Empty states</a>
+  <a href="./12-dark-mode.html" class="dev-nav__link">Dark mode</a>
+  <a href="./landing.html" class="dev-nav__link">Landing</a>
+</nav>
+
+<div class="page-body pb-16">
+<div class="ds-container">
+
+  <div class="page-title">
+    <div class="page-title__eyebrow">11 · Components</div>
+    <h1>Empty States</h1>
+    <p>Four patterns: empty feed, no search results, 404 not found, loading skeleton. Each communicates clearly and guides the user toward action.</p>
+  </div>
+
+  <!-- Empty states grid -->
+  <p class="section-label">Empty State Variants</p>
+  <div class="grid-2 mb-8" style="gap:1.25rem;">
+
+    <!-- Empty feed -->
+    <div class="empty-state">
+      <div class="empty-state__icon-wrap" style="background:var(--color-brand-50);">
+        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--color-brand-300)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      </div>
+      <h3>No posts yet</h3>
+      <p>Your community feed is quiet. Be the first to share an update, safety alert, or event with your neighbors.</p>
+      <div class="empty-state__actions">
+        <button class="ds-button">Create first post</button>
+        <button class="ds-button ds-button--secondary">Invite neighbors</button>
+      </div>
+    </div>
+
+    <!-- No search results -->
+    <div class="empty-state">
+      <div class="empty-state__icon-wrap" style="background:var(--color-gray-100);">
+        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--color-gray-300)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      </div>
+      <h3>No results found</h3>
+      <p>We couldn't find anything matching <strong>"plumber Indiranagar"</strong>. Try a different search term or browse all categories.</p>
+      <div class="empty-state__actions">
+        <button class="ds-button ds-button--secondary">Clear search</button>
+        <button class="ds-button ds-button--ghost">Browse all</button>
+      </div>
+    </div>
+
+    <!-- 404 -->
+    <div class="empty-state">
+      <div class="empty-state__icon-wrap" style="background:var(--color-danger-bg);">
+        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--color-danger)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      </div>
+      <h3>Page not found</h3>
+      <p>The page you're looking for doesn't exist or has been moved. Let's get you back home.</p>
+      <div class="empty-state__actions">
+        <button class="ds-button">Go to home feed</button>
+      </div>
+      <p style="font-size:0.65rem; color:var(--color-text-disabled); margin-top:1rem; font-family:var(--font-mono);">Error 404</p>
+    </div>
+
+    <!-- Area not yet live -->
+    <div class="empty-state">
+      <div class="empty-state__icon-wrap" style="background:var(--color-accent-50);">
+        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent-400)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+      </div>
+      <h3>Coming to your area soon</h3>
+      <p>Lokul isn't in pin code <strong>500032</strong> yet. Join the waitlist — we'll notify you the moment your locality goes live.</p>
+      <div class="empty-state__actions">
+        <button class="ds-button ds-button--accent">Join waitlist</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Loading skeletons -->
+  <p class="section-label">Loading Skeletons</p>
+  <div class="grid-2" style="gap:1.25rem;">
+    <div>
+      <p style="font-size:var(--text-xs); color:var(--color-text-disabled); margin-bottom:0.625rem;">Feed item skeleton</p>
+      <div class="skel-card mb-3">
+        <div class="skel-row">
+          <div class="skeleton" style="width:42px;height:42px;border-radius:var(--radius-xl);flex-shrink:0;"></div>
+          <div style="flex:1;">
+            <div class="skeleton" style="height:10px;width:30%;margin-bottom:8px;"></div>
+            <div class="skeleton" style="height:14px;width:90%;margin-bottom:6px;"></div>
+            <div class="skeleton" style="height:14px;width:75%;margin-bottom:6px;"></div>
+            <div class="skeleton" style="height:10px;width:55%;"></div>
+          </div>
+        </div>
+      </div>
+      <div class="skel-card mb-3">
+        <div class="skel-row">
+          <div class="skeleton" style="width:42px;height:42px;border-radius:var(--radius-xl);flex-shrink:0;"></div>
+          <div style="flex:1;">
+            <div class="skeleton" style="height:10px;width:25%;margin-bottom:8px;"></div>
+            <div class="skeleton" style="height:14px;width:85%;margin-bottom:6px;"></div>
+            <div class="skeleton" style="height:14px;width:60%;margin-bottom:6px;"></div>
+            <div class="skeleton" style="height:10px;width:40%;"></div>
+          </div>
+        </div>
+      </div>
+      <div class="skel-card">
+        <div class="skel-row">
+          <div class="skeleton" style="width:42px;height:42px;border-radius:var(--radius-xl);flex-shrink:0;"></div>
+          <div style="flex:1;">
+            <div class="skeleton" style="height:10px;width:35%;margin-bottom:8px;"></div>
+            <div class="skeleton" style="height:14px;width:95%;margin-bottom:6px;"></div>
+            <div class="skeleton" style="height:14px;width:70%;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <p style="font-size:var(--text-xs); color:var(--color-text-disabled); margin-bottom:0.625rem;">Card skeleton</p>
+      <div class="skel-card">
+        <div class="skeleton" style="height:160px;width:100%;border-radius:var(--radius-xl);margin-bottom:1rem;"></div>
+        <div class="skeleton" style="height:10px;width:20%;margin-bottom:8px;"></div>
+        <div class="skeleton" style="height:16px;width:80%;margin-bottom:6px;"></div>
+        <div class="skeleton" style="height:12px;width:100%;margin-bottom:4px;"></div>
+        <div class="skeleton" style="height:12px;width:90%;margin-bottom:4px;"></div>
+        <div class="skeleton" style="height:12px;width:65%;margin-bottom:1.25rem;"></div>
+        <div style="display:flex;gap:0.75rem;padding-top:0.75rem;border-top:1px solid var(--color-border);">
+          <div class="skeleton" style="height:10px;width:30%;"></div>
+          <div class="skeleton" style="height:10px;width:20%;margin-left:auto;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+</body>
+</html>

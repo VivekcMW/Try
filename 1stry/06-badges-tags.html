@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Badges &amp; Tags — Lokul DS</title>
+<link rel="stylesheet" href="./tokens.css" />
+<link rel="stylesheet" href="./shared.css" />
+</head>
+<body>
+<nav class="dev-nav">
+  <span class="dev-nav__brand">LOKUL <span>DS</span></span>
+  <a href="./index.html" class="dev-nav__link">Index</a>
+  <a href="./01-colors.html" class="dev-nav__link">Colors</a>
+  <a href="./02-typography.html" class="dev-nav__link">Typography</a>
+  <a href="./03-spacing.html" class="dev-nav__link">Spacing</a>
+  <a href="./04-buttons.html" class="dev-nav__link">Buttons</a>
+  <a href="./05-inputs.html" class="dev-nav__link">Inputs</a>
+  <a href="./06-badges-tags.html" class="dev-nav__link active">Badges</a>
+  <a href="./07-cards.html" class="dev-nav__link">Cards</a>
+  <a href="./08-navigation.html" class="dev-nav__link">Navigation</a>
+  <a href="./09-feed.html" class="dev-nav__link">Feed</a>
+  <a href="./10-alerts.html" class="dev-nav__link">Alerts</a>
+  <a href="./11-empty-states.html" class="dev-nav__link">Empty states</a>
+  <a href="./12-dark-mode.html" class="dev-nav__link">Dark mode</a>
+  <a href="./landing.html" class="dev-nav__link">Landing</a>
+</nav>
+
+<div class="page-body pb-16">
+<div class="ds-container">
+
+  <div class="page-title">
+    <div class="page-title__eyebrow">06 · Components</div>
+    <h1>Badges &amp; Tags</h1>
+    <p>Three component types: <strong>Chip</strong> (rounded pill, for labels/filters), <strong>Badge</strong> (square-ish, for status/counts), <strong>Tag</strong> (category marker on feed items).</p>
+  </div>
+
+  <!-- Chips -->
+  <p class="section-label">Chips</p>
+  <div class="ds-card mb-8 stack--4">
+    <div>
+      <p style="font-size:var(--text-xs); color:var(--color-text-disabled); margin-bottom:0.625rem;">Brand (default)</p>
+      <div class="cluster--3">
+        <span class="ds-chip">Launching across India</span>
+        <span class="ds-chip">Limited early access</span>
+        <span class="ds-chip">What you get</span>
+        <span class="ds-chip">FAQ</span>
+      </div>
+    </div>
+    <div>
+      <p style="font-size:var(--text-xs); color:var(--color-text-disabled); margin-bottom:0.625rem;">Accent (Saffron)</p>
+      <div class="cluster--3">
+        <span class="ds-chip ds-chip--accent">Core feature</span>
+        <span class="ds-chip ds-chip--accent">Discovery</span>
+        <span class="ds-chip ds-chip--accent">Early access</span>
+      </div>
+    </div>
+    <div>
+      <p style="font-size:var(--text-xs); color:var(--color-text-disabled); margin-bottom:0.625rem;">Gray (neutral)</p>
+      <div class="cluster--3">
+        <span class="ds-chip ds-chip--gray">Mumbai</span>
+        <span class="ds-chip ds-chip--gray">Delhi</span>
+        <span class="ds-chip ds-chip--gray">Bengaluru</span>
+        <span class="ds-chip ds-chip--gray">Pune</span>
+        <span class="ds-chip ds-chip--gray">+16 more</span>
+      </div>
+    </div>
+    <div>
+      <p style="font-size:var(--text-xs); color:var(--color-text-disabled); margin-bottom:0.625rem;">Chips with icons</p>
+      <div class="cluster--3">
+        <span class="ds-chip">
+          <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          Launching across India
+        </span>
+        <span class="ds-chip ds-chip--accent">
+          <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          Verified content
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Badges -->
+  <p class="section-label">Status Badges</p>
+  <div class="ds-card mb-8 stack--4">
+    <div class="cluster--3">
+      <span class="ds-badge ds-badge--brand">Brand</span>
+      <span class="ds-badge ds-badge--accent">Accent</span>
+      <span class="ds-badge ds-badge--success">Verified</span>
+      <span class="ds-badge ds-badge--warning">Pending</span>
+      <span class="ds-badge ds-badge--danger">Safety alert</span>
+      <span class="ds-badge ds-badge--info">Community</span>
+      <span class="ds-badge ds-badge--gray">Draft</span>
+    </div>
+    <div>
+      <p style="font-size:var(--text-xs); color:var(--color-text-disabled); margin-bottom:0.625rem;">With dot indicator</p>
+      <div class="cluster--3">
+        <span class="ds-badge ds-badge--success" style="gap:0.375rem;">
+          <span style="width:6px;height:6px;border-radius:50%;background:var(--color-success);flex-shrink:0;"></span>
+          Active
+        </span>
+        <span class="ds-badge ds-badge--warning" style="gap:0.375rem;">
+          <span style="width:6px;height:6px;border-radius:50%;background:var(--color-warning);flex-shrink:0;"></span>
+          Under review
+        </span>
+        <span class="ds-badge ds-badge--danger" style="gap:0.375rem;">
+          <span style="width:6px;height:6px;border-radius:50%;background:var(--color-danger);flex-shrink:0;"></span>
+          Flagged
+        </span>
+        <span class="ds-badge ds-badge--gray" style="gap:0.375rem;">
+          <span style="width:6px;height:6px;border-radius:50%;background:var(--color-gray-400);flex-shrink:0;"></span>
+          Inactive
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Feed type tags -->
+  <p class="section-label">Feed Type Tags</p>
+  <div class="ds-card mb-8">
+    <div class="cluster--3">
+      <div style="display:inline-flex;align-items:center;gap:0.375rem;border-radius:var(--radius-xs);padding:0.2rem 0.5rem;background:#fee2e2;color:#9f1239;font-size:0.65rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        Safety alert
+      </div>
+      <div style="display:inline-flex;align-items:center;gap:0.375rem;border-radius:var(--radius-xs);padding:0.2rem 0.5rem;background:var(--color-brand-100);color:var(--color-brand-800);font-size:0.65rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Community
+      </div>
+      <div style="display:inline-flex;align-items:center;gap:0.375rem;border-radius:var(--radius-xs);padding:0.2rem 0.5rem;background:#dcfce7;color:#14532d;font-size:0.65rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        Local service
+      </div>
+      <div style="display:inline-flex;align-items:center;gap:0.375rem;border-radius:var(--radius-xs);padding:0.2rem 0.5rem;background:#ede9fe;color:#4c1d95;font-size:0.65rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        Event
+      </div>
+      <div style="display:inline-flex;align-items:center;gap:0.375rem;border-radius:var(--radius-xs);padding:0.2rem 0.5rem;background:var(--color-accent-100);color:var(--color-accent-700);font-size:0.65rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        Notice
+      </div>
+    </div>
+  </div>
+
+  <!-- Notification badge -->
+  <p class="section-label">Notification Badges</p>
+  <div class="ds-card">
+    <div class="cluster--4" style="align-items:center;">
+      <div style="position:relative; display:inline-flex;">
+        <div style="width:36px;height:36px;border-radius:var(--radius-lg);background:var(--color-gray-100);display:flex;align-items:center;justify-content:center;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--color-gray-600);"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        </div>
+        <span style="position:absolute;top:-4px;right:-4px;min-width:16px;height:16px;border-radius:999px;background:var(--color-danger);color:white;font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;padding:0 3px;border:2px solid white;">3</span>
+      </div>
+      <div style="position:relative; display:inline-flex;">
+        <div style="width:36px;height:36px;border-radius:var(--radius-lg);background:var(--color-gray-100);display:flex;align-items:center;justify-content:center;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--color-gray-600);"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        </div>
+        <span style="position:absolute;top:-4px;right:-4px;min-width:16px;height:16px;border-radius:999px;background:var(--color-brand-600);color:white;font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;padding:0 3px;border:2px solid white;">12</span>
+      </div>
+      <div style="position:relative; display:inline-flex;">
+        <div style="width:36px;height:36px;border-radius:var(--radius-lg);background:var(--color-gray-100);display:flex;align-items:center;justify-content:center;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--color-gray-600);"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </div>
+        <span style="position:absolute;top:-4px;right:-4px;width:10px;height:10px;border-radius:50%;background:#22c55e;border:2px solid white;"></span>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+</body>
+</html>

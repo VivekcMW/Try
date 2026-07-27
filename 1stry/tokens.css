@@ -1,0 +1,131 @@
+/* ============================================================
+   Lokul Design System — APAC Palette
+   tokens.css — single source of truth for all design tokens
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+
+  /* ── Brand: Deep Indigo ──────────────────────────────────────
+     Trust · Technology · Community
+     Used by PhonePe, Meesho — reads as "safe modern tech"
+     across all APAC markets
+  ─────────────────────────────────────────────────────────── */
+  --color-brand-50:  #eef2ff;
+  --color-brand-100: #e0e7ff;
+  --color-brand-200: #c7d2fe;
+  --color-brand-300: #a5b4fc;
+  --color-brand-400: #818cf8;
+  --color-brand-500: #6366f1;
+  --color-brand-600: #4f46e5;   /* PRIMARY CTA */
+  --color-brand-700: #4338ca;   /* HOVER */
+  --color-brand-800: #3730a3;
+  --color-brand-900: #312e81;
+
+  /* ── Accent: Saffron / Amber ─────────────────────────────────
+     Cultural warmth · Energy · India tricolor resonance
+     Paired with indigo → subconscious trust signal for APAC
+  ─────────────────────────────────────────────────────────── */
+  --color-accent-50:  #fffbeb;
+  --color-accent-100: #fef3c7;
+  --color-accent-200: #fde68a;
+  --color-accent-300: #fcd34d;
+  --color-accent-400: #fbbf24;
+  --color-accent-500: #f59e0b;  /* HIGHLIGHT / BADGE FILL */
+  --color-accent-600: #d97706;  /* ACCENT TEXT / ICON */
+  --color-accent-700: #b45309;
+
+  /* ── Neutral: Warm Slate ─────────────────────────────────────
+     Human · Organic · Easier on the eye than cold gray
+     Slate-based so it's warmer than Tailwind's default gray
+  ─────────────────────────────────────────────────────────── */
+  --color-gray-50:  #f8fafc;
+  --color-gray-100: #f1f5f9;
+  --color-gray-200: #e2e8f0;
+  --color-gray-300: #cbd5e1;
+  --color-gray-400: #94a3b8;
+  --color-gray-500: #64748b;
+  --color-gray-600: #475569;
+  --color-gray-700: #334155;
+  --color-gray-800: #1e293b;
+  --color-gray-900: #0f172a;
+
+  /* ── Semantic ── all WCAG AA on white background ─────────── */
+  --color-success:    #065f46;
+  --color-success-bg: #d1fae5;
+  --color-success-border: #6ee7b7;
+
+  --color-warning:    #92400e;
+  --color-warning-bg: #fef3c7;
+  --color-warning-border: #fcd34d;
+
+  --color-danger:     #9f1239;
+  --color-danger-bg:  #ffe4e6;
+  --color-danger-border: #fda4af;
+
+  --color-info:       #075985;
+  --color-info-bg:    #e0f2fe;
+  --color-info-border: #7dd3fc;
+
+  /* ── Surface tokens ─────────────────────────────────────── */
+  --color-background:      #ffffff;
+  --color-foreground:      #1e293b;
+  --color-heading:         #0f172a;
+  --color-text-secondary:  #475569;
+  --color-text-disabled:   #94a3b8;
+  --color-surface:         #ffffff;
+  --color-surface-muted:   #f8fafc;
+  --color-border:          #e2e8f0;
+  --color-border-strong:   #cbd5e1;
+
+  /* ── Radius ─────────────────────────────────────────────── */
+  --radius-xs:  0.25rem;   /*  4px */
+  --radius-sm:  0.375rem;  /*  6px */
+  --radius-md:  0.5rem;    /*  8px */
+  --radius-lg:  0.75rem;   /* 12px */
+  --radius-xl:  1rem;      /* 16px */
+  --radius-2xl: 1.25rem;   /* 20px */
+  --radius-3xl: 1.5rem;    /* 24px */
+  --radius-full: 9999px;
+
+  /* ── Shadow ─────────────────────────────────────────────── */
+  --shadow-xs: 0 1px 2px rgb(15 23 42 / 0.05);
+  --shadow-sm: 0 2px 8px rgb(15 23 42 / 0.06);
+  --shadow-md: 0 8px 24px rgb(15 23 42 / 0.08);
+  --shadow-lg: 0 16px 40px rgb(15 23 42 / 0.12);
+  --shadow-xl: 0 24px 64px rgb(15 23 42 / 0.16);
+
+  /* ── Typography ─────────────────────────────────────────── */
+  --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+
+  --text-xs:   0.75rem;    /* 12px */
+  --text-sm:   0.875rem;   /* 14px */
+  --text-base: 1rem;       /* 16px */
+  --text-lg:   1.125rem;   /* 18px */
+  --text-xl:   1.25rem;    /* 20px */
+  --text-2xl:  1.5rem;     /* 24px */
+  --text-3xl:  1.875rem;   /* 30px */
+  --text-4xl:  2.25rem;    /* 36px */
+  --text-5xl:  3rem;       /* 48px */
+  --text-6xl:  3.75rem;    /* 60px */
+
+  /* ── Spacing (4pt grid) ─────────────────────────────────── */
+  --space-1:  0.25rem;   /*  4px */
+  --space-2:  0.5rem;    /*  8px */
+  --space-3:  0.75rem;   /* 12px */
+  --space-4:  1rem;      /* 16px */
+  --space-5:  1.25rem;   /* 20px */
+  --space-6:  1.5rem;    /* 24px */
+  --space-8:  2rem;      /* 32px */
+  --space-10: 2.5rem;    /* 40px */
+  --space-12: 3rem;      /* 48px */
+  --space-16: 4rem;      /* 64px */
+  --space-20: 5rem;      /* 80px */
+  --space-24: 6rem;      /* 96px */
+
+  /* ── Layout ─────────────────────────────────────────────── */
+  --container-max:  80rem;   /* 1280px */
+  --section-space:  clamp(3.5rem, 8vw, 7rem);
+}

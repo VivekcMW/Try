@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Inputs — Lokul DS</title>
+<link rel="stylesheet" href="./tokens.css" />
+<link rel="stylesheet" href="./shared.css" />
+</head>
+<body>
+<nav class="dev-nav">
+  <span class="dev-nav__brand">LOKUL <span>DS</span></span>
+  <a href="./index.html" class="dev-nav__link">Index</a>
+  <a href="./01-colors.html" class="dev-nav__link">Colors</a>
+  <a href="./02-typography.html" class="dev-nav__link">Typography</a>
+  <a href="./03-spacing.html" class="dev-nav__link">Spacing</a>
+  <a href="./04-buttons.html" class="dev-nav__link">Buttons</a>
+  <a href="./05-inputs.html" class="dev-nav__link active">Inputs</a>
+  <a href="./06-badges-tags.html" class="dev-nav__link">Badges</a>
+  <a href="./07-cards.html" class="dev-nav__link">Cards</a>
+  <a href="./08-navigation.html" class="dev-nav__link">Navigation</a>
+  <a href="./09-feed.html" class="dev-nav__link">Feed</a>
+  <a href="./10-alerts.html" class="dev-nav__link">Alerts</a>
+  <a href="./11-empty-states.html" class="dev-nav__link">Empty states</a>
+  <a href="./12-dark-mode.html" class="dev-nav__link">Dark mode</a>
+  <a href="./landing.html" class="dev-nav__link">Landing</a>
+</nav>
+
+<div class="page-body pb-16">
+<div class="ds-container">
+
+  <div class="page-title">
+    <div class="page-title__eyebrow">05 · Components</div>
+    <h1>Inputs</h1>
+    <p>Form controls — all states, all types. Focus ring uses brand-500 at 15% opacity. Error state uses rose. Disabled at 50% opacity with pointer-events: none.</p>
+  </div>
+
+  <!-- States -->
+  <p class="section-label">Text Input — States</p>
+  <div class="ds-card grid-2 mb-8" style="gap:1.5rem;">
+    <div>
+      <label class="ds-label">Default</label>
+      <input class="ds-input" type="text" placeholder="Your full name" />
+    </div>
+    <div>
+      <label class="ds-label">Focused (click to see)</label>
+      <input class="ds-input" type="text" placeholder="Click to focus" value="" />
+    </div>
+    <div>
+      <label class="ds-label">Filled</label>
+      <input class="ds-input" type="text" value="Vivek Choudhari" />
+    </div>
+    <div>
+      <label class="ds-label">Disabled</label>
+      <input class="ds-input" type="text" placeholder="Cannot edit" disabled style="opacity:0.5;cursor:not-allowed;" />
+    </div>
+    <div>
+      <label class="ds-label" style="color:var(--color-danger);">Error</label>
+      <input class="ds-input ds-input--error" type="text" value="invalid@" />
+      <p class="ds-error-text">Please enter a valid email address</p>
+    </div>
+    <div>
+      <label class="ds-label" style="color:var(--color-success);">Success</label>
+      <input class="ds-input ds-input--success" type="text" value="400001" />
+      <p class="ds-hint" style="color:var(--color-success);">Valid Mumbai pin code</p>
+    </div>
+  </div>
+
+  <!-- Types -->
+  <p class="section-label">Input Types</p>
+  <div class="ds-card mb-8" style="display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:1.5rem;">
+    <div>
+      <label class="ds-label">Email</label>
+      <input class="ds-input" type="email" placeholder="you@gmail.com" />
+    </div>
+    <div>
+      <label class="ds-label">Password</label>
+      <input class="ds-input" type="password" placeholder="••••••••" />
+    </div>
+    <div>
+      <label class="ds-label">Number</label>
+      <input class="ds-input" type="number" placeholder="0" />
+    </div>
+    <div>
+      <label class="ds-label">Pin code</label>
+      <input class="ds-input" type="text" placeholder="400001" pattern="\d{6}" maxlength="6" />
+      <p class="ds-hint">6-digit Indian pin code</p>
+    </div>
+    <div>
+      <label class="ds-label">Phone</label>
+      <input class="ds-input" type="tel" placeholder="+91 98765 43210" />
+    </div>
+    <div>
+      <label class="ds-label">Search</label>
+      <div style="position:relative;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="position:absolute;left:0.75rem;top:50%;transform:translateY(-50%);color:var(--color-text-disabled);"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input class="ds-input" type="search" placeholder="Search your locality…" style="padding-left:2.25rem;" />
+      </div>
+    </div>
+  </div>
+
+  <!-- Select -->
+  <p class="section-label">Select</p>
+  <div class="ds-card mb-8" style="display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:1.5rem;">
+    <div>
+      <label class="ds-label">I am joining as</label>
+      <select class="ds-input">
+        <option value="" disabled selected>Select one</option>
+        <option>Resident</option>
+        <option>Merchant / Local business</option>
+        <option>RWA / Society manager</option>
+      </select>
+    </div>
+    <div>
+      <label class="ds-label">City</label>
+      <select class="ds-input">
+        <option>Mumbai</option>
+        <option>Delhi</option>
+        <option>Bengaluru</option>
+        <option>Hyderabad</option>
+        <option>Chennai</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Textarea -->
+  <p class="section-label">Textarea</p>
+  <div class="ds-card mb-8" style="display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:1.5rem;">
+    <div>
+      <label class="ds-label">Report an issue</label>
+      <textarea class="ds-input" rows="4" placeholder="Describe what you observed…" style="resize:vertical;"></textarea>
+      <p class="ds-hint">Up to 500 characters</p>
+    </div>
+    <div>
+      <label class="ds-label">Disabled textarea</label>
+      <textarea class="ds-input" rows="4" disabled style="opacity:0.5;cursor:not-allowed;resize:none;">This content cannot be edited.</textarea>
+    </div>
+  </div>
+
+  <!-- Checkbox & Radio -->
+  <p class="section-label">Checkbox &amp; Radio</p>
+  <div class="ds-card grid-2 mb-8" style="gap:1.5rem;">
+    <div class="stack--3">
+      <p style="font-size:var(--text-sm); font-weight:600; color:var(--color-heading); margin-bottom:0.25rem;">Checkboxes</p>
+      <label style="display:flex; align-items:center; gap:0.625rem; cursor:pointer;">
+        <input type="checkbox" checked style="width:16px;height:16px;accent-color:var(--color-brand-600);cursor:pointer;" />
+        <span style="font-size:var(--text-sm); color:var(--color-foreground);">Notify me when my area goes live</span>
+      </label>
+      <label style="display:flex; align-items:center; gap:0.625rem; cursor:pointer;">
+        <input type="checkbox" style="width:16px;height:16px;accent-color:var(--color-brand-600);cursor:pointer;" />
+        <span style="font-size:var(--text-sm); color:var(--color-foreground);">Subscribe to weekly digest</span>
+      </label>
+      <label style="display:flex; align-items:center; gap:0.625rem; cursor:pointer; opacity:0.5;">
+        <input type="checkbox" disabled style="width:16px;height:16px;cursor:not-allowed;" />
+        <span style="font-size:var(--text-sm); color:var(--color-foreground);">Disabled option</span>
+      </label>
+    </div>
+    <div class="stack--3">
+      <p style="font-size:var(--text-sm); font-weight:600; color:var(--color-heading); margin-bottom:0.25rem;">Radio group</p>
+      <label style="display:flex; align-items:center; gap:0.625rem; cursor:pointer;">
+        <input type="radio" name="role" value="resident" checked style="width:16px;height:16px;accent-color:var(--color-brand-600);cursor:pointer;" />
+        <span style="font-size:var(--text-sm); color:var(--color-foreground);">Resident</span>
+      </label>
+      <label style="display:flex; align-items:center; gap:0.625rem; cursor:pointer;">
+        <input type="radio" name="role" value="merchant" style="width:16px;height:16px;accent-color:var(--color-brand-600);cursor:pointer;" />
+        <span style="font-size:var(--text-sm); color:var(--color-foreground);">Merchant</span>
+      </label>
+      <label style="display:flex; align-items:center; gap:0.625rem; cursor:pointer;">
+        <input type="radio" name="role" value="rwa" style="width:16px;height:16px;accent-color:var(--color-brand-600);cursor:pointer;" />
+        <span style="font-size:var(--text-sm); color:var(--color-foreground);">RWA Manager</span>
+      </label>
+    </div>
+  </div>
+
+  <!-- Full form example -->
+  <p class="section-label">Full Form Example</p>
+  <div class="ds-card" style="max-width:520px;">
+    <h3 style="font-size:var(--text-xl); margin-bottom:1.5rem;">Join the waitlist</h3>
+    <form class="stack--4" onsubmit="return false;">
+      <div class="grid-2" style="gap:1rem;">
+        <div>
+          <label class="ds-label">Full name <span style="color:var(--color-danger);">*</span></label>
+          <input class="ds-input" type="text" placeholder="Your name" required />
+        </div>
+        <div>
+          <label class="ds-label">Email <span style="color:var(--color-danger);">*</span></label>
+          <input class="ds-input" type="email" placeholder="you@gmail.com" required />
+        </div>
+        <div>
+          <label class="ds-label">Pin code <span style="color:var(--color-danger);">*</span></label>
+          <input class="ds-input" type="text" placeholder="400001" pattern="\d{6}" />
+        </div>
+        <div>
+          <label class="ds-label">Role <span style="color:var(--color-danger);">*</span></label>
+          <select class="ds-input" required>
+            <option value="" disabled selected>Select one</option>
+            <option>Resident</option>
+            <option>Merchant</option>
+            <option>RWA Manager</option>
+          </select>
+        </div>
+      </div>
+      <label style="display:flex; align-items:flex-start; gap:0.625rem; cursor:pointer;">
+        <input type="checkbox" style="margin-top:2px; width:15px; height:15px; accent-color:var(--color-brand-600);" />
+        <span style="font-size:var(--text-sm); color:var(--color-text-secondary);">Notify me when my pin code area goes live.</span>
+      </label>
+      <div style="display:flex; align-items:center; gap:1rem; padding-top:0.5rem; border-top:1px solid var(--color-border);">
+        <button type="submit" class="ds-button">Get early access</button>
+        <p style="font-size:var(--text-xs); color:var(--color-text-disabled);">No spam. Unsubscribe anytime.</p>
+      </div>
+    </form>
+  </div>
+
+</div>
+</div>
+</body>
+</html>

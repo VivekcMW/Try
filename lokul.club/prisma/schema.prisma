@@ -1,0 +1,2740 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ENUMS
+// ─────────────────────────────────────────────────────────────────────────────
+
+enum KycTier {
+  bronze
+  silver
+  gold
+}
+
+enum UserStatus {
+  active
+  warned
+  suspended
+  banned
+  deleted
+}
+
+enum UserRole {
+  resident
+  merchant
+  rwa_admin
+  guard
+  moderator
+  super_admin
+}
+
+enum SocietyStatus {
+  pending
+  approved
+  rejected
+}
+
+enum KycDocType {
+  rent_agreement
+  electricity_bill
+  society_noc
+  aadhaar
+  passport
+  voter_id
+  pan_card
+  driving_license
+  ration_card
+  digilocker
+}
+
+enum VerificationMethod {
+  proof
+  vouch
+  aadhaar
+}
+
+enum PostType {
+  update
+  safety
+  lost
+  event
+  poll
+  sell
+  rwa_notice
+  sos
+}
+
+enum PostVisibility {
+  tower
+  society
+  neighborhood
+}
+
+enum ContentStatus {
+  active
+  hidden
+  removed
+  deleted
+}
+
+enum ReactionKind {
+  like
+  love
+  thanks
+  support
+  concern
+}
+
+enum ReportReason {
+  spam
+  harassment
+  misinformation
+  nudity
+  hate_speech
+  violence
+  child_safety
+  illegal_goods
+  impersonation
+  other
+}
+
+enum ReportStatus {
+  open
+  in_review
+  resolved
+  dismissed
+}
+
+enum ReportRouting {
+  rwa
+  lokul
+  both
+}
+
+enum ReportPriority {
+  critical
+  high
+  normal
+}
+
+enum ModActionType {
+  dismiss
+  warn
+  hide
+  remove
+  suspend_7d
+  suspend_30d
+  ban
+  reinstate
+}
+
+enum StrikeWeight {
+  full // = 1.0  (full strike)
+  half // = 0.5  (warning)
+}
+
+enum ClassifiedCondition {
+  new_item
+  like_new
+  used
+  for_parts
+}
+
+enum ClassifiedVisibility {
+  tower
+  society
+  neighborhood
+}
+
+enum ClassifiedStatus {
+  active
+  reserved
+  sold
+  expired
+  removed
+}
+
+enum MerchantStatus {
+  pending_verification
+  active
+  suspended
+  rejected
+}
+
+enum FeatureFlagScope {
+  global
+  society
+  city
+  pincode
+  user
+}
+
+enum BroadcastStatus {
+  draft
+  sent
+  cancelled
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// WAITLIST  (pre-launch, keep as-is)
+// ─────────────────────────────────────────────────────────────────────────────
+
+model WaitlistEntry {
+  id        String    @id @default(cuid())
+  name      String
+  email     String    @unique
+  pincode   String
+  role      String
+  notify    Boolean   @default(true)
+  invitedAt DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([pincode])
+  @@index([createdAt])
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// USERS & IDENTITY
+// ─────────────────────────────────────────────────────────────────────────────
+
+model User {
+  id             String     @id @default(cuid())
+  phone          String     @unique // E.164 (+91XXXXXXXXXX)
+  name           String
+  avatarUrl      String?
+  bio            String?
+  language       String     @default("en")
+  kycTier        KycTier    @default(bronze)
+  trustScore     Int        @default(0) // 0–100 denormalised
+  role           UserRole   @default(resident)
+  status         UserStatus @default(active)
+  suspendedUntil DateTime?
+  strikeCount    Float      @default(0) // sum of StrikeRecord weights
+  lastSeenAt     DateTime?
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+  deletedAt      DateTime?
+
+  localities      UserLocality[]
+  residences      UserResidence[]
+  kycDocuments    KycDocument[]
+  posts           Post[]
+  comments        Comment[]
+  reactions       Reaction[]
+  classifieds     Classified[]
+  reportsFiled    Report[]        @relation("reporter")
+  modActionsTaken ModAction[]     @relation("modActor")
+  strikeRecords   StrikeRecord[]
+  auditLogs       AuditLog[]      @relation("auditActor")
+  merchant        Merchant?
+  adminRoles      SocietyAdmin[]
+  vouchesGiven    Vouch[]         @relation("voucher")
+  vouchesReceived Vouch[]         @relation("vouchee")
+
+  // Peer services
+  serviceListing  ServiceListing?
+  ordersGiven     Order[]         @relation("OrderBuyer")
+  ordersReceived  Order[]         @relation("OrderSeller")
+  ratingsGiven    Rating[]        @relation("RatingGiver")
+  ratingsReceived Rating[]        @relation("RatingReceiver")
+
+  // Communities
+  communitiesCreated   Community[]       @relation("CommunityCreator")
+  communityMemberships CommunityMember[]
+
+  // Chat
+  chatThreadsCreated ChatThread[]     @relation("ThreadCreator")
+  chatMemberships    ChatMembership[]
+  chatMessages       ChatMessage[]
+
+  // Carpool
+  carpoolTrips CarpoolTrip[] @relation("CarpoolDriver")
+  carpoolJoins CarpoolJoin[] @relation("CarpoolPassenger")
+
+  // Group buying
+  groupBuysOrganized GroupBuy[]       @relation("GroupBuyOrganizer")
+  groupBuyCommits    GroupBuyCommit[]
+
+  // Stories
+  stories    Story[]
+  storyViews StoryView[]
+
+  // Events
+  eventRsvps EventRsvp[]
+
+  // Push & referrals
+  pushTokens        PushToken[]
+  referralsGiven    ReferralRecord[] @relation("ReferralGiven")
+  referralsReceived ReferralRecord[] @relation("ReferralReceived")
+
+  // SOS
+  sosIncidents SosIncident[]  @relation("SosAuthor")
+  location     UserLocation?
+  sosResponses SosResponder[] @relation("SosResponder")
+
+  // Business hub
+  appointments  Appointment[]  @relation("UserAppointments")
+  quoteRequests QuoteRequest[] @relation("UserQuotes")
+
+  // Wallet
+  walletBalancePaise  Int             @default(0)
+  walletHeldPaise     Int             @default(0)
+  walletEarningsPaise Int             @default(0)
+  walletEntries       WalletEntry[]
+  razorpayOrders      RazorpayOrder[]
+  privacySettings     Json? // Stores ProfilePrivacy object
+
+  // Safety
+  safetyContacts  SafetyContact[]
+  safetyJourneys  SafetyJourney[]
+  volunteer       Volunteer?
+  medicalProfile  MedicalProfile?
+  incidentReports IncidentReport[]
+
+  // Pets
+  pets             Pet[]
+  petSitterProfile PetSitterProfile?
+  lostPetReports   LostPetReport[]
+  playdateRequests PlaydateRequest[]
+
+  // Real estate
+  propertyListings       PropertyListing[]
+  realEstateAgentProfile RealEstateAgentProfile?
+
+  // Skill exchange
+  skillOffers      SkillOffer[]
+  skillConnections SkillConnection[]
+
+  // Telemedicine
+  telemedAppointments   TelemedAppointment[]
+  telemedHealthRecords  TelemedHealthRecord[]
+  telemedMedicineOrders TelemedMedicineOrder[]
+  telemedLabBookings    TelemedLabBooking[]
+
+  // Borrow & lending
+  borrowItems    BorrowItem[]
+  borrowRequests BorrowRequest[]
+
+  // Domestic help
+  domesticHelpers DomesticHelper[]
+
+  // Jobs & freelancers
+  jobsPosted        Job[]              @relation("JobPoster")
+  jobApplications   JobApplication[]
+  freelancerProfile FreelancerProfile?
+
+  // Insurance
+  insurancePolicies InsurancePolicy[]
+
+  // Kids activities, playdates & tutoring
+  kidsActivitiesHosted   KidsActivity[]
+  kidsPlaydatesHosted    KidsPlaydate[]
+  kidsPlaydateAttendance KidsPlaydateAttendee[]
+  kidsTutorProfile       KidsTutorProfile?
+
+  // Parking
+  parkingVehicles        ParkingVehicle[]
+  parkingVisitorRequests ParkingVisitorRequest[]
+
+  // Sports & leagues
+  sportsLeaguesOwned  SportsLeague[]
+  sportsTeamsOwned    SportsTeam[]
+  sportsPlayerProfile SportsPlayerProfile?
+
+  // Bill payments
+  savedBillers SavedBiller[]
+  billPayments BillPayment[]
+
+  // Delivery / quick-commerce
+  deliveryOrders DeliveryOrder[]
+
+  // Amenity booking
+  amenityBookings AmenityBooking[]
+
+  @@index([phone])
+  @@index([kycTier])
+  @@index([status])
+  @@index([role])
+  @@index([createdAt])
+}
+
+model UserLocality {
+  id        String   @id @default(cuid())
+  userId    String
+  pinCode   String
+  city      String
+  region    String   @default("")
+  isPrimary Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([pinCode])
+}
+
+model UserResidence {
+  id                 String              @id @default(cuid())
+  userId             String
+  societyId          String
+  towerId            String?
+  flatNumber         String
+  verifiedAt         DateTime?
+  verificationMethod VerificationMethod?
+  isPrimary          Boolean             @default(true)
+  createdAt          DateTime            @default(now())
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  society Society @relation(fields: [societyId], references: [id])
+  tower   Tower?  @relation(fields: [towerId], references: [id])
+
+  @@index([userId])
+  @@index([societyId])
+}
+
+model KycDocument {
+  id          String     @id @default(cuid())
+  userId      String
+  type        KycDocType
+  storageKey  String
+  status      String     @default("pending") // pending | approved | rejected
+  reviewedBy  String?
+  reviewedAt  DateTime?
+  reviewNotes String?
+  createdAt   DateTime   @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([status])
+}
+
+model Vouch {
+  id        String   @id @default(cuid())
+  voucherId String
+  voucheeId String
+  createdAt DateTime @default(now())
+
+  voucher User @relation("voucher", fields: [voucherId], references: [id])
+  vouchee User @relation("vouchee", fields: [voucheeId], references: [id])
+
+  @@unique([voucherId, voucheeId])
+  @@index([voucheeId])
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SOCIETIES & TOWERS
+// ─────────────────────────────────────────────────────────────────────────────
+
+model Society {
+  id              String        @id @default(cuid())
+  name            String
+  address         String        @default("")
+  pinCode         String
+  city            String
+  state           String        @default("")
+  lat             Float?
+  lng             Float?
+  status          SocietyStatus @default(pending)
+  rwaContactEmail String?
+  createdById     String?
+  memberCount     Int           @default(0) // denormalised
+  postCount       Int           @default(0) // denormalised
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  towers     Tower[]
+  residences UserResidence[]
+  admins     SocietyAdmin[]
+  posts      Post[]
+
+  @@index([pinCode])
+  @@index([city])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model Tower {
+  id            String   @id @default(cuid())
+  societyId     String
+  name          String
+  flatCountHint Int?
+  createdAt     DateTime @default(now())
+
+  society    Society         @relation(fields: [societyId], references: [id], onDelete: Cascade)
+  residences UserResidence[]
+
+  @@index([societyId])
+}
+
+model SocietyAdmin {
+  id        String    @id @default(cuid())
+  userId    String
+  societyId String
+  role      String    @default("admin") // admin | guard
+  grantedAt DateTime  @default(now())
+  revokedAt DateTime?
+
+  user    User    @relation(fields: [userId], references: [id])
+  society Society @relation(fields: [societyId], references: [id])
+
+  @@unique([userId, societyId])
+  @@index([societyId])
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// FEED / POSTS
+// ─────────────────────────────────────────────────────────────────────────────
+
+model Post {
+  id             String         @id @default(cuid())
+  authorId       String
+  type           PostType       @default(update)
+  body           String
+  visibility     PostVisibility @default(society)
+  societyId      String?
+  towerId        String?
+  pinCode        String?
+  lat            Float?
+  lng            Float?
+  pinnedUntil    DateTime?
+  commentsLocked Boolean        @default(false)
+  status         ContentStatus  @default(active)
+  reactionCount  Int            @default(0)
+  commentCount   Int            @default(0)
+  viewCount      Int            @default(0)
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  deletedAt      DateTime?
+
+  author     User        @relation(fields: [authorId], references: [id])
+  society    Society?    @relation(fields: [societyId], references: [id])
+  media      PostMedia[]
+  tags       PostTag[]
+  reactions  Reaction[]
+  comments   Comment[]
+  eventRsvps EventRsvp[]
+
+  @@index([authorId])
+  @@index([societyId])
+  @@index([pinCode])
+  @@index([type])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model PostMedia {
+  id         String @id @default(cuid())
+  postId     String
+  kind       String // image | video
+  storageKey String
+  width      Int?
+  height     Int?
+  durationMs Int?
+  orderIndex Int    @default(0)
+
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@index([postId])
+}
+
+model PostTag {
+  postId String
+  tag    String
+
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@id([postId, tag])
+  @@index([tag])
+}
+
+model Reaction {
+  postId    String
+  userId    String
+  kind      ReactionKind
+  createdAt DateTime     @default(now())
+
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id])
+
+  @@id([postId, userId])
+  @@index([userId])
+}
+
+model Comment {
+  id        String        @id @default(cuid())
+  postId    String
+  authorId  String
+  body      String
+  parentId  String?
+  status    ContentStatus @default(active)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+  deletedAt DateTime?
+
+  post    Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
+  author  User      @relation(fields: [authorId], references: [id])
+  parent  Comment?  @relation("CommentReplies", fields: [parentId], references: [id])
+  replies Comment[] @relation("CommentReplies")
+
+  @@index([postId])
+  @@index([authorId])
+  @@index([parentId])
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// CLASSIFIEDS / MARKETPLACE
+// ─────────────────────────────────────────────────────────────────────────────
+
+model Classified {
+  id          String               @id @default(cuid())
+  sellerId    String
+  title       String
+  description String               @default("")
+  category    String
+  pricePaise  Int                  @default(0) // -1 = OBO, 0 = Free
+  condition   ClassifiedCondition  @default(used)
+  visibility  ClassifiedVisibility @default(neighborhood)
+  pinCode     String
+  lat         Float?
+  lng         Float?
+  status      ClassifiedStatus     @default(active)
+  expiresAt   DateTime
+  soldAt      DateTime?
+  viewCount   Int                  @default(0)
+  saveCount   Int                  @default(0)
+  chatCount   Int                  @default(0)
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @updatedAt
+
+  seller User              @relation(fields: [sellerId], references: [id])
+  photos ClassifiedPhoto[]
+
+  @@index([sellerId])
+  @@index([category])
+  @@index([pinCode])
+  @@index([status])
+  @@index([expiresAt])
+  @@index([createdAt])
+}
+
+model ClassifiedPhoto {
+  id           String @id @default(cuid())
+  classifiedId String
+  storageKey   String
+  orderIndex   Int    @default(0)
+
+  classified Classified @relation(fields: [classifiedId], references: [id], onDelete: Cascade)
+
+  @@index([classifiedId])
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// MERCHANTS
+// ─────────────────────────────────────────────────────────────────────────────
+
+model Merchant {
+  id                 String         @id @default(cuid())
+  ownerId            String         @unique
+  name               String
+  category           String
+  description        String?
+  avatarUrl          String?
+  pinCode            String
+  city               String
+  lat                Float?
+  lng                Float?
+  status             MerchantStatus @default(pending_verification)
+  subscriptionTier   String         @default("free") // free | basic | pro
+  subscriptionEndsAt DateTime?
+  isEndorsed         Boolean        @default(false)
+  isBlacklisted      Boolean        @default(false)
+  ratingAvg          Float?
+  ratingCount        Int            @default(0)
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
+
+  owner         User           @relation(fields: [ownerId], references: [id])
+  serviceSlots  ServiceSlot[]
+  appointments  Appointment[]
+  quoteRequests QuoteRequest[]
+  advertisers   Advertiser[]
+
+  @@index([pinCode])
+  @@index([city])
+  @@index([status])
+  @@index([category])
+  @@index([createdAt])
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// MODERATION
+// ─────────────────────────────────────────────────────────────────────────────
+
+// targetKind: "post" | "comment" | "user" | "classified" | "merchant"
+// targetId is a plain string; join in application code based on targetKind
+model Report {
+  id             String         @id @default(cuid())
+  reporterId     String
+  targetKind     String
+  targetId       String
+  reason         ReportReason
+  freeText       String?
+  status         ReportStatus   @default(open)
+  routedTo       ReportRouting  @default(lokul)
+  priority       ReportPriority @default(normal)
+  societyScopeId String?
+  assignedToId   String?
+  resolvedAt     DateTime?
+  createdAt      DateTime       @default(now())
+
+  reporter   User        @relation("reporter", fields: [reporterId], references: [id])
+  modActions ModAction[]
+
+  @@index([status])
+  @@index([priority])
+  @@index([routedTo])
+  @@index([targetKind, targetId])
+  @@index([reporterId])
+  @@index([societyScopeId])
+  @@index([createdAt])
+}
+
+model ModAction {
+  id             String        @id @default(cuid())
+  actorId        String
+  targetKind     String
+  targetId       String
+  action         ModActionType
+  reasonCategory String
+  internalNotes  String?
+  reportId       String?
+  createdAt      DateTime      @default(now())
+
+  actor  User    @relation("modActor", fields: [actorId], references: [id])
+  report Report? @relation(fields: [reportId], references: [id])
+
+  @@index([actorId])
+  @@index([targetKind, targetId])
+  @@index([action])
+  @@index([reportId])
+  @@index([createdAt])
+}
+
+model StrikeRecord {
+  id              String       @id @default(cuid())
+  userId          String
+  weight          StrikeWeight
+  relatedReportId String?
+  issuedById      String
+  issuedAt        DateTime     @default(now())
+  expiresAt       DateTime?
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@index([issuedAt])
+}
+
+// Immutable audit trail — never update or delete rows
+model AuditLog {
+  id         String   @id @default(cuid())
+  actorId    String?
+  actorKind  String   @default("user") // user | system
+  action     String
+  targetKind String?
+  targetId   String?
+  metadata   Json?
+  ipAddress  String?
+  createdAt  DateTime @default(now())
+
+  actor User? @relation("auditActor", fields: [actorId], references: [id])
+
+  @@index([actorId])
+  @@index([action])
+  @@index([targetKind, targetId])
+  @@index([createdAt])
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// PLATFORM / ADMIN TOOLING
+// ─────────────────────────────────────────────────────────────────────────────
+
+model FeatureFlag {
+  id          String           @id @default(cuid())
+  key         String
+  enabled     Boolean          @default(false)
+  scope       FeatureFlagScope @default(global)
+  scopeValue  String? // societyId | city name | pincode | userId
+  description String?
+  setById     String?
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  @@unique([key, scope, scopeValue])
+  @@index([key])
+  @@index([scope])
+}
+
+model Broadcast {
+  id             String          @id @default(cuid())
+  title          String
+  body           String
+  targetScope    String          @default("all") // all | city:{name} | pincode:{pin} | society:{id}
+  sentById       String
+  sentAt         DateTime?
+  status         BroadcastStatus @default(draft)
+  recipientCount Int             @default(0)
+  createdAt      DateTime        @default(now())
+
+  @@index([status])
+  @@index([createdAt])
+}
+
+model InviteBatch {
+  id              String    @id @default(cuid())
+  pinCode         String?
+  city            String?
+  totalCount      Int
+  sentCount       Int       @default(0)
+  openedCount     Int       @default(0)
+  registeredCount Int       @default(0)
+  createdById     String
+  sentAt          DateTime?
+  createdAt       DateTime  @default(now())
+
+  @@index([pinCode])
+  @@index([city])
+  @@index([sentAt])
+  @@index([createdAt])
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// LOCALITY NEWS  (AI-summarised, auto-refreshed via cron)
+// ─────────────────────────────────────────────────────────────────────────────
+
+enum LocalityNewsCategory {
+  civic // road, water, power, municipality
+  safety // crime, alerts, emergency
+  weather // rain, fog, heat, disaster
+  health // disease, hospital, clinic notices
+  transport // road closures, metro, bus
+  local // shops, events, general local interest
+}
+
+model LocalityNews {
+  id          String               @id @default(cuid())
+  pinCode     String
+  city        String
+  headline    String // AI-generated headline (max 80 chars)
+  summary     String // AI-generated 2-sentence summary
+  sourceUrl   String               @unique // dedup key
+  sourceName  String // "Newsdata.io" | "NDMA" | "IMD" etc.
+  category    LocalityNewsCategory @default(local)
+  lang        String               @default("en")
+  isAlert     Boolean              @default(false) // pins to top of feed
+  publishedAt DateTime
+  expiresAt   DateTime // auto-expire (24h regular, 6h alerts)
+  createdAt   DateTime             @default(now())
+
+  @@index([pinCode, expiresAt])
+  @@index([city, expiresAt])
+  @@index([isAlert])
+  @@index([publishedAt])
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// PEER SERVICES & ORDERS
+// ─────────────────────────────────────────────────────────────────────────────
+
+enum ServiceCategory {
+  cook
+  rider
+  coach
+  tutor
+  beautician
+  caretaker
+  handyman
+  reseller
+}
+
+enum OrderStatus {
+  pending
+  confirmed
+  in_progress
+  completed
+  cancelled
+  disputed
+}
+
+model ServiceListing {
+  id          String          @id @default(cuid())
+  userId      String          @unique
+  category    ServiceCategory
+  title       String
+  description String          @default("")
+  pricePaise  Int             @default(0) // 0 = contact for price
+  priceUnit   String          @default("session") // session | hour | item | day
+  isActive    Boolean         @default(true)
+  radiusM     Int             @default(500)
+  pinCode     String
+  lat         Float?
+  lng         Float?
+  ratingAvg   Float?
+  ratingCount Int             @default(0)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  user    User     @relation(fields: [userId], references: [id])
+  orders  Order[]
+  ratings Rating[]
+
+  @@index([userId])
+  @@index([category])
+  @@index([pinCode])
+  @@index([isActive])
+}
+
+model Order {
+  id                  String           @id @default(cuid())
+  buyerId             String
+  sellerId            String
+  listingId           String?
+  serviceCategory     ServiceCategory?
+  title               String
+  descriptionSnapshot String           @default("")
+  pricePaise          Int
+  quantity            Int              @default(1)
+  status              OrderStatus      @default(pending)
+  scheduledAt         DateTime?
+  completedAt         DateTime?
+  cancelledAt         DateTime?
+  cancelReason        String?
+  addressNote         String?
+  buyerNote           String?
+  sellerNote          String?
+  pinCode             String           @default("")
+  createdAt           DateTime         @default(now())
+  updatedAt           DateTime         @updatedAt
+
+  buyer   User            @relation("OrderBuyer", fields: [buyerId], references: [id])
+  seller  User            @relation("OrderSeller", fields: [sellerId], references: [id])
+  listing ServiceListing? @relation(fields: [listingId], references: [id])
+  rating  Rating?
+
+  @@index([buyerId])
+  @@index([sellerId])
+  @@index([status])
+  @@index([scheduledAt])
+  @@index([createdAt])
+}
+
+model Rating {
+  id        String  @id @default(cuid())
+  orderId   String  @unique
+  raterId   String
+  rateeId   String
+  listingId String?
+  score     Int // 1-5
+  review    String?
+
+  createdAt DateTime @default(now())
+
+  order   Order           @relation(fields: [orderId], references: [id])
+  rater   User            @relation("RatingGiver", fields: [raterId], references: [id])
+  ratee   User            @relation("RatingReceiver", fields: [rateeId], references: [id])
+  listing ServiceListing? @relation(fields: [listingId], references: [id])
+
+  @@index([rateeId])
+  @@index([listingId])
+  @@index([createdAt])
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// COMMUNITIES / GROUPS
+// ─────────────────────────────────────────────────────────────────────────────
+
+enum CommunityType {
+  interest
+  activity
+  parenting
+  cultural
+  buying
+  professional
+  cause
+  pets
+  business
+}
+
+enum CommunityJoinPolicy {
+  open
+  request
+  invite_only
+}
+
+enum CommunityMemberRole {
+  member
+  co_admin
+  admin
+}
+
+enum CommunityMemberStatus {
+  pending
+  active
+  banned
+}
+
+model Community {
+  id          String              @id @default(cuid())
+  creatorId   String
+  name        String
+  description String?
+  coverUrl    String?
+  type        CommunityType       @default(interest)
+  joinPolicy  CommunityJoinPolicy @default(open)
+  radiusM     Int                 @default(500)
+  pinCode     String
+  memberCount Int                 @default(0)
+  isActive    Boolean             @default(true)
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+
+  creator User              @relation("CommunityCreator", fields: [creatorId], references: [id])
+  members CommunityMember[]
+  threads ChatThread[]
+
+  @@index([pinCode])
+  @@index([type])
+  @@index([createdAt])
+}
+
+model CommunityMember {
+  id          String                @id @default(cuid())
+  communityId String
+  userId      String
+  role        CommunityMemberRole   @default(member)
+  status      CommunityMemberStatus @default(active)
+  joinedAt    DateTime              @default(now())
+
+  community Community @relation(fields: [communityId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id])
+
+  @@unique([communityId, userId])
+  @@index([communityId])
+  @@index([userId])
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// CHAT (threads + messages — covers DM, society, tower, community group chat)
+// ─────────────────────────────────────────────────────────────────────────────
+
+enum ChatThreadType {
+  dm
+  society_main
+  tower
+  topic
+  community
+}
+
+model ChatThread {
+  id            String         @id @default(cuid())
+  type          ChatThreadType
+  name          String?
+  avatarUrl     String?
+  societyId     String?
+  towerId       String?
+  communityId   String?
+  createdById   String
+  lastMessageAt DateTime?
+  createdAt     DateTime       @default(now())
+
+  creator     User             @relation("ThreadCreator", fields: [createdById], references: [id])
+  community   Community?       @relation(fields: [communityId], references: [id])
+  memberships ChatMembership[]
+  messages    ChatMessage[]
+
+  @@index([societyId])
+  @@index([communityId])
+  @@index([lastMessageAt])
+}
+
+model ChatMembership {
+  id         String    @id @default(cuid())
+  threadId   String
+  userId     String
+  lastReadAt DateTime?
+  joinedAt   DateTime  @default(now())
+  leftAt     DateTime?
+
+  thread ChatThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  user   User       @relation(fields: [userId], references: [id])
+
+  @@unique([threadId, userId])
+  @@index([userId])
+  @@index([threadId])
+}
+
+model ChatMessage {
+  id        String    @id @default(cuid())
+  threadId  String
+  senderId  String
+  body      String
+  kind      String    @default("text") // text | image | system
+  mediaKey  String?
+  createdAt DateTime  @default(now())
+  deletedAt DateTime?
+
+  thread ChatThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  sender User       @relation(fields: [senderId], references: [id])
+
+  @@index([threadId, createdAt])
+  @@index([senderId])
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// CARPOOL
+// ─────────────────────────────────────────────────────────────────────────────
+
+enum CarpoolStatus {
+  open
+  full
+  in_progress
+  completed
+  cancelled
+}
+
+enum CarpoolJoinStatus {
+  pending
+  confirmed
+  cancelled
+}
+
+model CarpoolTrip {
+  id          String        @id @default(cuid())
+  driverId    String
+  fromLabel   String
+  toLabel     String
+  fromLat     Float?
+  fromLng     Float?
+  toLat       Float?
+  toLng       Float?
+  departureAt DateTime
+  seatsTotal  Int
+  seatsLeft   Int
+  pricePaise  Int           @default(0)
+  status      CarpoolStatus @default(open)
+  pinCode     String
+  notes       String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  driver User          @relation("CarpoolDriver", fields: [driverId], references: [id])
+  joins  CarpoolJoin[]
+
+  @@index([driverId])
+  @@index([pinCode])
+  @@index([departureAt])
+  @@index([status])
+}
+
+model CarpoolJoin {
+  id          String            @id @default(cuid())
+  tripId      String
+  passengerId String
+  seats       Int               @default(1)
+  status      CarpoolJoinStatus @default(pending)
+  message     String?
+  createdAt   DateTime          @default(now())
+
+  trip      CarpoolTrip @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  passenger User        @relation("CarpoolPassenger", fields: [passengerId], references: [id])
+
+  @@unique([tripId, passengerId])
+  @@index([tripId])
+  @@index([passengerId])
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// GROUP BUYING (backend)
+// ─────────────────────────────────────────────────────────────────────────────
+
+enum GroupBuyStatus {
+  open
+  locked // minimum met, confirmed by organiser
+  distributing // in delivery
+  completed
+  cancelled
+}
+
+enum GroupBuyCommitStatus {
+  committed
+  withdrawn
+  paid
+  received
+  refunded
+}
+
+model GroupBuy {
+  id                  String         @id @default(cuid())
+  organizerId         String
+  title               String
+  description         String         @default("")
+  pricePaise          Int
+  marketPricePaise    Int
+  unit                String         @default("unit")
+  minQty              Int
+  targetQty           Int
+  currentQty          Int            @default(0)
+  facilitatorFeePaise Int            @default(0)
+  pinCode             String
+  imageUrl            String?
+  closesAt            DateTime
+  status              GroupBuyStatus @default(open)
+  createdAt           DateTime       @default(now())
+  updatedAt           DateTime       @updatedAt
+
+  organizer User             @relation("GroupBuyOrganizer", fields: [organizerId], references: [id])
+  commits   GroupBuyCommit[]
+
+  @@index([pinCode])
+  @@index([status])
+  @@index([closesAt])
+  @@index([organizerId])
+}
+
+model GroupBuyCommit {
+  id         String               @id @default(cuid())
+  groupBuyId String
+  userId     String
+  quantity   Int                  @default(1)
+  totalPaise Int
+  status     GroupBuyCommitStatus @default(committed)
+  paidAt     DateTime?
+  receivedAt DateTime?
+  refundedAt DateTime?
+  createdAt  DateTime             @default(now())
+  updatedAt  DateTime             @updatedAt
+
+  groupBuy GroupBuy @relation(fields: [groupBuyId], references: [id], onDelete: Cascade)
+  user     User     @relation(fields: [userId], references: [id])
+
+  @@unique([groupBuyId, userId])
+  @@index([userId])
+  @@index([groupBuyId])
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// STORIES (24h)
+// ─────────────────────────────────────────────────────────────────────────────
+
+model Story {
+  id        String   @id @default(cuid())
+  authorId  String
+  mediaKey  String
+  kind      String   @default("image") // image | video
+  caption   String?
+  pinCode   String
+  societyId String?
+  viewCount Int      @default(0)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  author User        @relation(fields: [authorId], references: [id])
+  views  StoryView[]
+
+  @@index([authorId])
+  @@index([pinCode, expiresAt])
+  @@index([societyId])
+}
+
+model StoryView {
+  storyId  String
+  viewerId String
+  viewedAt DateTime @default(now())
+
+  story  Story @relation(fields: [storyId], references: [id], onDelete: Cascade)
+  viewer User  @relation(fields: [viewerId], references: [id])
+
+  @@id([storyId, viewerId])
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// EVENT RSVPs
+// ─────────────────────────────────────────────────────────────────────────────
+
+enum RsvpStatus {
+  yes
+  maybe
+  no
+}
+
+model EventRsvp {
+  id        String     @id @default(cuid())
+  postId    String
+  userId    String
+  status    RsvpStatus @default(yes)
+  createdAt DateTime   @default(now())
+
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id])
+
+  @@unique([postId, userId])
+  @@index([postId])
+  @@index([userId])
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// PUSH NOTIFICATIONS
+// ─────────────────────────────────────────────────────────────────────────────
+
+model PushToken {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  platform  String // ios | android
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([isActive])
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// REFERRALS
+// ─────────────────────────────────────────────────────────────────────────────
+
+model ReferralRecord {
+  id           String    @id @default(cuid())
+  referrerId   String
+  refereeId    String?
+  refereePhone String?
+  creditPaise  Int       @default(0)
+  creditedAt   DateTime?
+  createdAt    DateTime  @default(now())
+
+  referrer User  @relation("ReferralGiven", fields: [referrerId], references: [id])
+  referee  User? @relation("ReferralReceived", fields: [refereeId], references: [id])
+
+  @@index([referrerId])
+  @@index([refereeId])
+  @@index([refereePhone])
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// WALLET
+// ─────────────────────────────────────────────────────────────────────────────
+
+enum WalletTxType {
+  topup
+  spend
+  earn
+  payout
+  refund
+  hold
+  release
+}
+
+enum WalletTxStatus {
+  pending
+  completed
+  failed
+  reversed
+}
+
+model WalletEntry {
+  id          String         @id @default(cuid())
+  userId      String
+  type        WalletTxType
+  amountPaise Int
+  description String
+  status      WalletTxStatus @default(completed)
+  reference   String? // external payment reference (Razorpay order id etc.)
+  party       String? // counterparty display name
+  createdAt   DateTime       @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([userId, type])
+  @@index([createdAt])
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// THIRD-PARTY INTEGRATIONS
+// ─────────────────────────────────────────────────────────────────────────────
+
+// Webhook idempotency ledger — one row per delivered provider event.
+// Insert-first with a unique constraint: a second delivery of the same
+// event id fails the insert and is acked without re-processing.
+model WebhookEvent {
+  id          String   @id @default(cuid())
+  provider    String // "razorpay" | "cashfree" | ...
+  eventId     String // provider event id (x-razorpay-event-id header)
+  eventType   String // e.g. "payment.captured"
+  processedAt DateTime @default(now())
+
+  @@unique([provider, eventId])
+  @@index([processedAt])
+}
+
+model IntegrationConfig {
+  id           String    @id @default(cuid())
+  provider     String    @unique // e.g. "razorpay" | "msg91" | "openweather"
+  enabled      Boolean   @default(false)
+  apiKey       String? // AES-256-GCM encrypted
+  apiSecret    String? // AES-256-GCM encrypted
+  webhookUrl   String?
+  config       Json? // Provider-specific JSON config
+  lastTestedAt DateTime?
+  lastTestOk   Boolean?
+  lastTestMsg  String?
+  setById      String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@index([enabled])
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SAFETY SOS INCIDENTS
+// ─────────────────────────────────────────────────────────────────────────────
+
+enum SosIncidentStatus {
+  open
+  ack
+  resolved
+}
+
+model SosIncident {
+  id         String            @id @default(cuid())
+  authorId   String
+  pinCode    String
+  category   String // fire | medical | security | accident | other
+  severity   String            @default("medium") // low | medium | high
+  body       String
+  status     SosIncidentStatus @default(open)
+  lat        Float?
+  lng        Float?
+  resolvedAt DateTime?
+  createdAt  DateTime          @default(now())
+  updatedAt  DateTime          @updatedAt
+
+  // Proximity escalation fields
+  firstAlertAt    DateTime? // when the 200m wave was sent
+  escalationLevel Int       @default(0) // 0=200m sent, 1=400m sent
+  escalatedAt     DateTime? // when 400m wave was sent
+  notifiedUserIds String[] // tracks already-notified users to prevent double-push
+
+  author     User           @relation("SosAuthor", fields: [authorId], references: [id])
+  responders SosResponder[]
+
+  @@index([pinCode, status])
+  @@index([authorId])
+  @@index([createdAt])
+  @@index([escalationLevel, firstAlertAt]) // for cron query
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// USER LOCATION (frequent writes — separate from User for performance)
+// ─────────────────────────────────────────────────────────────────────────────
+
+model UserLocation {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  lat       Float
+  lon       Float
+  accuracy  Float? // metres
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([lat, lon]) // bounding-box pre-filter
+}
+
+model SosResponder {
+  id          String   @id @default(cuid())
+  incidentId  String
+  userId      String
+  respondedAt DateTime @default(now())
+
+  incident SosIncident @relation(fields: [incidentId], references: [id], onDelete: Cascade)
+  user     User        @relation("SosResponder", fields: [userId], references: [id])
+
+  @@unique([incidentId, userId])
+  @@index([incidentId])
+  @@index([userId])
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// BUSINESS HUB — SERVICE SLOTS, APPOINTMENTS, QUOTES
+// ─────────────────────────────────────────────────────────────────────────────
+
+enum AppointmentStatus {
+  pending
+  confirmed
+  cancelled
+  completed
+}
+
+enum QuoteRequestStatus {
+  open
+  quoted
+  accepted
+  declined
+}
+
+model ServiceSlot {
+  id         String   @id @default(cuid())
+  merchantId String
+  date       String // YYYY-MM-DD
+  startTime  String // HH:MM (24h)
+  endTime    String // HH:MM (24h)
+  capacity   Int      @default(1)
+  booked     Int      @default(0)
+  createdAt  DateTime @default(now())
+
+  merchant     Merchant      @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+  appointments Appointment[]
+
+  @@index([merchantId, date])
+  @@index([date])
+}
+
+model Appointment {
+  id                 String            @id @default(cuid())
+  userId             String
+  merchantId         String
+  slotId             String?
+  serviceLabel       String
+  scheduledAt        DateTime
+  status             AppointmentStatus @default(pending)
+  notesForMerchant   String?
+  cancellationReason String?
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+
+  user     User         @relation("UserAppointments", fields: [userId], references: [id])
+  merchant Merchant     @relation(fields: [merchantId], references: [id])
+  slot     ServiceSlot? @relation(fields: [slotId], references: [id])
+
+  @@index([userId])
+  @@index([merchantId])
+  @@index([scheduledAt])
+  @@index([status])
+}
+
+model QuoteRequest {
+  id                 String             @id @default(cuid())
+  userId             String
+  merchantId         String
+  serviceDescription String
+  budgetPaise        Int?
+  status             QuoteRequestStatus @default(open)
+  merchantReply      String?
+  quotedPaise        Int?
+  repliedAt          DateTime?
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+
+  user     User     @relation("UserQuotes", fields: [userId], references: [id])
+  merchant Merchant @relation(fields: [merchantId], references: [id])
+
+  @@index([userId])
+  @@index([merchantId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// OTP VERIFICATION  (DB-backed; replaces in-process Map — safe for serverless)
+// ─────────────────────────────────────────────────────────────────────────────
+
+model OtpVerification {
+  id        String   @id @default(cuid())
+  phone     String // E.164 (+91XXXXXXXXXX)
+  code      String
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  attempts  Int      @default(0)
+  createdAt DateTime @default(now())
+
+  @@index([phone])
+  @@index([expiresAt])
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// RAZORPAY ORDERS  (tracks payment-gateway orders for wallet top-ups + subs)
+// ─────────────────────────────────────────────────────────────────────────────
+
+enum RazorpayOrderStatus {
+  created
+  paid
+  failed
+}
+
+model RazorpayOrder {
+  id                String              @id @default(cuid())
+  razorpayOrderId   String              @unique // order_XXXXX from Razorpay
+  userId            String
+  amountPaise       Int
+  currency          String              @default("INR")
+  purpose           String // "wallet_topup" | "plus" | "business"
+  status            RazorpayOrderStatus @default(created)
+  razorpayPaymentId String? // filled on capture
+  razorpaySignature String?
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([razorpayOrderId])
+  @@index([status])
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SAFETY FEATURES  (contacts, journey watch, volunteer registry, medical ID,
+//                   and community incident reports)
+// ─────────────────────────────────────────────────────────────────────────────
+
+model SafetyContact {
+  id       String  @id @default(cuid())
+  userId   String
+  name     String
+  phone    String // E.164
+  relation String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+enum JourneyStatus {
+  active
+  completed
+  overdue
+}
+
+model SafetyJourney {
+  id                 String        @id @default(cuid())
+  userId             String
+  destination        String
+  checkInIntervalMin Int           @default(30)
+  watcherPhones      String[]
+  status             JourneyStatus @default(active)
+  expectedArrival    DateTime
+  lastCheckInAt      DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, status])
+  @@index([expectedArrival])
+}
+
+model Volunteer {
+  id      String   @id @default(cuid())
+  userId  String   @unique
+  skills  String[]
+  pinCode String
+  active  Boolean  @default(true)
+
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([pinCode, active])
+}
+
+model MedicalProfile {
+  id            String   @id @default(cuid())
+  userId        String   @unique
+  bloodGroup    String?
+  allergies     String[]
+  conditions    String[]
+  medications   String[]
+  emergencyNote String?
+  doctorPhone   String?
+
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model IncidentReport {
+  id       String  @id @default(cuid())
+  authorId String
+  category String
+  severity String  @default("medium")
+  title    String
+  body     String
+  pinCode  String
+  lat      Float?
+  lng      Float?
+  photoUrl String?
+  status   String  @default("pending")
+
+  resolvedAt DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  author User @relation(fields: [authorId], references: [id])
+
+  @@index([pinCode, status])
+  @@index([authorId])
+  @@index([createdAt])
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ADS — advertisers, campaigns, creatives, bookings, delivery stats
+// (see Prd-v3/monitozastionforthelokul.md)
+// ─────────────────────────────────────────────────────────────────────────────
+
+enum AdvertiserStatus {
+  pending
+  approved
+  suspended
+}
+
+enum AdPackageTier {
+  micro_local
+  growth
+  brand
+  national
+}
+
+enum AdPricingModel {
+  cpm
+  cpc
+  fixed
+}
+
+enum AdCampaignStatus {
+  draft
+  pending_approval
+  approved
+  rejected
+  scheduled
+  live
+  paused
+  completed
+  archived
+}
+
+enum AdPlacementType {
+  feed_post
+  search_slot
+  story
+  banner
+}
+
+enum AdCreativeStatus {
+  pending_review
+  approved
+  rejected
+  flagged
+}
+
+enum AdBookingStatus {
+  requested
+  approved
+  rejected
+  cancelled
+}
+
+model Advertiser {
+  id           String           @id @default(cuid())
+  name         String
+  contactName  String
+  contactEmail String
+  contactPhone String?
+  merchantId   String? // optional link to an on-platform Merchant
+  status       AdvertiserStatus @default(pending)
+  notes        String?
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  merchant  Merchant?    @relation(fields: [merchantId], references: [id])
+  campaigns AdCampaign[]
+
+  @@index([status])
+  @@index([merchantId])
+}
+
+model AdCampaign {
+  id            String           @id @default(cuid())
+  advertiserId  String
+  name          String
+  objective     String?
+  packageTier   AdPackageTier
+  pricingModel  AdPricingModel
+  budgetPaise   Int
+  dailyCapPaise Int?
+  spentPaise    Int              @default(0)
+  startDate     DateTime
+  endDate       DateTime
+  // { pincodes: string[], categories: string[], timeOfDay?: "morning"|"evening" }
+  targeting     Json?
+  status        AdCampaignStatus @default(draft)
+  reviewedById  String?
+  reviewNote    String?
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+
+  advertiser Advertiser   @relation(fields: [advertiserId], references: [id], onDelete: Cascade)
+  creatives  AdCreative[]
+  bookings   AdBooking[]
+
+  @@index([advertiserId])
+  @@index([status])
+  @@index([startDate, endDate])
+}
+
+model AdCreative {
+  id              String           @id @default(cuid())
+  campaignId      String
+  placement       AdPlacementType
+  headline        String
+  body            String
+  mediaKey        String? // R2 storage key
+  ctaLabel        String           @default("Learn more")
+  ctaUrl          String?
+  status          AdCreativeStatus @default(pending_review)
+  rejectionReason String?
+  reviewedById    String?
+  reviewedAt      DateTime?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  campaign   AdCampaign     @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  dailyStats AdEventDaily[]
+
+  @@index([campaignId])
+  @@index([status])
+}
+
+// Inventory reservation: placement × pincode × date range.
+model AdBooking {
+  id           String          @id @default(cuid())
+  campaignId   String
+  placement    AdPlacementType
+  pinCode      String
+  startDate    DateTime
+  endDate      DateTime
+  quotePaise   Int
+  status       AdBookingStatus @default(requested)
+  decisionNote String?
+  decidedById  String?
+  decidedAt    DateTime?
+  createdAt    DateTime        @default(now())
+
+  campaign AdCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  @@index([campaignId])
+  @@index([status])
+  @@index([placement, pinCode, startDate, endDate])
+}
+
+// Aggregated delivery stats — one row per creative per day (no per-user rows).
+model AdEventDaily {
+  id          String   @id @default(cuid())
+  creativeId  String
+  date        DateTime @db.Date
+  impressions Int      @default(0)
+  clicks      Int      @default(0)
+  hides       Int      @default(0)
+  spendPaise  Int      @default(0)
+
+  creative AdCreative @relation(fields: [creativeId], references: [id], onDelete: Cascade)
+
+  @@unique([creativeId, date])
+  @@index([date])
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// PETS
+// ─────────────────────────────────────────────────────────────────────────────
+
+enum PetType {
+  dog
+  cat
+  bird
+  fish
+  other
+}
+
+model Pet {
+  id         String   @id @default(cuid())
+  ownerId    String
+  name       String
+  type       PetType
+  breed      String
+  age        String
+  vaccinated Boolean  @default(false)
+  notes      String?
+  pinCode    String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  owner     User              @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  playdates PlaydateRequest[]
+
+  @@index([ownerId])
+  @@index([pinCode])
+}
+
+model PetSitterProfile {
+  id               String   @id @default(cuid())
+  userId           String   @unique
+  petTypes         String[]
+  experience       String
+  bio              String?
+  pricePerDayPaise Int
+  available        Boolean  @default(true)
+  ratingAvg        Float?
+  ratingCount      Int      @default(0)
+  pinCode          String
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([pinCode])
+  @@index([available])
+}
+
+model LostPetReport {
+  id          String    @id @default(cuid())
+  reporterId  String
+  name        String
+  type        String
+  breed       String
+  description String
+  lastSeenAt  DateTime?
+  location    String
+  found       Boolean   @default(false)
+  pinCode     String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  reporter User @relation(fields: [reporterId], references: [id], onDelete: Cascade)
+
+  @@index([reporterId])
+  @@index([pinCode])
+  @@index([found])
+}
+
+model PlaydateRequest {
+  id          String    @id @default(cuid())
+  requesterId String
+  petId       String
+  scheduledAt DateTime?
+  location    String
+  note        String?
+  pinCode     String
+  createdAt   DateTime  @default(now())
+
+  requester User @relation(fields: [requesterId], references: [id], onDelete: Cascade)
+  pet       Pet  @relation(fields: [petId], references: [id], onDelete: Cascade)
+
+  @@index([requesterId])
+  @@index([petId])
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// REAL ESTATE
+// ─────────────────────────────────────────────────────────────────────────────
+
+enum PropertyDealType {
+  sale
+  rent
+  pg
+}
+
+enum PropertyBuildingType {
+  apartment
+  house
+  villa
+  plot
+  pg
+}
+
+model PropertyListing {
+  id            String               @id @default(cuid())
+  ownerId       String
+  title         String
+  dealType      PropertyDealType
+  buildingType  PropertyBuildingType
+  bhk           String?
+  areaSqft      Int
+  pricePaise    Int
+  priceUnit     String?
+  location      String
+  amenities     String[]
+  furnishing    String?
+  floor         String?
+  availableFrom String?
+  description   String?
+  verified      Boolean              @default(false)
+  featured      Boolean              @default(false)
+  pinCode       String
+  createdAt     DateTime             @default(now())
+  updatedAt     DateTime             @updatedAt
+
+  owner User @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+
+  @@index([ownerId])
+  @@index([pinCode])
+  @@index([dealType])
+}
+
+model RealEstateAgentProfile {
+  id             String   @id @default(cuid())
+  userId         String   @unique
+  specialization String[]
+  experience     String
+  ratingAvg      Float?
+  ratingCount    Int      @default(0)
+  verified       Boolean  @default(false)
+  pinCode        String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([pinCode])
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SKILL EXCHANGE
+// ─────────────────────────────────────────────────────────────────────────────
+
+enum SkillMode {
+  teach
+  learn
+  exchange
+}
+
+model SkillOffer {
+  id                String    @id @default(cuid())
+  ownerId           String
+  skill             String
+  category          String
+  description       String
+  experience        String
+  mode              SkillMode
+  availability      String
+  pricePaise        Int?
+  featured          Boolean   @default(false)
+  responseCount     Int       @default(0)
+  ratingAvg         Float?
+  ratingCount       Int       @default(0)
+  sessionsCompleted Int       @default(0)
+  isActive          Boolean   @default(true)
+  pinCode           String
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  owner       User              @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  connections SkillConnection[]
+
+  @@index([ownerId])
+  @@index([pinCode])
+  @@index([category])
+}
+
+model SkillConnection {
+  id          String   @id @default(cuid())
+  offerId     String
+  requesterId String
+  createdAt   DateTime @default(now())
+
+  offer     SkillOffer @relation(fields: [offerId], references: [id], onDelete: Cascade)
+  requester User       @relation(fields: [requesterId], references: [id], onDelete: Cascade)
+
+  @@unique([offerId, requesterId])
+  @@index([requesterId])
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// TELEMEDICINE (doctors/medicines/labs are a static client-side catalog —
+// only user-generated appointments/records/orders/bookings are backed here)
+// ─────────────────────────────────────────────────────────────────────────────
+
+enum TelemedAppointmentMode {
+  video
+  audio
+  in_person
+  instant
+}
+
+enum TelemedAppointmentStatus {
+  upcoming
+  completed
+  cancelled
+}
+
+model TelemedAppointment {
+  id         String                   @id @default(cuid())
+  userId     String
+  doctorId   String?
+  doctorName String
+  specialty  String
+  mode       TelemedAppointmentMode
+  dateLabel  String
+  timeLabel  String
+  status     TelemedAppointmentStatus @default(upcoming)
+  reason     String?
+  createdAt  DateTime                 @default(now())
+  updatedAt  DateTime                 @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model TelemedHealthRecord {
+  id         String   @id @default(cuid())
+  userId     String
+  type       String
+  title      String
+  doctorName String?
+  fileUrl    String?
+  note       String?
+  createdAt  DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model TelemedMedicineOrder {
+  id         String   @id @default(cuid())
+  userId     String
+  items      Json
+  totalPaise Int
+  status     String   @default("placed")
+  createdAt  DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model TelemedLabBooking {
+  id         String   @id @default(cuid())
+  userId     String
+  testId     String
+  testName   String
+  pricePaise Int
+  dateLabel  String
+  timeLabel  String
+  status     String   @default("booked")
+  createdAt  DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+// Borrow & lending
+
+enum BorrowItemCondition {
+  excellent
+  good
+  fair
+}
+
+enum BorrowRentalType {
+  free
+  deposit
+  rent
+}
+
+enum BorrowRequestStatus {
+  pending
+  approved
+  declined
+}
+
+model BorrowItem {
+  id                 String              @id @default(cuid())
+  ownerId            String
+  name               String
+  category           String
+  description        String
+  condition          BorrowItemCondition @default(good)
+  rentalType         BorrowRentalType    @default(free)
+  depositAmountPaise Int?
+  rentPerDayPaise    Int?
+  maxDays            Int                 @default(3)
+  available          Boolean             @default(true)
+  rating             Float               @default(5)
+  borrowCount        Int                 @default(0)
+  pinCode            String
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+
+  owner    User            @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  requests BorrowRequest[]
+
+  @@index([ownerId])
+  @@index([pinCode])
+}
+
+model BorrowRequest {
+  id          String              @id @default(cuid())
+  itemId      String
+  requesterId String
+  duration    String
+  status      BorrowRequestStatus @default(pending)
+  createdAt   DateTime            @default(now())
+
+  item      BorrowItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  requester User       @relation(fields: [requesterId], references: [id], onDelete: Cascade)
+
+  @@index([itemId])
+  @@index([requesterId])
+}
+
+// Domestic help
+
+enum DomesticHelperVerificationStatus {
+  unverified
+  pending
+  verified
+  rejected
+}
+
+model DomesticHelper {
+  id                  String                           @id @default(cuid())
+  ownerId             String
+  name                String
+  phone               String?
+  photo               String?
+  roleId              String?
+  role                String
+  verificationStatus  DomesticHelperVerificationStatus @default(unverified)
+  rating              Float                            @default(0)
+  reviews             Int                              @default(0)
+  worksAt             String[]                         @default([])
+  workingDays         String[]                         @default([])
+  workingHours        String                           @default("")
+  monthlyPayPaise     Int                              @default(0)
+  joiningDate         DateTime                         @default(now())
+  lastVerifiedAt      DateTime?
+  documents           Json                             @default("{}")
+  notes               String?
+  recommendedBy       Int                              @default(0)
+  areas               String[]                         @default([])
+  experience          String?
+  languages           String[]                         @default([])
+  monthlyRateMinPaise Int?
+  monthlyRateMaxPaise Int?
+  availability        String?
+  isPoolListed        Boolean                          @default(false)
+  pinCode             String
+  createdAt           DateTime                         @default(now())
+  updatedAt           DateTime                         @updatedAt
+
+  owner User @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+
+  @@index([ownerId])
+  @@index([pinCode])
+  @@index([isPoolListed])
+}
+
+// Jobs & freelancers
+
+enum JobType {
+  full_time
+  part_time
+  freelance
+  internship
+}
+
+enum JobWorkMode {
+  onsite
+  remote
+  hybrid
+}
+
+enum JobStatus {
+  open
+  closed
+}
+
+model Job {
+  id          String      @id @default(cuid())
+  posterId    String
+  title       String
+  category    String
+  type        JobType
+  workMode    JobWorkMode
+  location    String
+  salary      String
+  experience  String      @default("Not specified")
+  status      JobStatus   @default(open)
+  verified    Boolean     @default(false)
+  featured    Boolean     @default(false)
+  urgent      Boolean     @default(false)
+  description String?
+  pinCode     String
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  poster       User             @relation("JobPoster", fields: [posterId], references: [id], onDelete: Cascade)
+  applications JobApplication[]
+
+  @@index([posterId])
+  @@index([pinCode])
+}
+
+model JobApplication {
+  id          String   @id @default(cuid())
+  jobId       String
+  applicantId String
+  createdAt   DateTime @default(now())
+
+  job       Job  @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  applicant User @relation(fields: [applicantId], references: [id], onDelete: Cascade)
+
+  @@unique([jobId, applicantId])
+  @@index([jobId])
+  @@index([applicantId])
+}
+
+model FreelancerProfile {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  flat            String   @default("Not specified")
+  skills          String[] @default([])
+  experience      String   @default("Not specified")
+  hourlyRatePaise Int
+  rating          Float    @default(0)
+  reviews         Int      @default(0)
+  available       Boolean  @default(true)
+  bio             String?
+  phone           String?
+  availability    String?
+  pinCode         String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([pinCode])
+}
+
+// Insurance
+
+enum InsurancePolicyStatus {
+  active
+  expired
+  pending
+}
+
+enum InsuranceClaimStatus {
+  submitted
+  in_review
+  approved
+  rejected
+}
+
+model InsurancePolicy {
+  id               String                @id @default(cuid())
+  ownerId          String
+  provider         String
+  planName         String
+  category         String
+  categoryIcon     String
+  policyNumber     String
+  coverAmountPaise Int
+  premiumPaise     Int
+  nextDueAt        DateTime
+  status           InsurancePolicyStatus @default(active)
+  pinCode          String
+  createdAt        DateTime              @default(now())
+  updatedAt        DateTime              @updatedAt
+
+  owner  User             @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  claims InsuranceClaim[]
+
+  @@index([ownerId])
+  @@index([pinCode])
+}
+
+model InsuranceClaim {
+  id          String               @id @default(cuid())
+  policyId    String
+  description String
+  status      InsuranceClaimStatus @default(submitted)
+  createdAt   DateTime             @default(now())
+
+  policy InsurancePolicy @relation(fields: [policyId], references: [id], onDelete: Cascade)
+
+  @@index([policyId])
+}
+
+// Kids activities, playdates & tutoring
+
+enum KidsActivityPriceType {
+  session
+  month
+}
+
+model KidsActivity {
+  id          String                @id @default(cuid())
+  hostId      String
+  name        String
+  category    String
+  ageGroup    String
+  schedule    String
+  duration    String
+  location    String?
+  description String?
+  totalSpots  Int
+  spotsLeft   Int
+  pricePaise  Int
+  priceType   KidsActivityPriceType @default(session)
+  rating      Float                 @default(0)
+  reviews     Int                   @default(0)
+  featured    Boolean               @default(false)
+  pinCode     String
+  createdAt   DateTime              @default(now())
+  updatedAt   DateTime              @updatedAt
+
+  host User @relation(fields: [hostId], references: [id], onDelete: Cascade)
+
+  @@index([hostId])
+  @@index([pinCode])
+}
+
+model KidsPlaydate {
+  id         String   @id @default(cuid())
+  hostId     String
+  title      String
+  ageGroup   String
+  dateLabel  String
+  timeLabel  String
+  location   String
+  notes      String?
+  totalSpots Int
+  spotsLeft  Int
+  pinCode    String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  host      User                   @relation(fields: [hostId], references: [id], onDelete: Cascade)
+  attendees KidsPlaydateAttendee[]
+
+  @@index([hostId])
+  @@index([pinCode])
+}
+
+model KidsPlaydateAttendee {
+  id         String   @id @default(cuid())
+  playdateId String
+  userId     String
+  kidName    String
+  joinedAt   DateTime @default(now())
+
+  playdate KidsPlaydate @relation(fields: [playdateId], references: [id], onDelete: Cascade)
+  user     User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([playdateId, userId])
+  @@index([playdateId])
+}
+
+model KidsTutorProfile {
+  id                String   @id @default(cuid())
+  userId            String   @unique
+  flat              String   @default("Not specified")
+  subjects          String[] @default([])
+  grades            String
+  experience        String
+  pricePerHourPaise Int
+  rating            Float    @default(0)
+  reviews           Int      @default(0)
+  available         Boolean  @default(true)
+  bio               String?
+  phone             String?
+  availability      String?
+  pinCode           String
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([pinCode])
+}
+
+// Parking
+
+enum ParkingVehicleType {
+  car
+  bike
+}
+
+enum ParkingVehicleStatus {
+  occupied
+  vacant
+  reserved
+}
+
+enum ParkingVisitorStatus {
+  pending
+  approved
+  rejected
+  active
+  completed
+}
+
+model ParkingVehicle {
+  id          String               @id @default(cuid())
+  ownerId     String
+  slotNumber  String
+  type        ParkingVehicleType
+  location    String
+  number      String
+  vehicleType String
+  color       String
+  status      ParkingVehicleStatus @default(occupied)
+  pinCode     String
+  createdAt   DateTime             @default(now())
+
+  owner User @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+
+  @@index([ownerId])
+  @@index([pinCode])
+}
+
+model ParkingVisitorRequest {
+  id            String               @id @default(cuid())
+  requesterId   String
+  visitorName   String
+  vehicleNumber String
+  vehicleType   String
+  purpose       String
+  requestedSlot String
+  requestedTime String
+  duration      String
+  notes         String?
+  status        ParkingVisitorStatus @default(pending)
+  pinCode       String
+  createdAt     DateTime             @default(now())
+
+  requester User @relation(fields: [requesterId], references: [id], onDelete: Cascade)
+
+  @@index([requesterId])
+  @@index([pinCode])
+}
+
+// Sports & leagues
+
+enum SportsLeagueStatus {
+  registering
+  ongoing
+  completed
+}
+
+enum SportsSkillLevel {
+  beginner
+  intermediate
+  advanced
+}
+
+model SportsLeague {
+  id            String             @id @default(cuid())
+  ownerId       String
+  name          String
+  sport         String
+  format        String
+  description   String
+  venue         String
+  entryFeePaise Int                @default(0)
+  prize         String
+  startDate     String
+  endDate       String
+  maxTeams      Int
+  status        SportsLeagueStatus @default(registering)
+  pinCode       String
+  createdAt     DateTime           @default(now())
+
+  owner User         @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  teams SportsTeam[]
+
+  @@index([ownerId])
+  @@index([pinCode])
+}
+
+model SportsTeam {
+  id                String   @id @default(cuid())
+  ownerId           String
+  name              String
+  sport             String
+  leagueId          String?
+  captain           String
+  captainFlat       String
+  members           Int      @default(1)
+  maxMembers        Int
+  wins              Int      @default(0)
+  losses            Int      @default(0)
+  lookingForPlayers Boolean  @default(true)
+  pinCode           String
+  createdAt         DateTime @default(now())
+
+  owner  User          @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  league SportsLeague? @relation(fields: [leagueId], references: [id], onDelete: SetNull)
+
+  @@index([ownerId])
+  @@index([leagueId])
+  @@index([pinCode])
+}
+
+model SportsPlayerProfile {
+  id            String           @id @default(cuid())
+  userId        String           @unique
+  flat          String
+  sports        String[]         @default([])
+  skill         SportsSkillLevel @default(beginner)
+  lookingToJoin Boolean          @default(true)
+  available     String[]         @default([])
+  bio           String?
+  pinCode       String
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([pinCode])
+}
+
+// Bill payments
+
+enum BillStatus {
+  due
+  paid
+  overdue
+}
+
+enum BillPaymentStatus {
+  success
+  pending
+  failed
+}
+
+model SavedBiller {
+  id                  String     @id @default(cuid())
+  ownerId             String
+  category            String
+  provider            String
+  accountNumber       String
+  nickname            String
+  lastBillAmountPaise Int?
+  dueDate             DateTime?
+  status              BillStatus @default(due)
+  reminderEnabled     Boolean    @default(true)
+  pinCode             String
+  createdAt           DateTime   @default(now())
+  updatedAt           DateTime   @updatedAt
+
+  owner    User          @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  payments BillPayment[]
+
+  @@index([ownerId])
+  @@index([pinCode])
+}
+
+model BillPayment {
+  id          String            @id @default(cuid())
+  ownerId     String
+  billerId    String?
+  biller      String
+  provider    String
+  amountPaise Int
+  status      BillPaymentStatus @default(success)
+  createdAt   DateTime          @default(now())
+
+  owner     User         @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  billerRef SavedBiller? @relation(fields: [billerId], references: [id], onDelete: SetNull)
+
+  @@index([ownerId])
+  @@index([billerId])
+}
+
+// Delivery / quick-commerce
+
+enum DeliveryOrderStatus {
+  preparing
+  picked
+  delivering
+  delivered
+  cancelled
+}
+
+model DeliveryOrder {
+  id              String              @id @default(cuid())
+  ownerId         String
+  storeId         String?
+  storeName       String
+  items           String
+  totalPaise      Int
+  status          DeliveryOrderStatus @default(preparing)
+  estimatedTime   String?
+  deliveryPartner String?
+  pinCode         String
+  createdAt       DateTime            @default(now())
+
+  owner User @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+
+  @@index([ownerId])
+  @@index([pinCode])
+}
+
+// Amenity booking
+
+enum AmenityBookingStatus {
+  upcoming
+  completed
+  cancelled
+}
+
+model AmenityBooking {
+  id              String               @id @default(cuid())
+  ownerId         String
+  amenityId       String
+  amenityName     String
+  amenityIcon     String
+  dateLabel       String
+  dateISO         DateTime
+  timeSlot        String
+  status          AmenityBookingStatus @default(upcoming)
+  bookingRef      String
+  totalPricePaise Int
+  pinCode         String
+  createdAt       DateTime             @default(now())
+
+  owner User @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+
+  @@index([ownerId])
+  @@index([pinCode])
+}

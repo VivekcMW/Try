@@ -1,0 +1,125 @@
+{
+  "expo": {
+    "name": "Lokul",
+    "slug": "lokul",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "scheme": "lokul",
+    "userInterfaceStyle": "automatic",
+    "owner": "lokul",
+    "ios": {
+      "icon": "./assets/expo.icon",
+      "bundleIdentifier": "com.vivekanandchoudhari.lokul",
+      "buildNumber": "1",
+      "supportsTablet": false,
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "Lokul needs your location to show nearby neighbours, services, and enable SOS features.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "Lokul uses background location for journey safety tracking and emergency SOS.",
+        "NSCameraUsageDescription": "Lokul needs camera access for profile photos, ID verification, and evidence capture.",
+        "NSPhotoLibraryUsageDescription": "Lokul needs photo library access to upload images for listings and messages.",
+        "NSMicrophoneUsageDescription": "Lokul needs microphone access for voice messages and emergency evidence recording.",
+        "NSContactsUsageDescription": "Lokul can add trusted contacts from your phonebook for safety features.",
+        "UIBackgroundModes": [
+          "location",
+          "audio",
+          "fetch",
+          "remote-notification"
+        ]
+      },
+      "appleTeamId": "FX47Q4MQD6"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#E6F4FE",
+        "foregroundImage": "./assets/images/android-icon-foreground.png",
+        "backgroundImage": "./assets/images/android-icon-background.png",
+        "monochromeImage": "./assets/images/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false,
+      "package": "club.lokul.app",
+      "versionCode": 1,
+      "permissions": [
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.ACCESS_BACKGROUND_LOCATION",
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO",
+        "android.permission.READ_CONTACTS",
+        "android.permission.VIBRATE",
+        "android.permission.RECEIVE_BOOT_COMPLETED",
+        "android.permission.FOREGROUND_SERVICE",
+        "android.permission.FOREGROUND_SERVICE_LOCATION",
+        "android.permission.MODIFY_AUDIO_SETTINGS",
+        "android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK"
+      ],
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "data": [
+            {
+              "scheme": "https",
+              "host": "lokul.club",
+              "pathPrefix": "/app"
+            }
+          ],
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
+        }
+      ]
+    },
+    "web": {
+      "output": "static",
+      "favicon": "./assets/images/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#208AEF",
+          "image": "./assets/images/splash-icon.png",
+          "imageWidth": 200,
+          "android": {
+            "image": "./assets/images/splash-icon.png",
+            "imageWidth": 76
+          }
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Lokul uses your location for safety features and to show nearby services.",
+          "isAndroidBackgroundLocationEnabled": true
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Lokul needs access to your photos for profile and listings."
+        }
+      ],
+      "expo-audio",
+      "expo-image",
+      "expo-web-browser"
+    ],
+    "experiments": {
+      "typedRoutes": true,
+      "reactCompiler": true
+    },
+    "extra": {
+      "eas": {
+        "projectId": "YOUR_EAS_PROJECT_ID"
+      }
+    },
+    "updates": {
+      "url": "https://u.expo.dev/YOUR_EAS_PROJECT_ID"
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    }
+  }
+}

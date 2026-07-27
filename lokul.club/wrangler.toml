@@ -1,0 +1,16 @@
+name               = "lokul-geo"
+main               = "cloudflare-worker.js"
+compatibility_date = "2025-01-01"
+
+# Route: all traffic for lokul.club goes through this worker
+[[routes]]
+pattern   = "lokul.club/*"
+zone_name = "lokul.club"
+
+# Cron: fire every minute to escalate unresponded SOS incidents
+[triggers]
+crons = ["* * * * *"]
+
+# Bind secrets via `wrangler secret put CRON_SECRET` and `wrangler secret put APP_URL`
+# [vars]
+# APP_URL = "https://lokul.club"

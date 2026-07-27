@@ -1,0 +1,15 @@
+{
+  "app_name": "Lokul",
+  "skip": "वगळा",
+  "continue": "सुरू ठेवा",
+  "get_started": "सुरुवात करा",
+  "terms": "अटी",
+  "privacy_policy": "गोपनीयता धोरण",
+  "by_continuing_agree": "पुढे जाऊन तुम्ही आमच्या {{terms}} आणि {{privacy}} शी सहमत आहात.",
+  "tab_feed": "फीड",
+  "tab_discover": "शोधा",
+  "tab_chats": "गप्पा",
+  "tab_you": "तुम्ही",
+  "tab_create": "तयार करा",
+  "language": "भाषा"
+}

@@ -1,0 +1,15 @@
+{
+  "app_name": "Lokul",
+  "skip": "దాటవేయి",
+  "continue": "కొనసాగించు",
+  "get_started": "ప్రారంభించండి",
+  "terms": "నిబంధనలు",
+  "privacy_policy": "గోప్యతా విధానం",
+  "by_continuing_agree": "కొనసాగించడం ద్వారా మీరు మా {{terms}} మరియు {{privacy}}కి అంగీకరిస్తున్నారు.",
+  "tab_feed": "ఫీడ్",
+  "tab_discover": "కనుగొనండి",
+  "tab_chats": "చాట్‌లు",
+  "tab_you": "మీరు",
+  "tab_create": "సృష్టించు",
+  "language": "భాష"
+}

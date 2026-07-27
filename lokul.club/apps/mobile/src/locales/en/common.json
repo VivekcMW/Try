@@ -1,0 +1,15 @@
+{
+  "app_name": "Lokul",
+  "skip": "Skip",
+  "continue": "Continue",
+  "get_started": "Get started",
+  "terms": "Terms",
+  "privacy_policy": "Privacy Policy",
+  "by_continuing_agree": "By continuing you agree to our {{terms}} and {{privacy}}.",
+  "tab_feed": "Feed",
+  "tab_discover": "Explore",
+  "tab_chats": "Chats",
+  "tab_you": "You",
+  "tab_create": "Create",
+  "language": "Language"
+}

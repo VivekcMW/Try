@@ -1,0 +1,15 @@
+{
+  "app_name": "Lokul",
+  "skip": "ಬಿಟ್ಟುಬಿಡಿ",
+  "continue": "ಮುಂದುವರೆಯಿರಿ",
+  "get_started": "ಪ್ರಾರಂಭಿಸಿ",
+  "terms": "ನಿಯಮಗಳು",
+  "privacy_policy": "ಗೌಪ್ಯತಾ ನೀತಿ",
+  "by_continuing_agree": "ಮುಂದುವರೆಯುವ ಮೂಲಕ ನೀವು ನಮ್ಮ {{terms}} ಮತ್ತು {{privacy}} ಗೆ ಒಪ್ಪಿಗೆ ನೀಡುತ್ತೀರಿ.",
+  "tab_feed": "ಫೀಡ್",
+  "tab_discover": "ಅನ್ವೇಷಿಸಿ",
+  "tab_chats": "ಚಾಟ್‌ಗಳು",
+  "tab_you": "ನೀವು",
+  "tab_create": "ರಚಿಸಿ",
+  "language": "ಭಾಷೆ"
+}

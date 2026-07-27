@@ -1,0 +1,15 @@
+{
+  "app_name": "लोकुल",
+  "skip": "छोड़ें",
+  "continue": "जारी रखें",
+  "get_started": "शुरू करें",
+  "terms": "नियम",
+  "privacy_policy": "गोपनीयता नीति",
+  "by_continuing_agree": "आगे बढ़कर आप हमारे {{terms}} और {{privacy}} से सहमत हैं।",
+  "tab_feed": "फ़ीड",
+  "tab_discover": "खोजें",
+  "tab_chats": "चैट",
+  "tab_you": "आप",
+  "tab_create": "बनाएं",
+  "language": "भाषा"
+}

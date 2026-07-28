@@ -31,5 +31,5 @@
     ".next/dev/types/**/*.ts",
     "**/*.mts"
   ],
-  "exclude": ["node_modules", "apps", "e2e", "playwright.config.ts", "playwright-report", "test-results"]
+  "exclude": ["node_modules", "apps", "e2e", "playwright.config.ts", "playwright-report", "test-results", "ERROR_PAGES_EXAMPLES.tsx"]
 }

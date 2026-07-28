@@ -103,8 +103,8 @@ function RegisterWizard() {
   if (state?.success) {
     return (
       <div className="wizard-pop rounded-3xl border bg-white p-10 text-center shadow-xl md:p-14" style={{ borderColor: "var(--color-border)" }}>
-        <span className="mx-auto flex h-20 w-20 items-center justify-center rounded-full" style={{ background: "var(--color-accent-50)" }}>
-          <PartyPopper size={38} style={{ color: "var(--color-accent-600)" }} />
+        <span className="mx-auto flex h-20 w-20 items-center justify-center rounded-full" style={{ background: "var(--color-brand-50)" }}>
+          <PartyPopper size={38} style={{ color: "var(--color-brand-600)" }} />
         </span>
         <h2 className="mt-6 text-3xl font-bold" style={{ color: "var(--color-heading)", letterSpacing: "-0.02em" }}>
           {businessName} is registered! 🎉
@@ -112,8 +112,8 @@ function RegisterWizard() {
         <p className="mx-auto mt-3 max-w-md text-base" style={{ color: "var(--color-text-secondary)" }}>
           Your listing is under review — most shops go live within 24 hours. We&apos;ll SMS you on <strong>+91 {phone}</strong> the moment it&apos;s approved.
         </p>
-        <div className="mx-auto mt-8 max-w-sm rounded-2xl border p-5 text-left" style={{ borderColor: "var(--color-accent-200)", background: "var(--color-accent-50)" }}>
-          <p className="flex items-center gap-2 text-sm font-bold" style={{ color: "var(--color-accent-700)" }}>
+        <div className="mx-auto mt-8 max-w-sm rounded-2xl border p-5 text-left" style={{ borderColor: "var(--color-brand-200)", background: "var(--color-brand-50)" }}>
+          <p className="flex items-center gap-2 text-sm font-bold" style={{ color: "var(--color-brand-700)" }}>
             <Smartphone size={16} /> Next: get the Lokul app
           </p>
           <p className="mt-1.5 text-sm" style={{ color: "var(--color-text-secondary)" }}>
@@ -134,7 +134,7 @@ function RegisterWizard() {
             const done = step > i;
             const active = step === i;
             let stepBg = "var(--color-surface-muted)";
-            if (done) stepBg = "var(--color-accent-500)";
+            if (done) stepBg = "var(--color-brand-600)";
             else if (active) stepBg = "var(--color-brand-600)";
             return (
               <div key={s.n} className="flex flex-1 items-center">
@@ -161,7 +161,7 @@ function RegisterWizard() {
                   <div className="mx-3 h-0.5 flex-1 overflow-hidden rounded-full" style={{ background: "var(--color-surface-muted)" }}>
                     <div
                       className="h-full rounded-full transition-all duration-500"
-                      style={{ width: done ? "100%" : "0%", background: "var(--color-accent-500)" }}
+                      style={{ width: done ? "100%" : "0%", background: "var(--color-brand-600)" }}
                     />
                   </div>
                 )}
@@ -201,19 +201,19 @@ function RegisterWizard() {
                     onClick={() => setCategory(c.id)}
                     className="press relative flex flex-col items-center gap-2 rounded-2xl border p-4 text-center transition-all duration-200"
                     style={{
-                      borderColor: active ? "var(--color-accent-500)" : "var(--color-border)",
-                      background: active ? "var(--color-accent-50)" : "white",
+                      borderColor: active ? "var(--color-brand-500)" : "var(--color-border)",
+                      background: active ? "var(--color-brand-50)" : "white",
                       borderWidth: active ? "2px" : "1px",
                       transform: active ? "translateY(-2px)" : "none",
                       boxShadow: active ? "0 8px 20px -6px rgba(245,158,11,0.35)" : "none",
                     }}
                   >
                     <span className="text-3xl">{c.emoji}</span>
-                    <span className="text-xs font-semibold leading-tight" style={{ color: active ? "var(--color-accent-700)" : "var(--color-foreground)" }}>
+                    <span className="text-xs font-semibold leading-tight" style={{ color: active ? "var(--color-brand-700)" : "var(--color-foreground)" }}>
                       {c.label}
                     </span>
                     {active && (
-                      <span className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full text-white" style={{ background: "var(--color-accent-500)" }}>
+                      <span className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full text-white" style={{ background: "var(--color-brand-600)" }}>
                         <Check size={11} strokeWidth={3} />
                       </span>
                     )}
@@ -321,12 +321,12 @@ function RegisterWizard() {
 
             {/* Live preview card */}
             {businessName && (
-              <div className="mt-6 rounded-2xl border p-4" style={{ borderColor: "var(--color-accent-200)", background: "var(--color-accent-50)" }}>
-                <p className="mb-2.5 text-[10px] font-bold uppercase tracking-widest" style={{ color: "var(--color-accent-700)" }}>
+              <div className="mt-6 rounded-2xl border p-4" style={{ borderColor: "var(--color-brand-200)", background: "var(--color-brand-50)" }}>
+                <p className="mb-2.5 text-[10px] font-bold uppercase tracking-widest" style={{ color: "var(--color-brand-700)" }}>
                   Preview — how neighbors will see you
                 </p>
                 <div className="flex items-start gap-3 rounded-xl border bg-white p-3.5" style={{ borderColor: "var(--color-border)" }}>
-                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-2xl" style={{ background: "var(--color-accent-50)" }}>
+                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-2xl" style={{ background: "var(--color-brand-50)" }}>
                     {CATEGORIES.find((c) => c.id === category)?.emoji ?? "🏪"}
                   </span>
                   <div className="min-w-0">
@@ -357,7 +357,7 @@ function RegisterWizard() {
                 type="submit"
                 disabled={!step2Valid || pending}
                 className="press flex items-center gap-2 rounded-lg px-7 py-3 text-sm font-bold text-white shadow-lg transition-all hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100"
-                style={{ background: "linear-gradient(135deg, var(--color-accent-500), var(--color-accent-600))", boxShadow: "0 10px 28px -8px rgba(245,158,11,0.55)" }}
+                style={{ background: "linear-gradient(135deg, var(--color-brand-500), var(--color-brand-600))", boxShadow: "0 10px 28px -8px rgba(79,70,229,0.5)" }}
                 onClick={() => posthog?.capture("merchant_register_submit", { category })}
               >
                 {pending ? "Registering…" : <>Register my business — free <ArrowRight size={15} /></>}
@@ -390,7 +390,7 @@ export default function BusinessPage() {
             }}
           />
           <div className="ds-container relative text-center">
-            <div className="ds-chip mx-auto mb-5" style={{ borderColor: "var(--color-accent-200)", background: "var(--color-accent-50)", color: "var(--color-accent-700)" }}>
+            <div className="ds-chip mx-auto mb-5">
               <Store size={12} /> For local businesses
             </div>
             <h1
@@ -398,7 +398,7 @@ export default function BusinessPage() {
               style={{ color: "var(--color-heading)", letterSpacing: "-0.04em" }}
             >
               Your shop, on the phone of{" "}
-              <span style={{ color: "var(--color-accent-600)" }}>every neighbor.</span>
+              <span style={{ color: "var(--color-brand-600)" }}>every neighbor.</span>
             </h1>
             <p className="mx-auto mt-5 max-w-xl text-pretty text-lg leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
               Lokul puts your business in front of verified residents within 2 km of your door. Free to list. 3 minutes to register. No commission on walk-ins.
@@ -410,7 +410,7 @@ export default function BusinessPage() {
                 { Icon: Radar, t: "2 km hyperlocal reach" },
               ].map(({ Icon, t }) => (
                 <span key={t} className="flex items-center gap-2 text-sm font-semibold" style={{ color: "var(--color-text-secondary)" }}>
-                  <Icon size={16} style={{ color: "var(--color-accent-600)" }} /> {t}
+                  <Icon size={16} style={{ color: "var(--color-brand-600)" }} /> {t}
                 </span>
               ))}
             </div>
@@ -432,13 +432,13 @@ export default function BusinessPage() {
             <div className="mx-auto mb-12 max-w-2xl text-center">
               <h2 className="text-balance text-3xl font-bold tracking-tight md:text-4xl" style={{ color: "var(--color-heading)", letterSpacing: "-0.03em" }}>
                 Built for the shop on the corner,<br />
-                <span style={{ color: "var(--color-accent-600)" }}>not the brand on a billboard.</span>
+                <span style={{ color: "var(--color-brand-600)" }}>not the brand on a billboard.</span>
               </h2>
             </div>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {PERKS.map(({ Icon, title, desc }) => (
                 <article key={title} className="lift group h-full rounded-2xl border bg-white p-7" style={{ borderColor: "var(--color-border)" }}>
-                  <span className="mb-5 flex h-11 w-11 items-center justify-center rounded-xl transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3" style={{ background: "var(--color-accent-50)", color: "var(--color-accent-600)" }}>
+                  <span className="mb-5 flex h-11 w-11 items-center justify-center rounded-xl transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3" style={{ background: "var(--color-brand-50)", color: "var(--color-brand-600)" }}>
                     <Icon size={20} />
                   </span>
                   <h3 className="text-lg font-bold leading-tight" style={{ color: "var(--color-heading)" }}>{title}</h3>
@@ -461,7 +461,7 @@ export default function BusinessPage() {
             <a
               href="#register"
               className="press mt-7 inline-flex items-center gap-2 rounded-lg px-8 py-4 text-base font-bold text-white shadow-lg transition-all hover:scale-[1.02]"
-              style={{ background: "linear-gradient(135deg, var(--color-accent-500), var(--color-accent-600))", boxShadow: "0 12px 32px -8px rgba(245,158,11,0.5)" }}
+              style={{ background: "linear-gradient(135deg, var(--color-brand-500), var(--color-brand-600))", boxShadow: "0 12px 32px -8px rgba(79,70,229,0.45)" }}
             >
               Register my business — free <ArrowRight size={16} />
             </a>

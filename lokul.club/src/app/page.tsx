@@ -403,7 +403,7 @@ export default function Home() {
                 <a
                   href="/business"
                   className="press group/biz flex items-center gap-2 rounded-lg border-2 px-5 py-3 text-sm font-bold transition-all hover:scale-[1.02]"
-                  style={{ borderColor: "var(--color-accent-500)", color: "var(--color-accent-700)", background: "var(--color-accent-50)" }}
+                  style={{ borderColor: "var(--color-brand-200)", color: "var(--color-brand-700)", background: "var(--color-brand-50)" }}
                   onClick={() => posthog?.capture("cta_click", { location: "hero_business" })}
                 >
                   <Store size={16} /> Register your business — free
@@ -797,19 +797,19 @@ export default function Home() {
             className="pointer-events-none absolute inset-0"
             style={{
               background:
-                "linear-gradient(135deg, var(--color-accent-50) 0%, #fff 55%), radial-gradient(at 85% 20%, rgba(245,158,11,0.12) 0px, transparent 50%)",
+                "linear-gradient(135deg, var(--color-brand-50) 0%, #fff 55%), radial-gradient(at 85% 20%, rgba(99,102,241,0.10) 0px, transparent 50%)",
             }}
           />
           <Reveal className="ds-container relative py-16 md:py-20">
             <div className="grid items-center gap-10 lg:grid-cols-[1.1fr_1fr] lg:gap-16">
               {/* Copy */}
               <div>
-                <div className="ds-chip mb-4" style={{ borderColor: "var(--color-accent-200)", background: "var(--color-accent-100)", color: "var(--color-accent-700)" }}>
+                <div className="ds-chip mb-4">
                   <Store size={12} /> Run a local business?
                 </div>
                 <h2 className="text-balance text-3xl font-bold tracking-tight md:text-5xl" style={{ color: "var(--color-heading)", letterSpacing: "-0.03em" }}>
                   Your customers live<br />
-                  <span style={{ color: "var(--color-accent-600)" }}>2 km from your door.</span>
+                  <span style={{ color: "var(--color-brand-600)" }}>2 km from your door.</span>
                 </h2>
                 <p className="mt-5 max-w-lg text-lg leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
                   Kirana, tiffin, salon, tuition, repairs — get discovered by every verified resident around your shop. 320+ businesses already listed.
@@ -820,8 +820,8 @@ export default function Home() {
                     { Icon: BadgeCheck, t: "Verified badge" },
                     { Icon: Radar, t: "2 km reach" },
                   ].map(({ Icon, t }) => (
-                    <li key={t} className="flex items-center gap-2.5 rounded-xl border bg-white px-4 py-3 text-sm font-bold" style={{ borderColor: "var(--color-accent-200)", color: "var(--color-heading)" }}>
-                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg" style={{ background: "var(--color-accent-50)", color: "var(--color-accent-600)" }}>
+                    <li key={t} className="flex items-center gap-2.5 rounded-xl border bg-white px-4 py-3 text-sm font-bold" style={{ borderColor: "var(--color-border)", color: "var(--color-heading)" }}>
+                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg" style={{ background: "var(--color-brand-50)", color: "var(--color-brand-600)" }}>
                         <Icon size={16} />
                       </span>
                       {t}
@@ -831,7 +831,7 @@ export default function Home() {
               </div>
 
               {/* Lead teaser card */}
-              <div className="lift rounded-3xl border bg-white p-7 shadow-xl md:p-9" style={{ borderColor: "var(--color-accent-200)" }}>
+              <div className="lift rounded-3xl border bg-white p-7 shadow-xl md:p-9" style={{ borderColor: "var(--color-border)" }}>
                 <p className="text-xl font-bold" style={{ color: "var(--color-heading)", letterSpacing: "-0.02em" }}>
                   Get listed in 3 minutes
                 </p>
@@ -868,8 +868,7 @@ export default function Home() {
                   />
                   <button
                     type="submit"
-                    className="press group/biz flex w-full items-center justify-center gap-2 rounded-lg px-6 py-3.5 text-base font-bold text-white shadow-lg transition-all hover:scale-[1.01]"
-                    style={{ background: "linear-gradient(135deg, var(--color-accent-500), var(--color-accent-600))", boxShadow: "0 12px 28px -8px rgba(245,158,11,0.5)" }}
+                    className="ds-button press group/biz w-full justify-center px-6 py-3.5 text-base"
                   >
                     Get listed — free
                     <ArrowRight size={16} className="transition-transform duration-300 group-hover/biz:translate-x-1" />

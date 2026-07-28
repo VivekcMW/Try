@@ -32,7 +32,7 @@ export default function Navbar() {
           <a
             href="/business"
             className="flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 font-semibold transition-all hover:scale-[1.03]"
-            style={{ borderColor: "var(--color-accent-300)", background: "var(--color-accent-50)", color: "var(--color-accent-700)" }}
+            style={{ borderColor: "var(--color-brand-200)", background: "var(--color-brand-50)", color: "var(--color-brand-700)" }}
           >
             <Store size={13} /> For Business
           </a>

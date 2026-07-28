@@ -82,7 +82,7 @@ export default function PostDetailScreen() {
         const postData = await postRes.json();
         setPost(postData ?? null);
       } else {
-        console.log(`[PostDetail] Failed to load post ${id}:`, postRes.status);
+        // non-2xx — post not found or access denied
         setPost(null);
       }
       
@@ -91,11 +91,11 @@ export default function PostDetailScreen() {
         const cmtData = await cmtRes.json();
         setComments(Array.isArray(cmtData?.items) ? cmtData.items : []);
       } else {
-        console.log(`[PostDetail] Failed to load comments for ${id}:`, cmtRes.status);
+        // comments unavailable — fall back to empty list
         setComments([]);
       }
     } catch (err) {
-      console.log('[PostDetail] Error loading post:', err);
+      console.error('[PostDetail] Error loading post:', err);
       setPost(null);
       setComments([]);
     } finally {

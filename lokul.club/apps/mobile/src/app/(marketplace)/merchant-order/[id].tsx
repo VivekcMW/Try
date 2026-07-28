@@ -77,11 +77,11 @@ const STATUS_LABELS: Record<MerchantOrderStatus, string> = {
 
 const STATUS_COLORS: Record<MerchantOrderStatus, string> = {
   pending: colors.gray[500],
-  confirmed: colors.blue[600],
-  in_progress: colors.yellow[600],
-  completed: colors.green[600],
-  cancelled: colors.red[600],
-  disputed: colors.red[600],
+  confirmed: colors.semantic.info,
+  in_progress: colors.semantic.warning,
+  completed: colors.semantic.success,
+  cancelled: colors.semantic.danger,
+  disputed: colors.semantic.danger,
 };
 
 export default function MerchantOrderDetailScreen() {
@@ -389,7 +389,7 @@ export default function MerchantOrderDetailScreen() {
               variant="secondary"
               onPress={handleCancelOrder}
               disabled={cancelling}
-              style={{ backgroundColor: colors.red[50], borderColor: colors.red[600] }}
+              style={{ backgroundColor: colors.semantic.dangerBg, borderColor: colors.semantic.danger }}
             />
           </Card>
         )}

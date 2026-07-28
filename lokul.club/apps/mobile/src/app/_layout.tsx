@@ -16,6 +16,8 @@ import { useLanguageStore } from '@/store/languageStore';
 import { useOnboardingStore } from '@/store/onboardingStore';
 import { startTracking, stopTracking } from '@/lib/locationTracker';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { registerSessionExpiredHandler } from '@/services/apiClient';
+import { useRouter } from 'expo-router';
 
 import '../i18n';
 
@@ -43,8 +45,8 @@ async function registerPushToken(userId: string) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ userId, token: tokenObj.data, platform }),
     });
-  } catch {
-    // expo-notifications may not be available in Expo Go — silently ignore
+  } catch (err) {
+    if (__DEV__) console.error('[PushToken] Registration failed:', err);
   }
 }
 
@@ -52,6 +54,14 @@ export default function RootLayout() {
   const colorScheme = useColorScheme();
   const language = useLanguageStore((s) => s.language);
   const userId   = useOnboardingStore((s) => s.phone);
+  const router   = useRouter();
+
+  useEffect(() => {
+    registerSessionExpiredHandler(() => {
+      router.replace('/(onboarding)/splash' as never);
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Load Inter fonts for consistent typography across iOS/Android
   const [fontsLoaded, fontError] = useFonts({

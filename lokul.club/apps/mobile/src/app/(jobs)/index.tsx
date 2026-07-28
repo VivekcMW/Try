@@ -379,6 +379,7 @@ export default function JobsScreen() {
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
+          style={styles.categoriesRowScroll}
           contentContainerStyle={styles.categoriesRow}
         >
           {CATEGORIES.map((cat) => {
@@ -533,7 +534,12 @@ const styles = StyleSheet.create({
     borderBottomWidth: 2,
     borderBottomColor: colors.brand[600],
   },
+  categoriesRowScroll: {
+    flexGrow: 0,
+    flexShrink: 0,
+  },
   categoriesRow: {
+    alignItems: 'center',
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.sm,
     gap: spacing.sm,

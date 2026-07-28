@@ -327,6 +327,7 @@ export default function TelemedicineScreen() {
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
+          style={styles.specialtiesRowScroll}
           contentContainerStyle={styles.specialtiesRow}
         >
           {SPECIALTIES.map((spec) => {
@@ -520,7 +521,12 @@ const styles = StyleSheet.create({
     borderBottomWidth: 2,
     borderBottomColor: colors.brand[600],
   },
+  specialtiesRowScroll: {
+    flexGrow: 0,
+    flexShrink: 0,
+  },
   specialtiesRow: {
+    alignItems: 'center',
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.sm,
     gap: spacing.sm,

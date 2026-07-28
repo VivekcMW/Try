@@ -314,6 +314,7 @@ export default function SkillExchangeScreen() {
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
+            style={styles.categoriesScroll}
             contentContainerStyle={styles.categoriesRow}
           >
             {CATEGORIES.map((cat) => (
@@ -465,7 +466,12 @@ const styles = StyleSheet.create({
     backgroundColor: colors.brand[600],
     borderColor: colors.brand[600],
   },
+  categoriesScroll: {
+    flexGrow: 0,
+    flexShrink: 0,
+  },
   categoriesRow: {
+    alignItems: 'center',
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.sm,
     gap: spacing.sm,

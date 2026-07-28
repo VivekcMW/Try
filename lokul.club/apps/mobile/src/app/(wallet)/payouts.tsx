@@ -8,6 +8,7 @@ import { Badge, Button, Card, HStack, Text, VStack } from '@/components/ui';
 import { VerificationGate } from '@/components/VerificationGate';
 import { useWalletStore, rupees } from '@/store/walletStore';
 import { useVerificationStore } from '@/store/verificationStore';
+import { apiFetch } from '@/services/apiClient';
 import { colors, radius, spacing } from '@lokul/ui-tokens';
 
 export default function Payouts() {
@@ -25,26 +26,22 @@ export default function Payouts() {
   const submit = async () => {
     if (!valid) return;
     if (tier === 'bronze') { setGateVisible(true); return; }
-    if (!userId || !token) {
+    if (!userId) {
       setApiError('Please sign in again to request a payout');
       return;
     }
     setApiError(null);
     setLoading(true);
     try {
-      const base = process.env.EXPO_PUBLIC_API_BASE ?? '';
-      const res = await fetch(`${base}/api/mobile/wallet/payout`, {
+      await apiFetch('/api/mobile/wallet/payout', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ amountPaise: paise, accountLabel: 'HDFC Bank •••• 4521' }),
+        body: { amountPaise: paise, accountLabel: 'HDFC Bank •••• 4521' },
       });
-      if (!res.ok) {
-        const body = await res.json().catch(() => ({}));
-        setApiError(body.error ?? 'Payout failed');
-        return;
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : '';
+      if (msg !== 'SESSION_EXPIRED') {
+        setApiError('Network error — please try again');
       }
-    } catch {
-      setApiError('Network error — please try again');
       return;
     } finally {
       setLoading(false);

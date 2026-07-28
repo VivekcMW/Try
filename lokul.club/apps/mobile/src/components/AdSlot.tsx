@@ -107,8 +107,8 @@ export function AdSlot({ placement, pinCode, size = 'inline' }: AdSlotProps) {
   if (dismissed || !ad) return null;
 
   const handlePress = () => {
+    if (!ad.ctaUrl || ad.ctaUrl.includes('example.com')) return;
     Linking.openURL(ad.ctaUrl);
-    // Fire impression + click tracking
     fetch(`${BASE}/api/mobile/ads/${ad.id}/click`, { method: 'POST' }).catch(() => {});
   };
 

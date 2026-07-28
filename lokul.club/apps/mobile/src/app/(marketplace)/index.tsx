@@ -66,7 +66,6 @@ export default function MarketplaceIndexScreen() {
   // Redirect if services feature is not enabled
   useEffect(() => {
     if (!loading && !isEnabled('services')) {
-      console.log('[Marketplace] Services feature not enabled, redirecting to explore');
       router.replace('/(tabs)/explore');
     }
   }, [loading, isEnabled, router]);

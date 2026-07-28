@@ -138,10 +138,11 @@ export default function UpgradeScreen() {
       };
       if (!res.ok) throw new Error('Subscription order failed');
 
-      // Step 2 — Open Razorpay checkout (stub-safe)
+      // Step 2 — Open Razorpay checkout (stub only allowed in dev builds)
       if (data.isStub || !data.orderId) {
+        if (!__DEV__) throw new Error('Payment gateway not configured for production');
         activate(tier, months, `txn_dev_${Date.now()}`, pricePaise);
-        Alert.alert('Welcome to ' + plan.name + '!', 'Your subscription is now active.', [
+        Alert.alert('Welcome to ' + plan.name + '!', '[DEV] Subscription activated via stub.', [
           { text: 'Start exploring', onPress: () => router.back() },
         ]);
         return;

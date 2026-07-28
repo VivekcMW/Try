@@ -76,7 +76,7 @@ export function NetworkError({
               styles.statusDot,
               {
                 backgroundColor:
-                  isConnected === false ? colors.red[500] : colors.green[500],
+                  isConnected === false ? colors.semantic.danger : colors.semantic.success,
               },
             ]}
           />
@@ -165,7 +165,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing[2],
-    backgroundColor: colors.primary[600],
+    backgroundColor: colors.brand[600],
     paddingVertical: spacing[3],
     paddingHorizontal: spacing[6],
     borderRadius: 8,

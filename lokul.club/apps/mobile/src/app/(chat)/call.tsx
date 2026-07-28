@@ -107,13 +107,9 @@ export default function CallScreen() {
       {/* Background gradient effect (solid fallback) */}
       <View style={s.bg} />
 
-      {/* Remote video placeholder (video call only) */}
+      {/* Remote video feed (video call only) */}
       {callType === 'video' && callState === 'connected' && !videoOff && (
-        <View style={s.remoteVideo} accessibilityLabel="Remote video feed">
-          <Text variant="caption" style={{ color: 'rgba(255,255,255,0.5)' }}>
-            Live video (Agora/Jitsi in production)
-          </Text>
-        </View>
+        <View style={s.remoteVideo} accessibilityLabel="Remote video feed" />
       )}
 
       {/* Top info */}

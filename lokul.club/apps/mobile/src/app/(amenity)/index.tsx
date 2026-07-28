@@ -223,9 +223,10 @@ export default function AmenityIndexScreen() {
       {activeTab === 'book' ? (
         <>
           {/* Category Filter */}
-          <ScrollView 
-            horizontal 
+          <ScrollView
+            horizontal
             showsHorizontalScrollIndicator={false}
+            style={styles.categoryRowScroll}
             contentContainerStyle={styles.categoryRow}
           >
             {CATEGORIES.map((cat) => (
@@ -355,7 +356,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 6,
     paddingVertical: 2,
   },
+  categoryRowScroll: {
+    flexGrow: 0,
+    flexShrink: 0,
+  },
   categoryRow: {
+    alignItems: 'center',
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.sm,
     gap: spacing.sm,

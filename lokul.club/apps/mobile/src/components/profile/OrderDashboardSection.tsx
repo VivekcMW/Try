@@ -329,6 +329,7 @@ export function OrderDashboardSection() {
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
+            style={styles.hScrollOuter}
             contentContainerStyle={styles.hScroll}
           >
             {upcomingOrders.map((o) => (
@@ -367,6 +368,7 @@ export function OrderDashboardSection() {
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
+            style={styles.hScrollOuter}
             contentContainerStyle={styles.hScroll}
           >
             {scheduledOrders.map((o) => (
@@ -435,7 +437,12 @@ const styles = StyleSheet.create({
   },
 
   // Horizontal scroll
+  hScrollOuter: {
+    flexGrow: 0,
+    flexShrink: 0,
+  },
   hScroll: {
+    alignItems: 'center',
     gap: spacing[3],
     paddingBottom: spacing[1],
   },

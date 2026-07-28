@@ -29,11 +29,11 @@ type MerchantOrder = {
 
 const STATUS_COLORS: Record<string, string> = {
   pending: colors.gray[500],
-  confirmed: colors.blue[600],
-  in_progress: colors.yellow[600],
-  completed: colors.green[600],
-  cancelled: colors.red[600],
-  disputed: colors.red[600],
+  confirmed: colors.semantic.info,
+  in_progress: colors.semantic.warning,
+  completed: colors.semantic.success,
+  cancelled: colors.semantic.danger,
+  disputed: colors.semantic.danger,
 };
 
 export default function MyMerchantOrdersScreen() {
@@ -109,6 +109,7 @@ export default function MyMerchantOrdersScreen() {
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
+        style={styles.filterContainerScroll}
         contentContainerStyle={styles.filterContainer}
       >
         {[
@@ -216,7 +217,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: spacing[6],
   },
+  filterContainerScroll: {
+    flexGrow: 0,
+    flexShrink: 0,
+  },
   filterContainer: {
+    alignItems: 'center',
     paddingHorizontal: spacing[4],
     paddingVertical: spacing[3],
     gap: spacing[2],

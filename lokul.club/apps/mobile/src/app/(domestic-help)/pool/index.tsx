@@ -205,6 +205,7 @@ export default function HelperPoolScreen() {
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
+        style={styles.filterPillsScroll}
         contentContainerStyle={styles.filterPills}
       >
         {HELPER_ROLES.map((role) => (
@@ -327,7 +328,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: colors.foreground,
   },
+  filterPillsScroll: {
+    flexGrow: 0,
+    flexShrink: 0,
+  },
   filterPills: {
+    alignItems: 'center',
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.sm,
     gap: spacing.sm,

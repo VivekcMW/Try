@@ -181,7 +181,7 @@ const styles = StyleSheet.create({
   },
   clearBtn: {
     width: 36, height: 36, borderRadius: 18,
-    backgroundColor: colors.red[50], alignItems: 'center', justifyContent: 'center',
+    backgroundColor: colors.semantic.dangerBg, alignItems: 'center', justifyContent: 'center',
   },
   emptyState: {
     flex: 1, alignItems: 'center', justifyContent: 'center',
@@ -199,7 +199,7 @@ const styles = StyleSheet.create({
   },
   removeBtn: {
     width: 28, height: 28, borderRadius: 14,
-    backgroundColor: colors.red[50], alignItems: 'center', justifyContent: 'center',
+    backgroundColor: colors.semantic.dangerBg, alignItems: 'center', justifyContent: 'center',
   },
   qtyBtn: {
     width: 32, height: 32, borderRadius: 8,

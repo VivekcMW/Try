@@ -22,15 +22,9 @@ export function useFeatureFlags() {
 
     async function fetchFlags() {
       try {
-        console.log('[FeatureFlags] Fetching from:', `${BASE}/api/features`);
         const res = await fetch(`${BASE}/api/features`);
-        console.log('[FeatureFlags] Response status:', res.status);
-        
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        
         const data: FeatureFlagsResponse = await res.json();
-        console.log('[FeatureFlags] Enabled features:', data.enabled.length);
-        
         if (isMounted) {
           setEnabled(data.enabled);
           setLoading(false);

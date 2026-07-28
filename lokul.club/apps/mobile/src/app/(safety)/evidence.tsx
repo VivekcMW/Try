@@ -1,14 +1,3 @@
-/**
- * Silent Evidence / Fake Call Screen
- * Route: /(safety)/evidence
- *
- * When active: shows a fake incoming call UI while
- * recording silently in the background and auto-uploading chunks.
- *
- * NOTE: Actual camera/microphone access requires expo-camera + expo-av.
- * This implements the full UX flow with upload stub — swap the
- * startRecording / stopRecording stubs for real Camera API calls.
- */
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   Animated,
@@ -28,6 +17,8 @@ import {
   PhoneOff,
   Video,
 } from 'lucide-react-native';
+import { useAudioRecorder, AudioModule, RecordingPresets } from 'expo-audio';
+import * as FileSystem from 'expo-file-system';
 import { HStack, Text, VStack } from '@/components/ui';
 import { colors, radius, spacing } from '@lokul/ui-tokens';
 import { useSafetyStore } from '@/store/safetyStore';
@@ -69,6 +60,7 @@ function RingAnimation() {
 export default function EvidenceScreen() {
   const router = useRouter();
   const setEvidenceActive = useSafetyStore((s) => s.setEvidenceActive);
+  const recorder = useAudioRecorder(RecordingPresets.HIGH_QUALITY);
 
   const [mode,        setMode]        = useState<EvidenceMode>('idle');
   const [sessionId,   setSessionId]   = useState<string | null>(null);
@@ -76,78 +68,106 @@ export default function EvidenceScreen() {
   const [micMuted,    setMicMuted]    = useState(false);
   const [uploading,   setUploading]   = useState(false);
 
-  const uploadInterval = useRef<ReturnType<typeof setInterval> | null>(null);
+  const uploadInterval    = useRef<ReturnType<typeof setInterval> | null>(null);
   const autoAnswerTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const sessionRef      = useRef<string | null>(null);
+  const sessionRef        = useRef<string | null>(null);
+  const chunkIndexRef     = useRef(0);
 
-  // Component-level upload tick — avoids deep function nesting
-  const tickUpload = useCallback(() => {
-    const sid = sessionRef.current;
-    if (!sid) return;
-    setChunkIndex((prev) => {
-      void uploadChunk(sid, prev);
-      return prev;
-    });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const uploadChunk = async (sid: string, idx: number) => {
+  const uploadChunk = useCallback(async (sid: string, idx: number, audioUri?: string) => {
     setUploading(true);
     try {
+      let audioData: string | null = null;
+      if (audioUri) {
+        audioData = await FileSystem.readAsStringAsync(audioUri, {
+          encoding: FileSystem.EncodingType.Base64,
+        });
+        await FileSystem.deleteAsync(audioUri, { idempotent: true });
+      }
       await fetch(`${BASE}/api/mobile/safety/evidence/upload`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           sessionId: sid,
           chunkIndex: idx,
-          // In production: base64 video chunk from Camera.recordAsync()
-          data: 'stub-chunk-data',
+          data: audioData,
           lat: null, lng: null,
         }),
       });
-    } catch { /* offline — queue for retry */ }
+    } catch { /* offline — will retry on next chunk */ }
     setUploading(false);
-    setChunkIndex((i) => i + 1);
-  };
+    chunkIndexRef.current = idx + 1;
+    setChunkIndex(idx + 1);
+  }, []);
 
-  const startEvidence = (callerName = 'Mom') => {
+  const tickUpload = useCallback(async () => {
+    const sid = sessionRef.current;
+    if (!sid) return;
+    // Stop current recording, capture URI, restart
+    await recorder.stop();
+    const uri = recorder.uri ?? undefined;
+    void uploadChunk(sid, chunkIndexRef.current, uri);
+    await recorder.record();
+  }, [recorder, uploadChunk]);
+
+  const startRecording = useCallback(async () => {
+    const { granted } = await AudioModule.requestRecordingPermissionsAsync();
+    if (!granted) return;
+    await recorder.record();
+  }, [recorder]);
+
+  const startEvidence = useCallback(async (callerName = 'Mom') => {
     const sid = 'ev-' + Date.now();
     sessionRef.current = sid;
     setSessionId(sid);
     setMode('fake-call');
     setEvidenceActive(true, sid);
     Vibration.vibrate([500, 500, 500]);
-    // Auto-answer after 2 seconds to start recording
-    autoAnswerTimeout.current = setTimeout(() => {
+    autoAnswerTimeout.current = setTimeout(async () => {
+      await startRecording();
       setMode('active');
       uploadInterval.current = setInterval(tickUpload, 60_000);
     }, 2000);
-  };
+  }, [setEvidenceActive, startRecording, tickUpload]);
 
-  const stopEvidence = () => {
+  const stopEvidence = useCallback(async () => {
     if (uploadInterval.current) clearInterval(uploadInterval.current);
-    if (sessionId) uploadChunk(sessionId, chunkIndex); // final chunk
+    const sid = sessionRef.current;
+    await recorder.stop();
+    const uri = recorder.uri ?? undefined;
+    if (sid) await uploadChunk(sid, chunkIndexRef.current, uri);
     setEvidenceActive(false);
     setMode('done');
-  };
+  }, [recorder, uploadChunk, setEvidenceActive]);
 
-  // Decline the fake call — aborts before/at the point recording would start,
-  // stops any pending auto-answer + upload ticking, and leaves the screen.
-  const declineEvidence = () => {
+  const declineEvidence = useCallback(async () => {
     if (autoAnswerTimeout.current) { clearTimeout(autoAnswerTimeout.current); autoAnswerTimeout.current = null; }
     if (uploadInterval.current) { clearInterval(uploadInterval.current); uploadInterval.current = null; }
+    if (recorder.isRecording) await recorder.stop();
     sessionRef.current = null;
     setSessionId(null);
     setEvidenceActive(false);
     setMode('idle');
     router.back();
-  };
+  }, [recorder, setEvidenceActive, router]);
+
+  // Mute/unmute by pausing or resuming the recorder
+  const toggleMute = useCallback(async () => {
+    if (!recorder.isRecording) return;
+    if (micMuted) {
+      await recorder.record();
+    } else {
+      await recorder.pause();
+    }
+    setMicMuted((m) => !m);
+  }, [recorder, micMuted]);
 
   // Cleanup on unmount
   useEffect(() => () => {
     if (uploadInterval.current) clearInterval(uploadInterval.current);
     if (autoAnswerTimeout.current) clearTimeout(autoAnswerTimeout.current);
+    if (recorder.isRecording) recorder.stop();
     setEvidenceActive(false);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Idle: pick mode
@@ -166,8 +186,8 @@ export default function EvidenceScreen() {
         <VStack gap={4} style={styles.body}>
           <View style={styles.warningBox}>
             <Text variant="caption" style={{ color: '#7C3AED', lineHeight: 18 }}>
-              When active, your screen shows a fake call while the camera and mic record silently.
-              All footage is automatically uploaded to secure storage.
+              When active, your screen shows a fake call while the mic records silently.
+              All audio is automatically uploaded to secure storage.
             </Text>
           </View>
 
@@ -180,7 +200,7 @@ export default function EvidenceScreen() {
             <PhoneCall size={28} color="#fff" />
             <VStack gap={0} align="center">
               <Text style={{ color: '#fff', fontWeight: '900', fontSize: 18 }}>Start Silent Recording</Text>
-              <Text style={{ color: 'rgba(255,255,255,0.8)', fontSize: 13 }}>Screen shows fake call · Mic + camera active</Text>
+              <Text style={{ color: 'rgba(255,255,255,0.8)', fontSize: 13 }}>Screen shows fake call · Mic active</Text>
             </VStack>
           </Pressable>
 
@@ -188,8 +208,8 @@ export default function EvidenceScreen() {
             <Text variant="label" style={{ fontWeight: '700', color: colors.surface.heading }}>How it works</Text>
             {[
               'Screen shows a realistic incoming call',
-              'Camera and mic record silently in background',
-              'Video uploads to secure cloud every 60 seconds',
+              'Mic records silently in the background',
+              'Audio uploads to secure cloud every 60 seconds',
               'Files cannot be deleted from your device',
               'Tap "End call" to stop and access your vault',
             ].map((t) => (
@@ -250,7 +270,7 @@ export default function EvidenceScreen() {
 
         <HStack gap={6} align="center" justify="center" style={{ paddingBottom: spacing[8] }}>
           <Pressable
-            onPress={() => setMicMuted((m) => !m)}
+            onPress={toggleMute}
             style={styles.muteBtn}
             accessibilityRole="button"
             accessibilityLabel={micMuted ? 'Unmute' : 'Mute'}

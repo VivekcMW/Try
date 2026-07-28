@@ -23,8 +23,7 @@ import {
 import { useVerificationStore } from '@/store/verificationStore';
 import { colors, radius, spacing } from '@lokul/ui-tokens';
 
-// Demo URL — production wires to /v1/kyc/aadhaar/init redirect.
-const DIGILOCKER_URL = 'https://www.digilocker.gov.in/';
+const BASE = process.env.EXPO_PUBLIC_API_BASE ?? '';
 
 const PERMS = [
   {
@@ -52,18 +51,16 @@ export default function GoldConsentScreen() {
   const handleOpen = async () => {
     setOpening(true);
     try {
-      // Demo: open DigiLocker in a system browser. Production: poll callback.
-      const result = await WebBrowser.openAuthSessionAsync(DIGILOCKER_URL, 'lokul://kyc/callback');
-      if (result.type === 'cancel' || result.type === 'dismiss') {
-        // User came back — for demo, mark consent as given.
-        consentAadhaar();
-        router.replace('/(verification)/gold-liveness');
-      } else if (result.type === 'success') {
+      const res = await fetch(`${BASE}/api/mobile/kyc/aadhaar/init`, { method: 'POST' });
+      if (!res.ok) throw new Error(`KYC init failed: ${res.status}`);
+      const { redirectUrl } = await res.json() as { redirectUrl: string };
+      const result = await WebBrowser.openAuthSessionAsync(redirectUrl, 'lokul://kyc/callback');
+      if (result.type === 'success' || result.type === 'cancel' || result.type === 'dismiss') {
         consentAadhaar();
         router.replace('/(verification)/gold-liveness');
       }
     } catch {
-      Alert.alert('Could not open DigiLocker', 'Please try again or visit digilocker.gov.in.');
+      Alert.alert('Could not start verification', 'Please try again or contact support.');
     } finally {
       setOpening(false);
     }

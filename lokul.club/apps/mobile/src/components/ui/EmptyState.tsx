@@ -34,8 +34,8 @@ interface EmptyStateProps {
  * ```tsx
  * <EmptyState
  *   icon={ShoppingBag}
- *   iconColor={colors.primary[600]}
- *   iconBgColor={colors.primary[50]}
+ *   iconColor={colors.brand[600]}
+ *   iconBgColor={colors.brand[50]}
  *   title="No Orders Yet"
  *   description="Browse trusted local services and make your first order."
  *   actionLabel="Browse Services"
@@ -146,7 +146,7 @@ const styles = StyleSheet.create({
     marginTop: spacing[4],
   },
   primaryButton: {
-    backgroundColor: colors.primary[600],
+    backgroundColor: colors.brand[600],
     paddingVertical: spacing[3],
     paddingHorizontal: spacing[6],
     borderRadius: 8,
@@ -164,12 +164,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing[6],
     borderRadius: 8,
     borderWidth: 2,
-    borderColor: colors.primary[600],
+    borderColor: colors.brand[600],
     alignItems: 'center',
     justifyContent: 'center',
   },
   secondaryButtonText: {
-    color: colors.primary[600],
+    color: colors.brand[600],
     fontSize: 16,
     fontWeight: '600',
   },

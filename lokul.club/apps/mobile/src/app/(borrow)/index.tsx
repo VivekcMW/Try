@@ -344,6 +344,7 @@ export default function BorrowIndexScreen() {
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
+            style={styles.categoriesScroll}
             contentContainerStyle={styles.categoriesRow}
           >
             {CATEGORIES.map((cat) => (
@@ -523,7 +524,12 @@ const styles = StyleSheet.create({
     backgroundColor: colors.success,
     borderColor: colors.success,
   },
+  categoriesScroll: {
+    flexGrow: 0,
+    flexShrink: 0,
+  },
   categoriesRow: {
+    alignItems: 'center',
     paddingHorizontal: spacing.lg,
     paddingBottom: spacing.sm,
     gap: spacing.sm,

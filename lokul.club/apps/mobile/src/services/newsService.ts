@@ -85,7 +85,7 @@ export async function fetchLocalityNews(
   }
 
   const apiBase =
-    process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:4200';
+    process.env.EXPO_PUBLIC_API_URL ?? process.env.EXPO_PUBLIC_API_BASE ?? '';
 
   const url = new URL(`${apiBase}/api/news/locality`);
   url.searchParams.set('pinCode', pinCode);

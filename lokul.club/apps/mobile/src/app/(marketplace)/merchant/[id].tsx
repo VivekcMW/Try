@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { AlertTriangle, ArrowLeft, CheckCircle, Clock, MapPin, Package, ShoppingCart, Star } from 'lucide-react-native';
+import { AlertTriangle, ArrowLeft, CheckCircle, Clock, MapPin, Package, Search, ShoppingCart, Star } from 'lucide-react-native';
 import { Avatar, Badge, Button, Card, HStack, Text, VStack } from '@/components/ui';
 import { AdSlot } from '@/components/AdSlot';
 import { useWalletStore } from '@/store/walletStore';
@@ -23,6 +23,7 @@ type ApiMerchant = {
   closedUntil?: string;
   businessHoursStart?: string;
   businessHoursEnd?: string;
+  estimatedDeliveryMins?: number;
 };
 
 type CatalogItem = {
@@ -40,7 +41,21 @@ export default function MerchantProfileScreen() {
   const getTotalItems = useCartStore((s) => s.getTotalItems);
   const [merchant, setMerchant] = useState<ApiMerchant | null>(null);
   const [catalogItems, setCatalogItems] = useState<CatalogItem[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [sortBy, setSortBy] = useState<'name' | 'price'>('name');
   const [loading,  setLoading]  = useState(true);
+
+  // Filter and sort catalog items
+  const filteredItems = catalogItems
+    .filter((item) => {
+      if (!searchQuery) return true;
+      return item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+             item.description?.toLowerCase().includes(searchQuery.toLowerCase());
+    })
+    .sort((a, b) => {
+      if (sortBy === 'price') return a.pricePaise - b.pricePaise;
+      return a.name.localeCompare(b.name);
+    });
 
   const load = useCallback(async () => {
     if (!id) return;
@@ -174,6 +189,14 @@ export default function MerchantProfileScreen() {
               </Text>
             </HStack>
           )}
+          {merchant.estimatedDeliveryMins && (
+            <HStack gap={2} align="center">
+              <Clock size={14} color={colors.brand[600]} />
+              <Text variant="caption" style={{ color: colors.brand[600], fontWeight: '600' }}>
+                Ready in ~{merchant.estimatedDeliveryMins} mins
+              </Text>
+            </HStack>
+          )}
           {!!merchant.responseTime && (
             <HStack gap={2} align="center">
               <Clock size={14} color={colors.gray[400]} />
@@ -194,7 +217,40 @@ export default function MerchantProfileScreen() {
             <Text variant="body" style={{ fontWeight: '700', color: colors.surface.heading }}>
               Products & Services
             </Text>
-            {catalogItems.map((item) => (
+            
+            {/* Search Bar */}
+            <View style={styles.searchContainer}>
+              <Search size={18} color={colors.gray[400]} style={styles.searchIcon} />
+              <TextInput
+                style={styles.searchInput}
+                placeholder="Search items..."
+                placeholderTextColor={colors.gray[400]}
+                value={searchQuery}
+                onChangeText={setSearchQuery}
+              />
+            </View>
+
+            {/* Sort Options */}
+            <HStack gap={2}>
+              <Pressable
+                onPress={() => setSortBy('name')}
+                style={[styles.sortChip, sortBy === 'name' && styles.sortChipActive]}
+              >
+                <Text variant="caption" style={{ color: sortBy === 'name' ? colors.brand[600] : colors.gray[600], fontWeight: sortBy === 'name' ? '600' : '400' }}>
+                  Name
+                </Text>
+              </Pressable>
+              <Pressable
+                onPress={() => setSortBy('price')}
+                style={[styles.sortChip, sortBy === 'price' && styles.sortChipActive]}
+              >
+                <Text variant="caption" style={{ color: sortBy === 'price' ? colors.brand[600] : colors.gray[600], fontWeight: sortBy === 'price' ? '600' : '400' }}>
+                  Price
+                </Text>
+              </Pressable>
+            </HStack>
+
+            {filteredItems.map((item) => (
               <Card key={item.id} padding={3} elevation="sm">
                 <HStack gap={3}>
                   <View style={styles.itemImage}>
@@ -365,5 +421,35 @@ const styles = StyleSheet.create({
     width: 20, height: 20, borderRadius: 10,
     backgroundColor: colors.semantic.error,
     alignItems: 'center', justifyContent: 'center',
+  },
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.gray[50],
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: colors.surface.border,
+    paddingHorizontal: spacing[3],
+  },
+  searchIcon: {
+    marginRight: spacing[2],
+  },
+  searchInput: {
+    flex: 1,
+    paddingVertical: spacing[2],
+    fontSize: 14,
+    color: colors.surface.heading,
+  },
+  sortChip: {
+    paddingHorizontal: spacing[3],
+    paddingVertical: spacing[1.5],
+    borderRadius: 16,
+    backgroundColor: colors.gray[100],
+    borderWidth: 1,
+    borderColor: 'transparent',
+  },
+  sortChipActive: {
+    backgroundColor: colors.brand[50],
+    borderColor: colors.brand[600],
   },
 });

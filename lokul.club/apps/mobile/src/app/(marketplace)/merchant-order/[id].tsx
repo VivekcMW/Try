@@ -30,6 +30,7 @@ type MerchantOrderDetail = {
   inProgressAt: string | null;
   completedAt: string | null;
   cancelledAt: string | null;
+  estimatedReadyAt: string | null;
   merchant: {
     id: string;
     name: string;
@@ -275,6 +276,17 @@ export default function MerchantOrderDetailScreen() {
                 </Text>
               </VStack>
             </HStack>
+            {order.estimatedReadyAt && order.status !== 'completed' && order.status !== 'cancelled' && (
+              <HStack gap={2} align="center">
+                <Clock size={16} color={colors.brand[600]} />
+                <VStack gap={0} style={{ flex: 1 }}>
+                  <Text variant="caption" tone="secondary">Estimated Ready</Text>
+                  <Text variant="body" style={{ color: colors.brand[600], fontWeight: '600' }}>
+                    {formatDate(order.estimatedReadyAt)}
+                  </Text>
+                </VStack>
+              </HStack>
+            )}
             {order.customerNotes && (
               <VStack gap={1}>
                 <Text variant="caption" tone="secondary">Your Notes:</Text>

@@ -170,6 +170,11 @@ export async function POST(
     const orderCount = await prisma.merchantOrder.count();
     const orderNumber = `#LK-${new Date().getFullYear()}-${String(orderCount + 1).padStart(4, "0")}`;
 
+    // Calculate estimated ready time
+    const estimatedReadyAt = merchant.estimatedDeliveryMins
+      ? new Date(Date.now() + merchant.estimatedDeliveryMins * 60 * 1000)
+      : null;
+
     // Create order in transaction
     const order = await prisma.$transaction(async (tx) => {
       const newOrder = await tx.merchantOrder.create({
@@ -192,6 +197,7 @@ export async function POST(
           deliveryLng,
           customerNotes,
           appliedOfferId,
+          estimatedReadyAt,
           orderItems: {
             create: orderItems,
           },

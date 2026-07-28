@@ -226,6 +226,7 @@ model User {
 
   localities      UserLocality[]
   residences      UserResidence[]
+  savedAddresses  UserAddress[]   @relation("UserAddresses")
   kycDocuments    KycDocument[]
   posts           Post[]
   comments        Comment[]
@@ -402,6 +403,28 @@ model UserResidence {
 
   @@index([userId])
   @@index([societyId])
+}
+
+model UserAddress {
+  id             String   @id @default(cuid())
+  userId         String
+  label          String   // "Home", "Office", "Mom's Place"
+  addressLine1   String
+  addressLine2   String?
+  landmark       String?
+  city           String
+  state          String?
+  pinCode        String
+  lat            Float?
+  lng            Float?
+  isDefault      Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  user User @relation("UserAddresses", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([isDefault])
 }
 
 model KycDocument {
@@ -668,6 +691,7 @@ model Merchant {
   closedUntil        DateTime?      // Optional: auto-reopen at this time
   businessHoursStart String?        // e.g., "09:00" (24-hour format)
   businessHoursEnd   String?        // e.g., "21:00" (24-hour format)
+  estimatedDeliveryMins Int?        // Typical preparation time in minutes (e.g., 30)
   createdAt          DateTime       @default(now())
   updatedAt          DateTime       @updatedAt
 

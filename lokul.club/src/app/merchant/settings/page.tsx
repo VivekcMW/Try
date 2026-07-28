@@ -19,6 +19,7 @@ type MerchantProfile = {
   closedUntil?: string | null;
   businessHoursStart?: string | null;
   businessHoursEnd?: string | null;
+  estimatedDeliveryMins?: number | null;
   owner: {
     name: string;
     phone: string;
@@ -34,6 +35,7 @@ export default function SettingsPage() {
   const [closedUntil, setClosedUntil] = useState("");
   const [businessHoursStart, setBusinessHoursStart] = useState("");
   const [businessHoursEnd, setBusinessHoursEnd] = useState("");
+  const [estimatedDeliveryMins, setEstimatedDeliveryMins] = useState(30);
   const [updating, setUpdating] = useState(false);
 
   useEffect(() => {
@@ -54,6 +56,7 @@ export default function SettingsPage() {
         setClosedReason(merchantData.closedReason || "");
         setBusinessHoursStart(merchantData.businessHoursStart || "");
         setBusinessHoursEnd(merchantData.businessHoursEnd || "");
+        setEstimatedDeliveryMins(merchantData.estimatedDeliveryMins || 30);
         if (merchantData.closedUntil) {
           setAutoReopen(true);
           setClosedUntil(new Date(merchantData.closedUntil).toISOString().slice(0, 16));
@@ -157,6 +160,37 @@ export default function SettingsPage() {
     } catch (error) {
       console.error("Failed to update business hours:", error);
       alert("Failed to update business hours");
+    } finally {
+      setUpdating(false);
+    }
+  }
+
+  async function handleSaveDeliveryTime() {
+    if (!estimatedDeliveryMins || estimatedDeliveryMins < 5 || estimatedDeliveryMins > 180) {
+      alert("Please enter a delivery time between 5 and 180 minutes");
+      return;
+    }
+
+    setUpdating(true);
+    try {
+      const res = await fetch("/api/merchant/settings/delivery-time", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          estimatedDeliveryMins,
+        }),
+      });
+
+      const data = await res.json();
+      
+      if (res.ok) {
+        alert("Delivery time updated successfully");
+      } else {
+        alert(data.error || "Failed to update delivery time");
+      }
+    } catch (error) {
+      console.error("Failed to update delivery time:", error);
+      alert("Failed to update delivery time");
     } finally {
       setUpdating(false);
     }
@@ -449,6 +483,56 @@ export default function SettingsPage() {
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                 <p className="text-sm text-blue-900">
                   Your business hours are set from <strong>{businessHoursStart}</strong> to <strong>{businessHoursEnd}</strong>. This will be visible to customers on your profile.
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Estimated Delivery Time Card */}
+        <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+          <div className="mb-4 flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-orange-600">
+              <Clock className="h-5 w-5 text-white" />
+            </div>
+            <div>
+              <h2 className="text-lg font-semibold text-gray-900">Estimated Delivery Time</h2>
+              <p className="text-sm text-gray-600">Set typical preparation time for orders</p>
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <div>
+              <label className="mb-1 block text-sm font-medium text-gray-700">
+                Estimated Time (minutes)
+              </label>
+              <input
+                type="number"
+                min="5"
+                max="180"
+                step="5"
+                value={estimatedDeliveryMins}
+                onChange={(e) => setEstimatedDeliveryMins(Number(e.target.value))}
+                className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-base focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                placeholder="e.g., 30"
+              />
+              <p className="mt-1 text-xs text-gray-500">
+                Between 5 and 180 minutes. This helps customers know when their order will be ready.
+              </p>
+            </div>
+
+            <button
+              onClick={handleSaveDeliveryTime}
+              disabled={updating || !estimatedDeliveryMins || estimatedDeliveryMins < 5 || estimatedDeliveryMins > 180}
+              className="w-full rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {updating ? "Saving..." : "Save Delivery Time"}
+            </button>
+
+            {estimatedDeliveryMins && estimatedDeliveryMins >= 5 && estimatedDeliveryMins <= 180 && (
+              <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
+                <p className="text-sm text-orange-900">
+                  Orders will show <strong>Ready in ~{estimatedDeliveryMins} mins</strong> to customers when they view your profile.
                 </p>
               </div>
             )}

@@ -5,6 +5,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireMerchant } from "@/lib/merchant-auth";
 import { prisma } from "@/lib/prisma";
+import { OrderStatus } from "@/generated/prisma/enums";
 
 export async function POST(req: NextRequest) {
   try {
@@ -45,7 +46,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Create 5 test orders with different statuses
-    const statuses = ["pending", "confirmed", "in_progress", "completed", "cancelled"];
+    const statuses: OrderStatus[] = [OrderStatus.pending, OrderStatus.confirmed, OrderStatus.in_progress, OrderStatus.completed, OrderStatus.cancelled];
     const orders = [];
 
     for (let i = 0; i < 5; i++) {
@@ -106,32 +107,32 @@ export async function POST(req: NextRequest) {
             create: [
               {
                 fromStatus: null,
-                toStatus: "pending",
+                toStatus: OrderStatus.pending,
                 changedBy: customer.id,
               },
-              ...(status !== "pending"
+              ...(status !== OrderStatus.pending
                 ? [
                     {
-                      fromStatus: "pending",
-                      toStatus: status === "cancelled" ? "cancelled" : "confirmed",
+                      fromStatus: OrderStatus.pending,
+                      toStatus: status === OrderStatus.cancelled ? OrderStatus.cancelled : OrderStatus.confirmed,
                       changedBy: userId,
                     },
                   ]
                 : []),
-              ...(["in_progress", "completed"].includes(status)
+              ...([OrderStatus.in_progress as OrderStatus, OrderStatus.completed as OrderStatus].includes(status)
                 ? [
                     {
-                      fromStatus: "confirmed",
-                      toStatus: "in_progress",
+                      fromStatus: OrderStatus.confirmed,
+                      toStatus: OrderStatus.in_progress,
                       changedBy: userId,
                     },
                   ]
                 : []),
-              ...(status === "completed"
+              ...(status === OrderStatus.completed
                 ? [
                     {
-                      fromStatus: "in_progress",
-                      toStatus: "completed",
+                      fromStatus: OrderStatus.in_progress,
+                      toStatus: OrderStatus.completed,
                       changedBy: userId,
                     },
                   ]

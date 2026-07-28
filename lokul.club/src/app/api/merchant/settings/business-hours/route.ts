@@ -4,11 +4,11 @@
  */
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { requireMerchant } from "@/lib/merchant-session";
+import { requireMerchant } from "@/lib/merchant-auth";
 
 export async function PUT(req: NextRequest) {
   try {
-    const { merchantId } = await requireMerchant(req);
+    const { merchantId } = await requireMerchant();
     const body = await req.json();
 
     const { businessHoursStart, businessHoursEnd } = body;

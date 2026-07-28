@@ -1,6 +1,6 @@
 /**
  * POST /api/mobile/merchant-orders/[id]/rate — customer rates a completed order
- * Body: { customerId: string, score: 1-5, review?: string }
+ * Body: { customerId: string, rating: 1-5, review?: string }
  */
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
@@ -12,19 +12,19 @@ export async function POST(
   try {
     const { id: orderId } = await params;
     const body = await req.json();
-    const { customerId, score, review } = body;
+    const { customerId, rating, review } = body;
 
     // Validate inputs
-    if (!customerId || !score) {
+    if (!customerId || !rating) {
       return NextResponse.json(
-        { error: "customerId and score are required" },
+        { error: "customerId and rating are required" },
         { status: 400 }
       );
     }
 
-    if (score < 1 || score > 5) {
+    if (rating < 1 || rating > 5) {
       return NextResponse.json(
-        { error: "score must be between 1 and 5" },
+        { error: "rating must be between 1 and 5" },
         { status: 400 }
       );
     }
@@ -60,14 +60,14 @@ export async function POST(
     }
 
     // Create rating in transaction
-    const rating = await prisma.$transaction(async (tx) => {
+    const ratingResult = await prisma.$transaction(async (tx) => {
       // Create rating
       const newRating = await tx.orderRating.create({
         data: {
           orderId,
           customerId,
           merchantId: order.merchantId,
-          score,
+          rating,
           review: review || null,
         },
       });
@@ -75,23 +75,23 @@ export async function POST(
       // Recalculate merchant's average rating
       const agg = await tx.orderRating.aggregate({
         where: { merchantId: order.merchantId },
-        _avg: { score: true },
-        _count: { score: true },
+        _avg: { rating: true },
+        _count: { rating: true },
       });
 
       // Update merchant rating
       await tx.merchant.update({
         where: { id: order.merchantId },
         data: {
-          ratingAvg: agg._avg.score || 0,
-          ratingCount: agg._count.score,
+          ratingAvg: agg._avg.rating || 0,
+          ratingCount: agg._count.rating,
         },
       });
 
       return newRating;
     });
 
-    return NextResponse.json({ rating }, { status: 201 });
+    return NextResponse.json({ rating: ratingResult }, { status: 201 });
   } catch (error: any) {
     console.error("Failed to create rating:", error);
     return NextResponse.json(

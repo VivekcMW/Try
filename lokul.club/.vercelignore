@@ -1,0 +1,10 @@
+node_modules
+.next
+apps/mobile
+apps/mobile/node_modules
+apps/mobile/ios
+apps/mobile/android
+apps/mobile/.expo
+prisma/migrations
+*.log
+.DS_Store

@@ -5,17 +5,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireMerchant } from "@/lib/merchant-auth";
 import { prisma } from "@/lib/prisma";
-import { OrderStatus } from "@/generated/prisma";
+import { OrderStatus } from "@/generated/prisma/enums";
 import { sendPush } from "@/lib/push";
 
 type StatusAction = "confirm" | "reject" | "start" | "complete" | "cancel";
 
 const ACTION_TO_STATUS: Record<StatusAction, OrderStatus> = {
-  confirm: "confirmed",
-  reject: "cancelled",
-  start: "in_progress",
-  complete: "completed",
-  cancel: "cancelled",
+  confirm: OrderStatus.confirmed,
+  reject: OrderStatus.cancelled,
+  start: OrderStatus.in_progress,
+  complete: OrderStatus.completed,
+  cancel: OrderStatus.cancelled,
 };
 
 export async function POST(

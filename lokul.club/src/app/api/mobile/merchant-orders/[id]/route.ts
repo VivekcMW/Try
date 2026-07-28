@@ -44,7 +44,7 @@ export async function GET(
         rating: {
           select: {
             id: true,
-            score: true,
+            rating: true,
             review: true,
           },
         },

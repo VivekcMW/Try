@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, Linking, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Alert, Linking, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { ArrowLeft, CheckCircle, Clock, MapPin, Package, Phone } from 'lucide-react-native';
+import { ArrowLeft, CheckCircle, Clock, MapPin, Package, Phone, Star } from 'lucide-react-native';
 import { Avatar, Badge, Button, Card, HStack, Text, VStack } from '@/components/ui';
+import { useWalletStore } from '@/store/walletStore';
 import { colors, spacing } from '@lokul/ui-tokens';
 
 const BASE = process.env.EXPO_PUBLIC_API_BASE ?? '';
@@ -57,6 +58,11 @@ type MerchantOrderDetail = {
     status: string;
     createdAt: string;
   }>;
+  rating?: {
+    id: string;
+    score: number;
+    review: string | null;
+  };
 };
 
 const STATUS_LABELS: Record<MerchantOrderStatus, string> = {
@@ -80,8 +86,13 @@ const STATUS_COLORS: Record<MerchantOrderStatus, string> = {
 export default function MerchantOrderDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
+  const userId = useWalletStore((s) => s.userId);
   const [order, setOrder] = useState<MerchantOrderDetail | null>(null);
   const [loading, setLoading] = useState(true);
+  const [cancelling, setCancelling] = useState(false);
+  const [rating, setRating] = useState(0);
+  const [review, setReview] = useState('');
+  const [submittingRating, setSubmittingRating] = useState(false);
 
   const load = useCallback(async () => {
     if (!id) return;
@@ -104,6 +115,75 @@ export default function MerchantOrderDetailScreen() {
   const handleCall = () => {
     if (order?.merchant.owner.phone) {
       Linking.openURL(`tel:${order.merchant.owner.phone}`);
+    }
+  };
+
+  const handleCancelOrder = () => {
+    Alert.alert(
+      'Cancel Order',
+      'Are you sure you want to cancel this order? This action cannot be undone.',
+      [
+        { text: 'No', style: 'cancel' },
+        {
+          text: 'Yes, Cancel',
+          style: 'destructive',
+          onPress: async () => {
+            if (!userId || !id) return;
+            setCancelling(true);
+            try {
+              const res = await fetch(`${BASE}/api/mobile/merchant-orders/${id}/cancel`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  customerId: userId,
+                  reason: 'Cancelled by customer',
+                }),
+              });
+              
+              if (res.ok) {
+                Alert.alert('Success', 'Order cancelled successfully');
+                load(); // Reload order to show updated status
+              } else {
+                const error = await res.json();
+                Alert.alert('Error', error.error || 'Failed to cancel order');
+              }
+            } catch (e) {
+              Alert.alert('Error', 'Failed to cancel order');
+            } finally {
+              setCancelling(false);
+            }
+          },
+        },
+      ]
+    );
+  };
+
+  const handleSubmitRating = async () => {
+    if (!userId || !id || rating === 0) return;
+    
+    setSubmittingRating(true);
+    try {
+      const res = await fetch(`${BASE}/api/mobile/merchant-orders/${id}/rate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          customerId: userId,
+          score: rating,
+          review: review.trim() || undefined,
+        }),
+      });
+      
+      if (res.ok) {
+        Alert.alert('Success', 'Thank you for your feedback!');
+        load(); // Reload order to show rating
+      } else {
+        const error = await res.json();
+        Alert.alert('Error', error.error || 'Failed to submit rating');
+      }
+    } catch (e) {
+      Alert.alert('Error', 'Failed to submit rating');
+    } finally {
+      setSubmittingRating(false);
     }
   };
 
@@ -289,6 +369,86 @@ export default function MerchantOrderDetailScreen() {
           </VStack>
         </Card>
 
+        {/* Cancel Order Button */}
+        {(order.status === 'pending' || order.status === 'confirmed') && (
+          <Card padding={4} elevation="sm" style={styles.card}>
+            <Button
+              label={cancelling ? 'Cancelling...' : 'Cancel Order'}
+              variant="secondary"
+              onPress={handleCancelOrder}
+              disabled={cancelling}
+              style={{ backgroundColor: colors.red[50], borderColor: colors.red[600] }}
+            />
+          </Card>
+        )}
+
+        {/* Rating Section */}
+        {order.status === 'completed' && !order.rating && (
+          <Card padding={4} elevation="sm" style={styles.card}>
+            <VStack gap={3}>
+              <Text variant="body" style={{ fontWeight: '700', color: colors.surface.heading }}>
+                Rate Your Experience
+              </Text>
+              <HStack gap={2} style={{ justifyContent: 'center', marginVertical: spacing[2] }}>
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <Pressable
+                    key={star}
+                    onPress={() => setRating(star)}
+                    accessibilityRole="button"
+                  >
+                    <Star
+                      size={32}
+                      color={star <= rating ? '#F59E0B' : colors.gray[300]}
+                      fill={star <= rating ? '#F59E0B' : 'transparent'}
+                    />
+                  </Pressable>
+                ))}
+              </HStack>
+              <TextInput
+                style={styles.reviewInput}
+                placeholder="Write a review (optional)"
+                placeholderTextColor={colors.gray[400]}
+                value={review}
+                onChangeText={setReview}
+                multiline
+                numberOfLines={3}
+                textAlignVertical="top"
+              />
+              <Button
+                label={submittingRating ? 'Submitting...' : 'Submit Rating'}
+                onPress={handleSubmitRating}
+                disabled={rating === 0 || submittingRating}
+              />
+            </VStack>
+          </Card>
+        )}
+
+        {/* Show Existing Rating */}
+        {order.rating && (
+          <Card padding={4} elevation="sm" style={styles.card}>
+            <VStack gap={2}>
+              <Text variant="body" style={{ fontWeight: '700', color: colors.surface.heading }}>
+                Your Rating
+              </Text>
+              <HStack gap={1}>
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <Star
+                    key={star}
+                    size={20}
+                    color={star <= (order.rating?.score || 0) ? '#F59E0B' : colors.gray[300]}
+                    fill={star <= (order.rating?.score || 0) ? '#F59E0B' : 'transparent'}
+                  />
+                ))}
+              </HStack>
+              {order.rating.review && (
+                <Text variant="body" style={{ color: colors.surface.heading }}>
+                  {order.rating.review}
+                </Text>
+              )}
+            </VStack>
+          </Card>
+        )}
+
         {/* Help Section */}
         <Card padding={4} elevation="sm" style={styles.card}>
           <VStack gap={2}>
@@ -357,5 +517,15 @@ const styles = StyleSheet.create({
     backgroundColor: colors.brand[50],
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  reviewInput: {
+    borderWidth: 1,
+    borderColor: colors.surface.border,
+    borderRadius: 8,
+    padding: spacing[3],
+    fontSize: 14,
+    color: colors.surface.foreground,
+    backgroundColor: colors.surface.background,
+    minHeight: 80,
   },
 });

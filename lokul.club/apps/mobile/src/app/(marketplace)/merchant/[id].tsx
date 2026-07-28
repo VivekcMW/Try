@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { ArrowLeft, CheckCircle, Clock, MapPin, Package, ShoppingCart, Star } from 'lucide-react-native';
+import { AlertTriangle, ArrowLeft, CheckCircle, Clock, MapPin, Package, ShoppingCart, Star } from 'lucide-react-native';
 import { Avatar, Badge, Button, Card, HStack, Text, VStack } from '@/components/ui';
 import { AdSlot } from '@/components/AdSlot';
 import { useWalletStore } from '@/store/walletStore';
@@ -18,6 +18,11 @@ type ApiMerchant = {
   societiesServed?: string[]; category?: string;
   owner?: { id: string; name: string; avatarUrl?: string };
   ownerId?: string;
+  acceptingOrders?: boolean;
+  closedReason?: string;
+  closedUntil?: string;
+  businessHoursStart?: string;
+  businessHoursEnd?: string;
 };
 
 type CatalogItem = {
@@ -81,6 +86,30 @@ export default function MerchantProfileScreen() {
       </HStack>
 
       <ScrollView contentContainerStyle={{ paddingBottom: spacing[16] }}>
+        {/* Closed Alert */}
+        {merchant.acceptingOrders === false && (
+          <Card padding={3} style={{ margin: spacing[4], backgroundColor: '#FEF3C7', borderColor: '#F59E0B', borderWidth: 1 }}>
+            <HStack gap={2} align="center">
+              <AlertTriangle size={20} color="#D97706" />
+              <VStack gap={0} style={{ flex: 1 }}>
+                <Text variant="body" style={{ fontWeight: '600', color: '#92400E' }}>
+                  Currently Not Accepting Orders
+                </Text>
+                {merchant.closedReason && (
+                  <Text variant="caption" style={{ color: '#78350F' }}>
+                    Reason: {merchant.closedReason}
+                  </Text>
+                )}
+                {merchant.closedUntil && (
+                  <Text variant="caption" style={{ color: '#78350F' }}>
+                    Reopens: {new Date(merchant.closedUntil).toLocaleString()}
+                  </Text>
+                )}
+              </VStack>
+            </HStack>
+          </Card>
+        )}
+
         {/* Hero */}
         <VStack gap={3} align="center" style={styles.hero}>
           <Avatar name={merchant.name} size="xl" />
@@ -137,6 +166,14 @@ export default function MerchantProfileScreen() {
                 {merchant.priceLabel ?? 'Contact for price'}
               </Text>
             </HStack>
+          {(merchant.businessHoursStart && merchant.businessHoursEnd) && (
+            <HStack gap={2} align="center">
+              <Clock size={14} color={colors.gray[400]} />
+              <Text variant="caption" tone="secondary">
+                {merchant.businessHoursStart} - {merchant.businessHoursEnd}
+              </Text>
+            </HStack>
+          )}
           {!!merchant.responseTime && (
             <HStack gap={2} align="center">
               <Clock size={14} color={colors.gray[400]} />
@@ -193,6 +230,7 @@ export default function MerchantProfileScreen() {
                             useCartStore.getState().updateQuantity(item.id, qty - 1);
                           }}
                           style={{ width: 40 }}
+                          disabled={merchant.acceptingOrders === false}
                         />
                         <Text variant="body" style={{ fontWeight: '600', minWidth: 30, textAlign: 'center' }}>
                           {getItemQuantity(item.id)}
@@ -205,13 +243,14 @@ export default function MerchantProfileScreen() {
                             useCartStore.getState().updateQuantity(item.id, qty + 1);
                           }}
                           style={{ width: 40 }}
+                          disabled={merchant.acceptingOrders === false}
                         />
                       </HStack>
                     ) : (
                       <Button
-                        label="Add to Cart"
+                        label={merchant.acceptingOrders === false ? "Currently Closed" : "Add to Cart"}
                         size="sm"
-                        leftIcon={<ShoppingCart size={14} color="white" />}
+                        leftIcon={merchant.acceptingOrders !== false ? <ShoppingCart size={14} color="white" /> : undefined}
                         onPress={() => {
                           addToCart({
                             id: item.id,
@@ -225,7 +264,7 @@ export default function MerchantProfileScreen() {
                           });
                         }}
                         style={{ marginTop: spacing[2], alignSelf: 'flex-start' }}
-                        disabled={!item.isAvailable}
+                        disabled={!item.isAvailable || merchant.acceptingOrders === false}
                       />
                     )}
                   </VStack>

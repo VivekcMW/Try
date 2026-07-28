@@ -6,6 +6,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireMerchant } from "@/lib/merchant-auth";
 import { prisma } from "@/lib/prisma";
 import { OrderStatus } from "@/generated/prisma";
+import { sendPush } from "@/lib/push";
 
 type StatusAction = "confirm" | "reject" | "start" | "complete" | "cancel";
 
@@ -117,18 +118,114 @@ export async function POST(
 
       // Handle payment/escrow based on action
       if (action === "complete" && existingOrder.paymentStatus === "paid") {
-        // Release funds from escrow to merchant (if applicable)
-        // This would integrate with wallet system
-        // TODO: Implement wallet integration
+        // Release held funds to merchant wallet
+        await tx.user.update({
+          where: { id: merchant.ownerId },
+          data: {
+            walletBalancePaise: { increment: existingOrder.totalPaise },
+          },
+        });
+
+        // Create wallet entries for release
+        await tx.walletEntry.create({
+          data: {
+            userId: merchant.ownerId,
+            type: "release",
+            amountPaise: existingOrder.totalPaise,
+            description: `Order ${existingOrder.orderNumber} completed - funds released`,
+            status: "completed",
+            reference: existingOrder.id,
+            party: existingOrder.customer?.name || "Customer",
+          },
+        });
+
+        // Mark hold entry as completed
+        await tx.walletEntry.updateMany({
+          where: {
+            userId: merchant.ownerId,
+            reference: existingOrder.id,
+            type: "hold",
+            status: "pending",
+          },
+          data: { status: "completed" },
+        });
       }
 
       if ((action === "reject" || action === "cancel") && existingOrder.paymentStatus === "paid") {
-        // Refund customer (if paid)
-        // TODO: Implement refund logic
+        // Refund customer wallet
+        await tx.user.update({
+          where: { id: existingOrder.customerId },
+          data: {
+            walletBalancePaise: { increment: existingOrder.totalPaise },
+          },
+        });
+
+        // Create refund wallet entry
+        await tx.walletEntry.create({
+          data: {
+            userId: existingOrder.customerId,
+            type: "refund",
+            amountPaise: existingOrder.totalPaise,
+            description: `Refund for order ${existingOrder.orderNumber}`,
+            status: "completed",
+            reference: existingOrder.id,
+            party: merchant.name,
+          },
+        });
+
+        // Mark merchant hold as reversed
+        await tx.walletEntry.updateMany({
+          where: {
+            userId: merchant.ownerId,
+            reference: existingOrder.id,
+            type: "hold",
+            status: "pending",
+          },
+          data: { status: "reversed" },
+        });
+
+        // Update payment status to refunded
+        await tx.merchantOrder.update({
+          where: { id: existingOrder.id },
+          data: { paymentStatus: "refunded" },
+        });
       }
 
       return order;
     });
+
+    // Send push notification to customer about status change
+    const statusMessages: Record<StatusAction, { title: string; body: string }> = {
+      confirm: {
+        title: "Order Confirmed!",
+        body: `${merchant.name} has confirmed your order ${existingOrder.orderNumber}`,
+      },
+      start: {
+        title: "Order In Progress",
+        body: `${merchant.name} is preparing your order ${existingOrder.orderNumber}`,
+      },
+      complete: {
+        title: "Order Ready!",
+        body: `Your order ${existingOrder.orderNumber} from ${merchant.name} is ready`,
+      },
+      reject: {
+        title: "Order Cancelled",
+        body: `Your order ${existingOrder.orderNumber} was cancelled by ${merchant.name}`,
+      },
+      cancel: {
+        title: "Order Cancelled",
+        body: `Your order ${existingOrder.orderNumber} was cancelled by ${merchant.name}`,
+      },
+    };
+
+    await sendPush(
+      { userId: existingOrder.customerId },
+      {
+        ...statusMessages[action],
+        data: { type: "merchant_order_status", orderId: existingOrder.id, status: newStatus },
+        priority: "high",
+      }
+    );
 
     return NextResponse.json({ order: updatedOrder });
   } catch (error: any) {

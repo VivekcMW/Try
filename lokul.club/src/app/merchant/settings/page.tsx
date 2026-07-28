@@ -17,6 +17,8 @@ type MerchantProfile = {
   acceptingOrders?: boolean;
   closedReason?: string | null;
   closedUntil?: string | null;
+  businessHoursStart?: string | null;
+  businessHoursEnd?: string | null;
   owner: {
     name: string;
     phone: string;
@@ -30,6 +32,8 @@ export default function SettingsPage() {
   const [closedReason, setClosedReason] = useState("");
   const [autoReopen, setAutoReopen] = useState(false);
   const [closedUntil, setClosedUntil] = useState("");
+  const [businessHoursStart, setBusinessHoursStart] = useState("");
+  const [businessHoursEnd, setBusinessHoursEnd] = useState("");
   const [updating, setUpdating] = useState(false);
 
   useEffect(() => {
@@ -48,6 +52,8 @@ export default function SettingsPage() {
         setMerchant(merchantData);
         setAcceptingOrders(merchantData.acceptingOrders ?? true);
         setClosedReason(merchantData.closedReason || "");
+        setBusinessHoursStart(merchantData.businessHoursStart || "");
+        setBusinessHoursEnd(merchantData.businessHoursEnd || "");
         if (merchantData.closedUntil) {
           setAutoReopen(true);
           setClosedUntil(new Date(merchantData.closedUntil).toISOString().slice(0, 16));
@@ -119,6 +125,38 @@ export default function SettingsPage() {
     } catch (error) {
       console.error("Failed to update closed settings:", error);
       alert("Failed to update settings");
+    } finally {
+      setUpdating(false);
+    }
+  }
+
+  async function handleSaveBusinessHours() {
+    if (!businessHoursStart || !businessHoursEnd) {
+      alert("Please set both opening and closing times");
+      return;
+    }
+
+    setUpdating(true);
+    try {
+      const res = await fetch("/api/merchant/settings/business-hours", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          businessHoursStart,
+          businessHoursEnd,
+        }),
+      });
+
+      const data = await res.json();
+      
+      if (res.ok) {
+        alert("Business hours updated successfully");
+      } else {
+        alert(data.error || "Failed to update business hours");
+      }
+    } catch (error) {
+      console.error("Failed to update business hours:", error);
+      alert("Failed to update business hours");
     } finally {
       setUpdating(false);
     }
@@ -363,6 +401,58 @@ export default function SettingsPage() {
               </div>
             </div>
           )}
+        </div>
+
+        {/* Business Hours Card */}
+        <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+          <div className="mb-4 flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-600">
+              <Clock className="h-5 w-5 text-white" />
+            </div>
+            <div>
+              <h2 className="text-lg font-semibold text-gray-900">Business Hours</h2>
+              <p className="text-sm text-gray-600">Set your operating hours</p>
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div>
+                <label className="mb-1 block text-sm font-medium text-gray-700">Opening Time</label>
+                <input
+                  type="time"
+                  value={businessHoursStart}
+                  onChange={(e) => setBusinessHoursStart(e.target.value)}
+                  className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-base focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                />
+              </div>
+              <div>
+                <label className="mb-1 block text-sm font-medium text-gray-700">Closing Time</label>
+                <input
+                  type="time"
+                  value={businessHoursEnd}
+                  onChange={(e) => setBusinessHoursEnd(e.target.value)}
+                  className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-base focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                />
+              </div>
+            </div>
+
+            <button
+              onClick={handleSaveBusinessHours}
+              disabled={updating || !businessHoursStart || !businessHoursEnd}
+              className="w-full rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {updating ? "Saving..." : "Save Business Hours"}
+            </button>
+
+            {businessHoursStart && businessHoursEnd && (
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <p className="text-sm text-blue-900">
+                  Your business hours are set from <strong>{businessHoursStart}</strong> to <strong>{businessHoursEnd}</strong>. This will be visible to customers on your profile.
+                </p>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Owner Information Card */}

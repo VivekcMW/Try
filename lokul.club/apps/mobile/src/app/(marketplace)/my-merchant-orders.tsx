@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, FlatList, Pressable, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, FlatList, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Package, ShoppingBag } from 'lucide-react-native';
@@ -42,6 +42,12 @@ export default function MyMerchantOrdersScreen() {
   const [orders, setOrders] = useState<MerchantOrder[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [statusFilter, setStatusFilter] = useState<string>('all');
+
+  const filteredOrders = orders.filter((order) => {
+    if (statusFilter === 'all') return true;
+    return order.status === statusFilter;
+  });
 
   const load = useCallback(async () => {
     if (!userId) return;
@@ -99,19 +105,57 @@ export default function MyMerchantOrdersScreen() {
         </Text>
       </HStack>
 
-      {orders.length === 0 ? (
+      {/* Status Filters */}
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.filterContainer}
+      >
+        {[
+          { key: 'all', label: 'All' },
+          { key: 'pending', label: 'Pending' },
+          { key: 'confirmed', label: 'Confirmed' },
+          { key: 'in_progress', label: 'In Progress' },
+          { key: 'completed', label: 'Completed' },
+          { key: 'cancelled', label: 'Cancelled' },
+        ].map((filter) => (
+          <Pressable
+            key={filter.key}
+            onPress={() => setStatusFilter(filter.key)}
+            style={[
+              styles.filterChip,
+              statusFilter === filter.key && styles.filterChipActive,
+            ]}
+          >
+            <Text
+              variant="caption"
+              style={{
+                fontWeight: statusFilter === filter.key ? '600' : '400',
+                color: statusFilter === filter.key ? colors.brand[600] : colors.gray[600],
+              }}
+            >
+              {filter.label}
+            </Text>
+          </Pressable>
+        ))}
+      </ScrollView>
+
+      {filteredOrders.length === 0 ? (
         <View style={styles.emptyState}>
           <Package size={64} color={colors.gray[300]} />
           <Text variant="h3" style={{ color: colors.surface.heading, marginTop: spacing[4] }}>
-            No orders yet
+            {statusFilter === 'all' ? 'No orders yet' : `No ${statusFilter.replace('_', ' ')} orders`}
           </Text>
           <Text variant="body" tone="secondary" style={{ textAlign: 'center', marginTop: spacing[2] }}>
-            Start shopping and your orders will appear here
+            {statusFilter === 'all' 
+              ? 'Start shopping and your orders will appear here'
+              : 'Try selecting a different filter'
+            }
           </Text>
         </View>
       ) : (
         <FlatList
-          data={orders}
+          data={filteredOrders}
           keyExtractor={(item) => item.id}
           refreshing={refreshing}
           onRefresh={handleRefresh}
@@ -171,5 +215,22 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: spacing[6],
+  },
+  filterContainer: {
+    paddingHorizontal: spacing[4],
+    paddingVertical: spacing[3],
+    gap: spacing[2],
+  },
+  filterChip: {
+    paddingHorizontal: spacing[3],
+    paddingVertical: spacing[2],
+    borderRadius: 20,
+    backgroundColor: colors.gray[100],
+    marginRight: spacing[2],
+  },
+  filterChipActive: {
+    backgroundColor: colors.brand[50],
+    borderWidth: 1,
+    borderColor: colors.brand[600],
   },
 });

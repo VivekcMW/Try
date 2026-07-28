@@ -4,6 +4,7 @@
  */
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { sendPush } from "@/lib/push";
 
 export async function POST(
   req: NextRequest,
@@ -146,6 +147,25 @@ export async function POST(
 
     const totalPaise = subtotalPaise - discountPaise + deliveryFeePaise + taxPaise;
 
+    // Validate wallet balance if paying via wallet
+    if (paymentMethod === "wallet") {
+      const customer = await prisma.user.findUnique({
+        where: { id: customerId },
+        select: { walletBalancePaise: true },
+      });
+
+      if (!customer || customer.walletBalancePaise < totalPaise) {
+        return NextResponse.json(
+          { 
+            error: "Insufficient wallet balance",
+            required: totalPaise,
+            available: customer?.walletBalancePaise || 0,
+          },
+          { status: 422 }
+        );
+      }
+    }
+
     // Generate order number
     const orderCount = await prisma.merchantOrder.count();
     const orderNumber = `#LK-${new Date().getFullYear()}-${String(orderCount + 1).padStart(4, "0")}`;
@@ -165,7 +185,7 @@ export async function POST(
           taxPaise,
           totalPaise,
           paymentMethod,
-          paymentStatus: paymentMethod === "cod" ? "pending" : "pending",
+          paymentStatus: paymentMethod === "wallet" ? "paid" : "pending",
           deliveryMode: deliveryMode || "self_pickup",
           deliveryAddress,
           deliveryLat,
@@ -200,8 +220,53 @@ export async function POST(
         },
       });
 
-      // TODO: Handle wallet payment if paymentMethod === "wallet"
-      // TODO: Send notification to merchant
+      // Handle wallet payment
+      if (paymentMethod === "wallet") {
+        // Deduct from customer wallet
+        await tx.user.update({
+          where: { id: customerId },
+          data: {
+            walletBalancePaise: { decrement: totalPaise },
+          },
+        });
+
+        // Create wallet transaction entry
+        await tx.walletEntry.create({
+          data: {
+            userId: customerId,
+            type: "spend",
+            amountPaise: -totalPaise,
+            description: `Order ${orderNumber} at ${merchant.name}`,
+            status: "completed",
+            reference: newOrder.id,
+            party: merchant.name,
+          },
+        });
+
+        // Hold funds for merchant (will be released on completion)
+        await tx.walletEntry.create({
+          data: {
+            userId: merchant.ownerId,
+            type: "hold",
+            amountPaise: totalPaise,
+            description: `Order ${orderNumber} - held until completion`,
+            status: "pending",
+            reference: newOrder.id,
+            party: newOrder.customer?.name || "Customer",
+          },
+        });
+      }
+
+      // Send push notification to merchant owner about new order
+      await sendPush(
+        { userId: merchant.ownerId },
+        {
+          title: "New Order Received!",
+          body: `${newOrder.customer?.name || "A customer"} placed an order for ₹${(totalPaise / 100).toFixed(2)}`,
+          data: { type: "merchant_order_new", orderId: newOrder.id },
+          priority: "high",
+        }
+      );
 
       return newOrder;
     });

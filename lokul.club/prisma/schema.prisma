@@ -666,6 +666,8 @@ model Merchant {
   acceptingOrders    Boolean        @default(true) // Can merchant accept new orders?
   closedReason       String?        // Reason for not accepting orders (shown to customers)
   closedUntil        DateTime?      // Optional: auto-reopen at this time
+  businessHoursStart String?        // e.g., "09:00" (24-hour format)
+  businessHoursEnd   String?        // e.g., "21:00" (24-hour format)
   createdAt          DateTime       @default(now())
   updatedAt          DateTime       @updatedAt
 

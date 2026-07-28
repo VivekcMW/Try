@@ -368,7 +368,7 @@ export default function Home() {
         {/* ════════ HERO ════════ */}
         <section className="relative overflow-hidden pb-16 pt-12 md:pb-20 md:pt-20">
           <div className="bg-mesh pointer-events-none absolute inset-0 opacity-90" />
-          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-b from-transparent to-white" />
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-linear-to-b from-transparent to-white" />
 
           <div className="ds-container relative grid items-start gap-8 md:gap-12 lg:grid-cols-[1.2fr_minmax(0,400px)] lg:gap-14">
 
@@ -428,7 +428,7 @@ export default function Home() {
                 </div>
               ) : (
                 <form action={action} className="mt-6">
-                  <div className="grid grid-cols-[1fr_1.4fr_8.5rem_auto] gap-2">
+                  <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-[1fr_1.4fr_8.5rem_auto]">
                     <input
                       className="ds-input h-11 min-w-0 text-sm"
                       type="text" name="name" placeholder="Your name" required

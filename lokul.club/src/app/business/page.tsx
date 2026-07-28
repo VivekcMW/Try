@@ -134,8 +134,7 @@ function RegisterWizard() {
             const done = step > i;
             const active = step === i;
             let stepBg = "var(--color-surface-muted)";
-            if (done) stepBg = "var(--color-brand-600)";
-            else if (active) stepBg = "var(--color-brand-600)";
+            if (done || active) stepBg = "var(--color-brand-600)";
             return (
               <div key={s.n} className="flex flex-1 items-center">
                 <div className="flex items-center gap-2.5">
@@ -205,7 +204,7 @@ function RegisterWizard() {
                       background: active ? "var(--color-brand-50)" : "white",
                       borderWidth: active ? "2px" : "1px",
                       transform: active ? "translateY(-2px)" : "none",
-                      boxShadow: active ? "0 8px 20px -6px rgba(245,158,11,0.35)" : "none",
+                      boxShadow: active ? "0 8px 20px -6px rgba(79,70,229,0.30)" : "none",
                     }}
                   >
                     <span className="text-3xl">{c.emoji}</span>

@@ -687,4 +687,11 @@
     box-shadow: 0 0 0 3px rgba(99,102,241,0.18);
     outline: none;
   }
+
+  /* iOS Safari zooms into inputs with font-size < 16px — keep mobile inputs at 16px */
+  @media (max-width: 640px) {
+    .ds-input {
+      font-size: 16px;
+    }
+  }
 }

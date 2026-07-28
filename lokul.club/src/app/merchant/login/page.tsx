@@ -1,0 +1,255 @@
+"use client";
+
+import { useState, useRef, useCallback } from "react";
+import { useRouter } from "next/navigation";
+import { Loader2, ArrowLeft, Store, Check } from "lucide-react";
+import Link from "next/link";
+
+type Step = "phone" | "otp";
+
+export default function MerchantLoginPage() {
+  const router = useRouter();
+  const [step, setStep] = useState<Step>("phone");
+  const [phone, setPhone] = useState("");
+  const [otp, setOtp] = useState<string[]>(["", "", "", "", "", ""]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [countdown, setCountdown] = useState(0);
+  const otpRefs = useRef<(HTMLInputElement | null)[]>([]);
+
+  const sendOtp = useCallback(async () => {
+    if (phone.length !== 10) return;
+    setLoading(true);
+    setError("");
+
+    try {
+      const res = await fetch("/api/web/otp/send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone: `+91${phone}` }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || "Failed to send OTP");
+      }
+
+      setStep("otp");
+      setCountdown(30);
+      const timer = setInterval(() => {
+        setCountdown((c) => {
+          if (c <= 1) {
+            clearInterval(timer);
+            return 0;
+          }
+          return c - 1;
+        });
+      }, 1000);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to send OTP");
+    } finally {
+      setLoading(false);
+    }
+  }, [phone]);
+
+  const verifyOtp = useCallback(async () => {
+    const otpCode = otp.join("");
+    if (otpCode.length !== 6) return;
+
+    setLoading(true);
+    setError("");
+
+    try {
+      const res = await fetch("/api/merchant/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone: `+91${phone}`, otp: otpCode }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "Login failed");
+      }
+
+      if (!data.success) {
+        throw new Error(data.error || "Login failed");
+      }
+
+      // Success - redirect to dashboard
+      router.push("/merchant");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Invalid OTP or login failed");
+    } finally {
+      setLoading(false);
+    }
+  }, [phone, otp, router]);
+
+  const handleOtpChange = (idx: number, val: string) => {
+    const digit = val.replace(/\D/g, "").slice(-1);
+    const newOtp = [...otp];
+    newOtp[idx] = digit;
+    setOtp(newOtp);
+    if (digit && idx < 5) otpRefs.current[idx + 1]?.focus();
+  };
+
+  const handleOtpKeyDown = (idx: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Backspace" && !otp[idx] && idx > 0) {
+      otpRefs.current[idx - 1]?.focus();
+    }
+    if (e.key === "Enter" && otp.every((d) => d)) {
+      verifyOtp();
+    }
+  };
+
+  const handleOtpPaste = (e: React.ClipboardEvent) => {
+    const digits = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6);
+    const newOtp = [...otp];
+    digits.split("").forEach((d, i) => {
+      newOtp[i] = d;
+    });
+    setOtp(newOtp);
+    otpRefs.current[Math.min(digits.length, 5)]?.focus();
+  };
+
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-12">
+      <div className="w-full max-w-md space-y-8">
+        {/* Header */}
+        <div className="text-center">
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-mw-primary-600">
+            <Store className="h-8 w-8 text-white" />
+          </div>
+          <h1 className="text-3xl font-bold text-gray-900">Merchant Dashboard</h1>
+          <p className="mt-2 text-sm text-gray-600">
+            Manage your business catalog, offers, and orders
+          </p>
+        </div>
+
+        {/* Card */}
+        <div className="rounded-2xl border border-gray-200 bg-white p-8 shadow-sm">
+          {step === "phone" ? (
+            <div className="space-y-6">
+              <div>
+                <h2 className="text-xl font-semibold text-gray-900">
+                  Login to your account
+                </h2>
+                <p className="mt-1 text-sm text-gray-600">
+                  Enter your registered mobile number
+                </p>
+              </div>
+
+              <div>
+                <label className="mb-2 block text-sm font-medium text-gray-700">
+                  Mobile number
+                </label>
+                <div className="flex gap-2">
+                  <div className="flex items-center rounded-lg border border-gray-300 bg-gray-50 px-3 py-2.5 text-sm font-semibold text-gray-700">
+                    +91
+                  </div>
+                  <input
+                    type="tel"
+                    inputMode="numeric"
+                    maxLength={10}
+                    placeholder="98765 43210"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))}
+                    onKeyDown={(e) => e.key === "Enter" && sendOtp()}
+                    className="flex-1 rounded-lg border border-gray-300 px-4 py-2.5 text-base outline-none transition focus:border-mw-primary-500 focus:ring-2 focus:ring-mw-primary-100"
+                  />
+                </div>
+                {error && (
+                  <p className="mt-2 text-sm text-red-600">{error}</p>
+                )}
+              </div>
+
+              <button
+                onClick={sendOtp}
+                disabled={phone.length !== 10 || loading}
+                className="flex w-full items-center justify-center gap-2 rounded-lg bg-mw-primary-600 px-4 py-3 text-base font-semibold text-white transition hover:bg-mw-primary-700 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {loading && <Loader2 size={18} className="animate-spin" />}
+                Send OTP
+              </button>
+
+              <div className="pt-4 text-center text-sm text-gray-600">
+                Don't have an account?{" "}
+                <Link href="/business" className="font-semibold text-mw-primary-600 hover:text-mw-primary-700">
+                  Register your business
+                </Link>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-6">
+              <button
+                onClick={() => setStep("phone")}
+                className="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-gray-900"
+              >
+                <ArrowLeft size={16} />
+                Change number
+              </button>
+
+              <div>
+                <h2 className="text-xl font-semibold text-gray-900">
+                  Verify your number
+                </h2>
+                <p className="mt-1 text-sm text-gray-600">
+                  Enter the 6-digit code sent to +91 {phone}
+                </p>
+              </div>
+
+              <div>
+                <div className="flex gap-2" onPaste={handleOtpPaste}>
+                  {otp.map((digit, idx) => (
+                    <input
+                      key={idx}
+                      ref={(el) => {
+                        otpRefs.current[idx] = el;
+                      }}
+                      type="text"
+                      inputMode="numeric"
+                      maxLength={1}
+                      value={digit}
+                      onChange={(e) => handleOtpChange(idx, e.target.value)}
+                      onKeyDown={(e) => handleOtpKeyDown(idx, e)}
+                      className="h-14 w-full rounded-lg border-2 border-gray-300 text-center text-xl font-semibold outline-none transition focus:border-mw-primary-500 focus:ring-2 focus:ring-mw-primary-100"
+                    />
+                  ))}
+                </div>
+                {error && (
+                  <p className="mt-3 text-sm text-red-600">{error}</p>
+                )}
+              </div>
+
+              <button
+                onClick={verifyOtp}
+                disabled={otp.some((d) => !d) || loading}
+                className="flex w-full items-center justify-center gap-2 rounded-lg bg-mw-primary-600 px-4 py-3 text-base font-semibold text-white transition hover:bg-mw-primary-700 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {loading && <Loader2 size={18} className="animate-spin" />}
+                Verify & Login
+              </button>
+
+              <div className="text-center text-sm text-gray-600">
+                {countdown > 0 ? (
+                  <p>Resend OTP in {countdown}s</p>
+                ) : (
+                  <button
+                    onClick={sendOtp}
+                    className="font-semibold text-mw-primary-600 hover:text-mw-primary-700"
+                  >
+                    Resend OTP
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+
+        <p className="text-center text-xs text-gray-500">
+          Protected by Lokul.club security. Your data is encrypted.
+        </p>
+      </div>
+    </div>
+  );
+}

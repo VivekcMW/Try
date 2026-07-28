@@ -246,6 +246,9 @@ model User {
   ordersReceived  Order[]         @relation("OrderSeller")
   ratingsGiven    Rating[]        @relation("RatingGiver")
   ratingsReceived Rating[]        @relation("RatingReceiver")
+  
+  // Merchant orders
+  merchantOrders  MerchantOrder[] @relation("CustomerOrders")
 
   // Communities
   communitiesCreated   Community[]       @relation("CommunityCreator")
@@ -663,17 +666,221 @@ model Merchant {
   createdAt          DateTime       @default(now())
   updatedAt          DateTime       @updatedAt
 
-  owner         User           @relation(fields: [ownerId], references: [id])
+  owner         User                  @relation(fields: [ownerId], references: [id])
   serviceSlots  ServiceSlot[]
   appointments  Appointment[]
   quoteRequests QuoteRequest[]
   advertisers   Advertiser[]
+  catalogItems  MerchantCatalogItem[]
+  offers        MerchantOffer[]
+  orders        MerchantOrder[]       @relation("MerchantOrders")
 
   @@index([pinCode])
   @@index([city])
   @@index([status])
   @@index([category])
   @@index([createdAt])
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// MERCHANT CATALOG & OFFERS
+// ─────────────────────────────────────────────────────────────────────────────
+
+enum CatalogItemKind {
+  product      // kirana, bakery, pharmacy — physical goods
+  menu_item    // restaurant, tiffin, cafe — food menu
+  service      // salon — haircut, facial (has durationMins)
+  consultation // clinic — GP visit, dental checkup (has durationMins + doctor)
+  class_batch  // tuition/education
+}
+
+model MerchantCatalogItem {
+  id           String          @id @default(cuid())
+  merchantId   String
+  kind         CatalogItemKind
+  name         String
+  description  String?
+  pricePaise   Int
+  unit         String? // "1 kg", "session", "30 min"
+  durationMins Int? // for service / consultation kinds
+  imageUrl     String?
+  isAvailable  Boolean         @default(true)
+  sortOrder    Int             @default(0)
+  attributes   Json? // { "isVeg": true } | { "doctorName": "Dr. Rao" } etc.
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+
+  merchant   Merchant             @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+  orderItems MerchantOrderItem[]
+
+  @@index([merchantId, kind])
+  @@index([merchantId, isAvailable])
+}
+
+enum OfferType {
+  percent_off
+  flat_off
+  bogo
+  free_delivery
+}
+
+model MerchantOffer {
+  id            String    @id @default(cuid())
+  merchantId    String
+  title         String
+  type          OfferType
+  value         Int // percent (0-100) or paise, depending on type
+  minSpendPaise Int?
+  appliesTo     String[] // MerchantCatalogItem ids; empty = applies to everything
+  startsAt      DateTime  @default(now())
+  endsAt        DateTime
+  isActive      Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  merchant Merchant @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+
+  @@index([merchantId, isActive])
+  @@index([endsAt])
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// MERCHANT ORDERS
+// ─────────────────────────────────────────────────────────────────────────────
+
+enum MerchantOrderType {
+  catalog_item    // Products, menu items
+  service_booking // Service with time slot
+  bulk_order      // Large quantity orders
+}
+
+model MerchantOrder {
+  id                  String               @id @default(cuid())
+  orderNumber         String               @unique // User-friendly: #LK-2024-0001
+  
+  // Parties
+  customerId          String
+  merchantId          String
+  
+  // Order details
+  type                MerchantOrderType    @default(catalog_item)
+  status              OrderStatus          @default(pending)
+  
+  // Pricing
+  subtotalPaise       Int                  // Sum of items
+  discountPaise       Int                  @default(0)
+  deliveryFeePaise    Int                  @default(0)
+  taxPaise            Int                  @default(0)
+  totalPaise          Int                  // Final amount
+  
+  // Payment
+  paymentMethod       String?              // wallet | upi | cod
+  paymentStatus       String               @default("pending") // pending | paid | refunded
+  paidAt              DateTime?
+  
+  // Fulfillment
+  scheduledAt         DateTime?            // For service bookings
+  estimatedReadyAt    DateTime?            // For pickup/delivery
+  actualReadyAt       DateTime?
+  
+  deliveryMode        String?              // self_pickup | home_delivery | on_site_service
+  deliveryAddress     String?
+  deliveryLat         Float?
+  deliveryLng         Float?
+  
+  // Notes & Communication
+  customerNotes       String?
+  merchantNotes       String?
+  cancellationReason  String?
+  rejectionReason     String?
+  
+  // Metadata
+  appliedOfferId      String?              // FK to MerchantOffer
+  qrToken             String?              @unique // For in-person verification
+  
+  // Timestamps
+  createdAt           DateTime             @default(now())
+  confirmedAt         DateTime?
+  inProgressAt        DateTime?
+  completedAt         DateTime?
+  cancelledAt         DateTime?
+  updatedAt           DateTime             @updatedAt
+  
+  // Relations
+  customer            User                 @relation("CustomerOrders", fields: [customerId], references: [id])
+  merchant            Merchant             @relation("MerchantOrders", fields: [merchantId], references: [id], onDelete: Cascade)
+  orderItems          MerchantOrderItem[]
+  statusHistory       OrderStatusHistory[]
+  rating              OrderRating?
+  
+  @@index([merchantId, status])
+  @@index([customerId])
+  @@index([orderNumber])
+  @@index([createdAt])
+  @@index([status, merchantId])
+}
+
+model MerchantOrderItem {
+  id              String               @id @default(cuid())
+  orderId         String
+  catalogItemId   String?              // Nullable for deleted items
+  
+  // Snapshot (preserve even if catalog item changes)
+  name            String
+  kind            CatalogItemKind
+  pricePaise      Int
+  quantity        Int
+  unit            String?
+  
+  // Pricing
+  subtotalPaise   Int                  // price × quantity
+  discountPaise   Int                  @default(0)
+  totalPaise      Int                  // subtotal - discount
+  
+  // Custom options (for food, services)
+  customizations  Json?                // { size: "large", spice: "medium" }
+  
+  order           MerchantOrder        @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  catalogItem     MerchantCatalogItem? @relation(fields: [catalogItemId], references: [id], onDelete: SetNull)
+  
+  @@index([orderId])
+}
+
+// Track status changes for audit trail
+model OrderStatusHistory {
+  id          String         @id @default(cuid())
+  orderId     String
+  fromStatus  OrderStatus?
+  toStatus    OrderStatus
+  changedBy   String         // userId who made the change
+  reason      String?
+  createdAt   DateTime       @default(now())
+  
+  order       MerchantOrder  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  
+  @@index([orderId])
+}
+
+// Ratings for completed orders
+model OrderRating {
+  id          String         @id @default(cuid())
+  orderId     String         @unique
+  customerId  String
+  merchantId  String
+  
+  rating      Int            // 1-5 stars
+  review      String?
+  photos      String[]       @default([])
+  
+  response    String?        // Merchant's response
+  respondedAt DateTime?
+  
+  isVisible   Boolean        @default(true)
+  createdAt   DateTime       @default(now())
+  
+  order       MerchantOrder  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  
+  @@index([merchantId, isVisible])
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

@@ -32,6 +32,7 @@ import { SUPPORTED_LANGUAGES } from '@/i18n/languageConfig';
 import { useLanguageStore } from '@/store/languageStore';
 import { useOnboardingStore } from '@/store/onboardingStore';
 import { useProfileStore } from '@/store/profileStore';
+import { useBusinessStore, BIZ_CATEGORY_META } from '@/store/businessStore';
 import { tierLabel, tierTone, useVerificationStore } from '@/store/verificationStore';
 import { useAccessibilityStore } from '@/store/accessibilityStore';
 import { colors, radius, spacing } from '@lokul/ui-tokens';
@@ -64,6 +65,7 @@ export default function ProfileScreen() {
   const resetVerification = useVerificationStore((s) => s.resetVerification);
   const seniorMode = useAccessibilityStore((s) => s.seniorMode);
   const pin = useOnboardingStore((s) => s.pin);
+  const myBusiness = useBusinessStore((s) => s.myBusiness);
 
   const [myStories, setMyStories] = useState<StoryItem[]>([]);
 
@@ -344,9 +346,15 @@ export default function ProfileScreen() {
           </View>
           <SettingsRow
             Icon={Store}
-            label="List Your Business"
-            value="Kirana, Clinic, Salon & 30+ categories"
-            onPress={() => router.push('/(business)/onboard' as any)}
+            label={myBusiness ? 'My Storefront' : 'List Your Business'}
+            value={
+              myBusiness
+                ? `${myBusiness.name} · ${BIZ_CATEGORY_META[myBusiness.category]?.label ?? myBusiness.category}`
+                : 'Kirana, Clinic, Salon & 30+ categories'
+            }
+            onPress={() =>
+              router.push((myBusiness ? '/(business)/dashboard' : '/(business)/onboard') as any)
+            }
           />
           <Divider />
           <SettingsRow

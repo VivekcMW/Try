@@ -35,7 +35,7 @@ const BASE = process.env.EXPO_PUBLIC_API_BASE ?? '';
 import { useServiceRequestStore } from '@/store/serviceRequestStore';
 import {
   BIZ_ORDERS, BIZ_POSTS, CATALOGUE, FOOD_MENU, FOOD_ORDERS, EDU_BATCHES, STUDENT_FEES,
-  type CatalogueItem, type BizOrder, type MenuItem, type FoodOrder,
+  type BizOrder, type FoodOrder,
   type EducationBatch, type StudentFee, type BizPost,
 } from '@/data/business-seed';
 import { colors, radius, spacing } from '@lokul/ui-tokens';
@@ -43,21 +43,21 @@ import { colors, radius, spacing } from '@lokul/ui-tokens';
 type Tab =
   | 'overview' | 'catalogue' | 'orders' | 'menu' | 'kitchen'
   | 'services' | 'bookings' | 'requests' | 'quotes' | 'batches' | 'fees'
-  | 'posts' | 'promote';
+  | 'offers' | 'posts' | 'promote';
 
 const TABS_BY_TYPE: Record<MerchantType, Tab[]> = {
-  retail:      ['overview', 'catalogue', 'orders', 'posts', 'promote'],
-  food:        ['overview', 'menu', 'kitchen', 'posts', 'promote'],
-  appointment: ['overview', 'services', 'bookings', 'quotes', 'posts', 'promote'],
-  services:    ['overview', 'services', 'requests', 'quotes', 'posts', 'promote'],
-  education:   ['overview', 'batches', 'fees', 'posts', 'promote'],
+  retail:      ['overview', 'catalogue', 'orders', 'offers', 'posts', 'promote'],
+  food:        ['overview', 'menu', 'kitchen', 'offers', 'posts', 'promote'],
+  appointment: ['overview', 'services', 'bookings', 'quotes', 'offers', 'posts', 'promote'],
+  services:    ['overview', 'services', 'requests', 'quotes', 'offers', 'posts', 'promote'],
+  education:   ['overview', 'batches', 'fees', 'offers', 'posts', 'promote'],
 };
 
 const TAB_LABELS: Record<Tab, string> = {
   overview: 'Overview', catalogue: 'Catalogue', orders: 'Orders',
   menu: 'Menu', kitchen: 'Kitchen', services: 'Services',
   bookings: 'Bookings', requests: 'Requests', quotes: 'Quotes',
-  batches: 'Batches', fees: 'Fees', posts: 'Posts', promote: 'Promote',
+  batches: 'Batches', fees: 'Fees', offers: 'Offers', posts: 'Posts', promote: 'Promote',
 };
 
 export default function BusinessDashboard() {
@@ -185,9 +185,9 @@ export default function BusinessDashboard() {
 
       <ScrollView contentContainerStyle={styles.scroll}>
         {tab === 'overview' && <Overview merchantType={merchantType} onQuickAction={handleQuickAction} />}
-        {tab === 'catalogue' && <Catalogue />}
+        {tab === 'catalogue' && <Catalogue merchantId={biz.id ?? ''} />}
         {tab === 'orders' && <Orders />}
-        {tab === 'menu' && <FoodMenu />}
+        {tab === 'menu' && <FoodMenu merchantId={biz.id ?? ''} />}
         {tab === 'kitchen' && <FoodKitchen />}
         {tab === 'services' && merchantType === 'appointment' && <ApptServices />}
         {tab === 'services' && merchantType === 'services' && <SvcOffered />}
@@ -196,6 +196,7 @@ export default function BusinessDashboard() {
         {tab === 'quotes' && <ApiQuotes merchantId={biz.id ?? ''} />}
         {tab === 'batches' && <EduBatches />}
         {tab === 'fees' && <EduFees />}
+        {tab === 'offers' && <Offers merchantId={biz.id ?? ''} />}
         {tab === 'posts' && <Posts />}
         {tab === 'promote' && (
           <Promote pro={biz.subscriptionTier === 'pro'} bizId={biz.id ?? ''} bizName={biz.name} />
@@ -296,22 +297,63 @@ function QuickAction({ Icon, label, onPress }: { readonly Icon: any; readonly la
 
 // ─── Retail ───────────────────────────────────────────────────────────────────
 
-function Catalogue() {
-  const [items, setItems] = useState<CatalogueItem[]>(CATALOGUE);
+type ApiCatalogItem = {
+  id: string; name: string; pricePaise: number; unit?: string | null; isAvailable: boolean;
+};
+
+function Catalogue({ merchantId }: { readonly merchantId: string }) {
+  const [items, setItems] = useState<ApiCatalogItem[]>([]);
+  const [loading, setLoading] = useState(true);
   const [adding, setAdding] = useState(false);
   const [newName, setNewName] = useState('');
   const [newPrice, setNewPrice] = useState('');
-  const toggle = (id: string) =>
-    setItems((a) => a.map((i) => (i.id === id ? { ...i, available: !i.available } : i)));
+  const [saving, setSaving] = useState(false);
 
-  function addItem() {
-    if (!newName.trim() || !newPrice) return;
-    setItems((a) => [
-      { id: `c_${Date.now()}`, name: newName.trim(), priceRupees: Math.round(parseFloat(newPrice)) || 0, category: 'General', stock: 0, available: true, imageHint: '' },
-      ...a,
-    ]);
-    setNewName(''); setNewPrice(''); setAdding(false);
+  const load = useCallback(async () => {
+    if (!merchantId) { setLoading(false); return; }
+    setLoading(true);
+    try {
+      const res  = await fetch(`${BASE}/api/mobile/merchants/${merchantId}/catalog?kind=product`);
+      const data = await res.json();
+      setItems(Array.isArray(data?.items) ? data.items : []);
+    } catch { setItems([]); } finally { setLoading(false); }
+  }, [merchantId]);
+
+  useEffect(() => { load(); }, [load]);
+
+  async function toggle(id: string, isAvailable: boolean) {
+    setItems((a) => a.map((i) => (i.id === id ? { ...i, isAvailable: !isAvailable } : i)));
+    try {
+      await fetch(`${BASE}/api/mobile/merchants/${merchantId}/catalog/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ isAvailable: !isAvailable }),
+      });
+    } catch { /* optimistic update stands; next reload reconciles */ }
   }
+
+  async function addItem() {
+    if (!newName.trim() || !newPrice || saving) return;
+    setSaving(true);
+    try {
+      const res = await fetch(`${BASE}/api/mobile/merchants/${merchantId}/catalog`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          kind: 'product',
+          name: newName.trim(),
+          pricePaise: Math.round((parseFloat(newPrice) || 0) * 100),
+        }),
+      });
+      if (!res.ok) throw new Error('create failed');
+      setNewName(''); setNewPrice(''); setAdding(false);
+      await load();
+    } catch {
+      Alert.alert('Error', 'Could not save this item — please try again.');
+    } finally { setSaving(false); }
+  }
+
+  if (loading) return <ActivityIndicator style={{ marginTop: spacing[6] }} />;
 
   return (
     <VStack gap={3}>
@@ -322,14 +364,20 @@ function Catalogue() {
             <TextInput value={newName} onChangeText={setNewName} placeholder="Item name" style={styles.quoteInput} />
             <HStack gap={2}>
               <TextInput value={newPrice} onChangeText={setNewPrice} keyboardType="numeric" placeholder="Price (Rs)" style={[styles.quoteInput, { flex: 1 }]} />
-              <Pressable style={styles.sendBtn} onPress={addItem}>
+              <Pressable style={styles.sendBtn} onPress={addItem} disabled={saving}>
                 <View style={styles.sendBtnInner}>
-                  <Text variant="caption" style={{ color: '#fff', fontWeight: '700' }}>Save</Text>
+                  <Text variant="caption" style={{ color: '#fff', fontWeight: '700' }}>{saving ? 'Saving…' : 'Save'}</Text>
                 </View>
               </Pressable>
             </HStack>
           </VStack>
         </Card>
+      )}
+      {items.length === 0 && !adding && (
+        <View style={styles.emptySection}>
+          <Package size={32} color={colors.surface.textSecondary} />
+          <Text variant="body" tone="secondary">No catalogue items yet</Text>
+        </View>
       )}
       {items.map((i) => (
         <Card key={i.id} padding={3.5} elevation="none" bordered>
@@ -339,14 +387,11 @@ function Catalogue() {
             </View>
             <VStack gap={0.5} style={{ flex: 1 }}>
               <Text variant="body" style={{ fontWeight: '700' }} numberOfLines={1}>{i.name}</Text>
-              <HStack gap={2}>
-                <Text variant="caption" style={{ fontWeight: '700', color: colors.brand[700] }}>Rs {i.priceRupees}</Text>
-                <Text variant="caption" tone="secondary">· {i.category} · stock {i.stock}</Text>
-              </HStack>
+              <Text variant="caption" style={{ fontWeight: '700', color: colors.brand[700] }}>Rs {Math.round(i.pricePaise / 100)}{i.unit ? ` / ${i.unit}` : ''}</Text>
             </VStack>
             <Switch
-              value={i.available}
-              onValueChange={() => toggle(i.id)}
+              value={i.isAvailable}
+              onValueChange={() => toggle(i.id, i.isAvailable)}
               trackColor={{ true: colors.brand[600], false: colors.gray[300] }}
             />
           </HStack>
@@ -413,22 +458,60 @@ function Orders() {
 
 // ─── Food ─────────────────────────────────────────────────────────────────────
 
-function FoodMenu() {
-  const [items, setItems] = useState<MenuItem[]>(FOOD_MENU);
+function FoodMenu({ merchantId }: { readonly merchantId: string }) {
+  const [items, setItems] = useState<ApiCatalogItem[]>([]);
+  const [loading, setLoading] = useState(true);
   const [adding, setAdding] = useState(false);
   const [newName, setNewName] = useState('');
   const [newPrice, setNewPrice] = useState('');
-  const toggle = (id: string) =>
-    setItems((a) => a.map((i) => (i.id === id ? { ...i, available: !i.available } : i)));
+  const [saving, setSaving] = useState(false);
 
-  function addItem() {
-    if (!newName.trim() || !newPrice) return;
-    setItems((a) => [
-      { id: `m_${Date.now()}`, name: newName.trim(), category: 'Mains', priceRupees: Math.round(parseFloat(newPrice)) || 0, available: true, isVeg: true, popular: false },
-      ...a,
-    ]);
-    setNewName(''); setNewPrice(''); setAdding(false);
+  const load = useCallback(async () => {
+    if (!merchantId) { setLoading(false); return; }
+    setLoading(true);
+    try {
+      const res  = await fetch(`${BASE}/api/mobile/merchants/${merchantId}/catalog?kind=menu_item`);
+      const data = await res.json();
+      setItems(Array.isArray(data?.items) ? data.items : []);
+    } catch { setItems([]); } finally { setLoading(false); }
+  }, [merchantId]);
+
+  useEffect(() => { load(); }, [load]);
+
+  async function toggle(id: string, isAvailable: boolean) {
+    setItems((a) => a.map((i) => (i.id === id ? { ...i, isAvailable: !isAvailable } : i)));
+    try {
+      await fetch(`${BASE}/api/mobile/merchants/${merchantId}/catalog/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ isAvailable: !isAvailable }),
+      });
+    } catch { /* optimistic update stands; next reload reconciles */ }
   }
+
+  async function addItem() {
+    if (!newName.trim() || !newPrice || saving) return;
+    setSaving(true);
+    try {
+      const res = await fetch(`${BASE}/api/mobile/merchants/${merchantId}/catalog`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          kind: 'menu_item',
+          name: newName.trim(),
+          pricePaise: Math.round((parseFloat(newPrice) || 0) * 100),
+          attributes: { isVeg: true },
+        }),
+      });
+      if (!res.ok) throw new Error('create failed');
+      setNewName(''); setNewPrice(''); setAdding(false);
+      await load();
+    } catch {
+      Alert.alert('Error', 'Could not save this item — please try again.');
+    } finally { setSaving(false); }
+  }
+
+  if (loading) return <ActivityIndicator style={{ marginTop: spacing[6] }} />;
 
   return (
     <VStack gap={3}>
@@ -439,32 +522,31 @@ function FoodMenu() {
             <TextInput value={newName} onChangeText={setNewName} placeholder="Item name" style={styles.quoteInput} />
             <HStack gap={2}>
               <TextInput value={newPrice} onChangeText={setNewPrice} keyboardType="numeric" placeholder="Price (Rs)" style={[styles.quoteInput, { flex: 1 }]} />
-              <Pressable style={styles.sendBtn} onPress={addItem}>
+              <Pressable style={styles.sendBtn} onPress={addItem} disabled={saving}>
                 <View style={styles.sendBtnInner}>
-                  <Text variant="caption" style={{ color: '#fff', fontWeight: '700' }}>Save</Text>
+                  <Text variant="caption" style={{ color: '#fff', fontWeight: '700' }}>{saving ? 'Saving…' : 'Save'}</Text>
                 </View>
               </Pressable>
             </HStack>
           </VStack>
         </Card>
       )}
+      {items.length === 0 && !adding && (
+        <View style={styles.emptySection}>
+          <BookOpen size={32} color={colors.surface.textSecondary} />
+          <Text variant="body" tone="secondary">No menu items yet</Text>
+        </View>
+      )}
       {items.map((i) => (
         <Card key={i.id} padding={3.5} elevation="none" bordered>
           <HStack gap={3} align="center">
-            <View style={[styles.vegDot, { backgroundColor: i.isVeg ? '#16A34A' : '#DC2626' }]} />
             <VStack gap={0.5} style={{ flex: 1 }}>
-              <HStack gap={2} align="center">
-                <Text variant="body" style={{ fontWeight: '700' }} numberOfLines={1}>{i.name}</Text>
-                {!!i.popular && <Badge label="POPULAR" tone="success" />}
-              </HStack>
-              <HStack gap={2}>
-                <Text variant="caption" style={{ fontWeight: '700', color: colors.brand[700] }}>Rs {i.priceRupees}</Text>
-                <Text variant="caption" tone="secondary">· {i.category}</Text>
-              </HStack>
+              <Text variant="body" style={{ fontWeight: '700' }} numberOfLines={1}>{i.name}</Text>
+              <Text variant="caption" style={{ fontWeight: '700', color: colors.brand[700] }}>Rs {Math.round(i.pricePaise / 100)}</Text>
             </VStack>
             <Switch
-              value={i.available}
-              onValueChange={() => toggle(i.id)}
+              value={i.isAvailable}
+              onValueChange={() => toggle(i.id, i.isAvailable)}
               trackColor={{ true: colors.brand[600], false: colors.gray[300] }}
             />
           </HStack>
@@ -1020,6 +1102,122 @@ function EduFees() {
           ))}
         </VStack>
       )}
+    </VStack>
+  );
+}
+
+// ─── Offers (shared across all merchant types) ────────────────────────────────
+
+type ApiOffer = {
+  id: string; title: string; type: string; value: number; isActive: boolean; endsAt: string;
+};
+
+function Offers({ merchantId }: { readonly merchantId: string }) {
+  const [offers, setOffers]   = useState<ApiOffer[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [adding, setAdding]   = useState(false);
+  const [title, setTitle]     = useState('');
+  const [percent, setPercent] = useState('10');
+  const [days, setDays]       = useState('7');
+  const [saving, setSaving]   = useState(false);
+
+  const load = useCallback(async () => {
+    if (!merchantId) { setLoading(false); return; }
+    setLoading(true);
+    try {
+      const res  = await fetch(`${BASE}/api/mobile/merchants/${merchantId}/offers`);
+      const data = await res.json();
+      setOffers(Array.isArray(data?.offers) ? data.offers : []);
+    } catch { setOffers([]); } finally { setLoading(false); }
+  }, [merchantId]);
+
+  useEffect(() => { load(); }, [load]);
+
+  async function toggle(id: string, isActive: boolean) {
+    setOffers((a) => a.map((o) => (o.id === id ? { ...o, isActive: !isActive } : o)));
+    try {
+      await fetch(`${BASE}/api/mobile/merchants/${merchantId}/offers/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ isActive: !isActive }),
+      });
+    } catch { /* optimistic update stands; next reload reconciles */ }
+  }
+
+  async function remove(id: string) {
+    setOffers((a) => a.filter((o) => o.id !== id));
+    try {
+      await fetch(`${BASE}/api/mobile/merchants/${merchantId}/offers/${id}`, { method: 'DELETE' });
+    } catch { /* ignore — reload will reconcile on next visit */ }
+  }
+
+  async function addOffer() {
+    if (!title.trim() || saving) return;
+    setSaving(true);
+    try {
+      const endsAt = new Date(Date.now() + (parseInt(days, 10) || 7) * 86_400_000).toISOString();
+      const res = await fetch(`${BASE}/api/mobile/merchants/${merchantId}/offers`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: title.trim(), type: 'percent_off', value: parseInt(percent, 10) || 0, endsAt,
+        }),
+      });
+      if (!res.ok) throw new Error('create failed');
+      setTitle(''); setPercent('10'); setDays('7'); setAdding(false);
+      await load();
+    } catch {
+      Alert.alert('Error', 'Could not create this offer — please try again.');
+    } finally { setSaving(false); }
+  }
+
+  if (loading) return <ActivityIndicator style={{ marginTop: spacing[6] }} />;
+
+  return (
+    <VStack gap={3}>
+      <Button label={adding ? 'Cancel' : '+ Create an offer'} variant="secondary" onPress={() => setAdding((v) => !v)} fullWidth />
+      {adding && (
+        <Card padding={3.5} elevation="none" bordered>
+          <VStack gap={2}>
+            <TextInput value={title} onChangeText={setTitle} placeholder="Offer title — e.g. Weekend special" style={styles.quoteInput} />
+            <HStack gap={2}>
+              <TextInput value={percent} onChangeText={setPercent} keyboardType="numeric" placeholder="% off" style={[styles.quoteInput, { flex: 1 }]} />
+              <TextInput value={days} onChangeText={setDays} keyboardType="numeric" placeholder="Valid for (days)" style={[styles.quoteInput, { flex: 1 }]} />
+            </HStack>
+            <Pressable style={styles.sendBtn} onPress={addOffer} disabled={saving}>
+              <View style={styles.sendBtnInner}>
+                <Text variant="caption" style={{ color: '#fff', fontWeight: '700' }}>{saving ? 'Saving…' : 'Save offer'}</Text>
+              </View>
+            </Pressable>
+          </VStack>
+        </Card>
+      )}
+      {offers.length === 0 && !adding && (
+        <View style={styles.emptySection}>
+          <Megaphone size={32} color={colors.surface.textSecondary} />
+          <Text variant="body" tone="secondary">No offers yet — create one to attract more customers</Text>
+        </View>
+      )}
+      {offers.map((o) => (
+        <Card key={o.id} padding={3.5} elevation="none" bordered>
+          <HStack gap={3} align="center">
+            <VStack gap={0.5} style={{ flex: 1 }}>
+              <Text variant="body" style={{ fontWeight: '700' }}>{o.title}</Text>
+              <Text variant="caption" tone="secondary">
+                {o.type === 'percent_off' ? `${o.value}% off` : `Rs ${Math.round(o.value / 100)} off`} · ends {new Date(o.endsAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}
+              </Text>
+            </VStack>
+            <Switch
+              value={o.isActive}
+              onValueChange={() => toggle(o.id, o.isActive)}
+              trackColor={{ true: colors.brand[600], false: colors.gray[300] }}
+            />
+            <Pressable onPress={() => remove(o.id)} hitSlop={8}>
+              <Text variant="caption" style={{ color: colors.semantic.danger, fontWeight: '700' }}>Delete</Text>
+            </Pressable>
+          </HStack>
+        </Card>
+      ))}
     </VStack>
   );
 }

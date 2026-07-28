@@ -257,19 +257,19 @@ export async function POST(
         });
       }
 
-      // Send push notification to merchant owner about new order
-      await sendPush(
-        { userId: merchant.ownerId },
-        {
-          title: "New Order Received!",
-          body: `${newOrder.customer?.name || "A customer"} placed an order for ₹${(totalPaise / 100).toFixed(2)}`,
-          data: { type: "merchant_order_new", orderId: newOrder.id },
-          priority: "high",
-        }
-      );
-
       return newOrder;
     });
+
+    // Send push notification to merchant owner about new order (after transaction)
+    await sendPush(
+      { userId: merchant.ownerId },
+      {
+        title: "New Order Received!",
+        body: `${order.customer?.name || "A customer"} placed an order for ₹${(totalPaise / 100).toFixed(2)}`,
+        data: { type: "merchant_order_new", orderId: order.id },
+        priority: "high",
+      }
+    );
 
     return NextResponse.json({ order }, { status: 201 });
   } catch (error: any) {

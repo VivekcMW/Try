@@ -40,6 +40,8 @@ import {
   BadgeCheck,
   IndianRupee,
   Radar,
+  Bell,
+  CircleUserRound,
 } from "lucide-react";
 
 /* ════════════════════════════════════════════════════════════════════════
@@ -487,7 +489,7 @@ export default function Home() {
             </div>
 
             {/* ── Live feed panel ── */}
-            <RadarPanel />
+            <HeroPhone />
           </div>
         </section>
 
@@ -1080,249 +1082,146 @@ function Field({ label, children }: { label: string; children: ReactNode }) {
 }
 
 /* ════════════════════════════════════════════════════════════════════════
-   LIVE FEED PANEL — hero right-side widget
+   HERO PHONE — clean phone mockup with an auto-advancing neighborhood feed
    ═══════════════════════════════════════════════════════════════════════ */
 
-/* ════ Radar data ════ */
-const RADAR_DOTS: Array<{
-  id: number; angle: number; r: number;
-  color: string; bg: string; border: string;
-  label: string; sub: string;
-  pingDelay: string;
-  Icon: React.ComponentType<{ size?: number; className?: string; strokeWidth?: number }>;
-}> = [
-  { id: 1, angle: 45,  r: 0.36, color: "#EF4444", bg: "#FEF2F2", border: "#FECACA", label: "Waterlogging",   sub: "200m · 2 min",    pingDelay: "0s",     Icon: Shield          },
-  { id: 2, angle: 128, r: 0.56, color: "#10B981", bg: "#F0FDF4", border: "#A7F3D0", label: "Raju's Tiffin",  sub: "0.4 km · Open",   pingDelay: "0.6s",   Icon: UtensilsCrossed },
-  { id: 3, angle: 215, r: 0.44, color: "#8B5CF6", bg: "#F5F3FF", border: "#DDD6FE", label: "Poll: 64% Yes",  sub: "Agency vote",     pingDelay: "1.2s",   Icon: Users           },
-  { id: 4, angle: 308, r: 0.62, color: "#0EA5E9", bg: "#EFF6FF", border: "#BAE6FD", label: "Dahi Handi",     sub: "Tomorrow · 5 PM", pingDelay: "1.8s",   Icon: Calendar        },
-  { id: 5, angle: 168, r: 0.28, color: "#F59E0B", bg: "#FFFBEB", border: "#FDE68A", label: "Black Lab lost", sub: "Gate 3 · 12 min",  pingDelay: "2.4s",   Icon: PawPrint        },
-];
+function FeedRow({ item }: { readonly item: (typeof LOKUL_SCREENS)[number] }) {
+  return (
+    <div
+      className="flex h-[66px] items-center gap-3 rounded-xl border bg-white px-3 shadow-sm"
+      style={{
+        borderColor: "var(--color-border)",
+        borderLeftWidth: "3px",
+        borderLeftColor: item.urgent ? "#DC2626" : "transparent",
+      }}
+    >
+      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg" style={{ background: item.catBg }}>
+        <item.Icon size={16} style={{ color: item.catColor }} />
+      </span>
+      <div className="min-w-0 flex-1">
+        <div className="flex items-center gap-1.5">
+          <span
+            className="rounded-full px-1.5 py-px text-[8px] font-bold uppercase tracking-wide"
+            style={{ background: item.catBg, color: item.catColor }}
+          >
+            {item.category}
+          </span>
+          {item.urgent && <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-red-500" />}
+        </div>
+        <p className="mt-0.5 truncate text-[11px] font-semibold" style={{ color: "var(--color-heading)" }}>{item.title}</p>
+        <p className="truncate text-[9px]" style={{ color: "var(--color-text-disabled)" }}>{item.meta}</p>
+      </div>
+    </div>
+  );
+}
 
-const LOG_ITEMS = [
-  { Icon: Shield,          color: "#EF4444", bg: "#FEF2F2", label: "Waterlogging alert",    meta: "Station Rd · 2 min ago"    },
-  { Icon: UtensilsCrossed, color: "#10B981", bg: "#F0FDF4", label: "Raju's Tiffin open",    meta: "0.4 km · 12 orders today"  },
-  { Icon: Users,           color: "#8B5CF6", bg: "#F5F3FF", label: "RWA poll: 64% Yes",     meta: "184 votes · 12 min ago"    },
-  { Icon: Calendar,        color: "#0EA5E9", bg: "#EFF6FF", label: "Dahi Handi event",       meta: "156 going · Tomorrow 5 PM" },
-  { Icon: PawPrint,        color: "#F59E0B", bg: "#FFFBEB", label: "Black Lab lost",          meta: "Gate 3 · Mrs Iyer · 12 min"},
-  { Icon: Droplets,        color: "#0284C7", bg: "#EFF6FF", label: "Water tanker delayed",   meta: "2 hrs · BMC alert"         },
-  { Icon: Car,             color: "#16A34A", bg: "#F0FDF4", label: "Carpool to BKC",          meta: "3 seats · 7:45 AM"         },
-];
-
-
-/* ════ RadarPanel ════ */
-function RadarPanel() {
-  const [count,  setCount]  = useState(47);
-  const [logIdx, setLogIdx] = useState(0);
+function HeroPhone() {
+  const [idx, setIdx] = useState(0);
+  const [count, setCount] = useState(47);
 
   useEffect(() => {
-    const a = globalThis.setInterval(() => {
-      setCount((n) => {
-        const d = Math.random() > 0.45 ? 1 : -1;
-        const next = n + d;
-        if (next < 38) return 42;
-        if (next > 64) return 58;
-        return next;
-      });
-    }, 2_400);
-    const b = globalThis.setInterval(() => setLogIdx((i) => (i + 1) % LOG_ITEMS.length), 2_600);
+    const a = globalThis.setInterval(() => setIdx((i) => (i + 1) % LOKUL_SCREENS.length), 3_200);
+    const b = globalThis.setInterval(() => setCount((n) => (n >= 63 ? 46 : n + 1)), 4_800);
     return () => { globalThis.clearInterval(a); globalThis.clearInterval(b); };
   }, []);
 
+  const visible = Array.from({ length: 6 }, (_, o) => LOKUL_SCREENS[(idx + o) % LOKUL_SCREENS.length]);
+
   return (
-    <div className="relative hidden lg:block w-full max-w-90 xl:max-w-96 mx-auto self-start mt-2">
-      {/* ── Card shell ── */}
+    <div className="relative mx-auto mt-2 hidden self-start lg:block">
+      {/* Soft ambient glows */}
       <div
-        className="relative overflow-hidden rounded-2xl"
+        className="pointer-events-none absolute -left-16 top-12 h-56 w-56 rounded-full blur-3xl"
+        style={{ background: "radial-gradient(circle, rgba(99,102,241,0.30), transparent 70%)" }}
+      />
+      <div
+        className="pointer-events-none absolute -right-12 bottom-8 h-48 w-48 rounded-full blur-3xl"
+        style={{ background: "radial-gradient(circle, rgba(245,158,11,0.25), transparent 70%)" }}
+      />
+
+      {/* Phone frame */}
+      <div
+        className="relative mx-auto w-[310px] overflow-hidden rounded-[2.75rem] bg-white"
         style={{
-          background: "var(--color-surface)",
-          border: "1px solid var(--color-border)",
-          boxShadow: "0 20px 60px -12px rgba(15,23,42,0.10), 0 4px 16px -4px rgba(15,23,42,0.06)",
+          border: "8px solid #111827",
+          boxShadow: "0 30px 80px -20px rgba(15,23,42,0.35), 0 8px 24px -8px rgba(15,23,42,0.18)",
         }}
       >
-        {/* Rainbow accent line */}
-        <div
-          className="pointer-events-none absolute inset-x-0 top-0 h-0.75"
-          style={{ background: "linear-gradient(90deg,#6366f1 0%,#8b5cf6 30%,#0ea5e9 65%,#10b981 100%)" }}
-        />
+        {/* Notch */}
+        <div className="absolute left-1/2 top-2.5 z-30 h-5 w-24 -translate-x-1/2 rounded-full" style={{ background: "#111827" }} />
 
-        {/* Header */}
-        <div
-          className="flex items-center gap-2.5 border-b px-4 py-3"
-          style={{ borderColor: "var(--color-border)", background: "var(--color-surface-muted)" }}
-        >
+        {/* App header */}
+        <div className="flex items-center gap-2.5 border-b px-4 pb-3 pt-10" style={{ borderColor: "var(--color-border)" }}>
           <div
-            className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-[10px] font-black text-white"
+            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-[11px] font-black text-white"
             style={{ background: "linear-gradient(135deg,#6366f1,#4f46e5)" }}
           >
             L
           </div>
-          <span className="flex-1 text-sm font-bold tracking-tight" style={{ color: "var(--color-heading)" }}>lokul</span>
+          <div className="min-w-0 flex-1">
+            <p className="text-[13px] font-bold leading-tight" style={{ color: "var(--color-heading)" }}>Andheri West</p>
+            <p className="flex items-center gap-1 text-[9px]" style={{ color: "var(--color-text-disabled)" }}>
+              <MapPin size={8} /> 2 km radius · 400053
+            </p>
+          </div>
           <div className="flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1">
             <span className="relative flex h-1.5 w-1.5">
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-500 opacity-70" />
               <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500" />
             </span>
             <span key={count} className="anim-count-pop tabular-nums text-[10px] font-bold text-emerald-700">{count}</span>
-            <span className="text-[10px] text-emerald-600/70">active · Andheri W</span>
+            <span className="text-[10px] text-emerald-600/70">live</span>
           </div>
         </div>
 
-        {/* ── Radar ── */}
-        <div className="p-4 pb-3">
-          {/* Outer label */}
-          <p className="mb-2 text-center text-[9px] font-semibold uppercase tracking-widest" style={{ color: "var(--color-text-disabled)" }}>
-            Live activity · 1 km radius
-          </p>
-
-          {/* Radar circle container */}
-          <div
-            className="relative mx-auto overflow-hidden rounded-full"
-            style={{
-              width: "100%",
-              paddingBottom: "100%",   /* forces square */
-              background: "radial-gradient(circle, #f0f4ff 0%, #e8eeff 40%, #dde5ff 100%)",
-              border: "1.5px solid #c7d2fe",
-            }}
-          >
-            {/* ── Sweep wedge (rotates) ── */}
-            <div
-              className="absolute inset-0 animate-radar-sweep rounded-full"
-              style={{
-                background: "conic-gradient(from 0deg, transparent 0deg, rgba(99,102,241,0.18) 52deg, transparent 52deg)",
-                transformOrigin: "50% 50%",
-              }}
-            />
-
-            {/* ── Concentric rings ── */}
-            {[0.28, 0.52, 0.76].map((r) => (
-              <div
-                key={r}
-                className="absolute rounded-full pointer-events-none"
-                style={{
-                  width:  `${r * 100}%`,
-                  height: `${r * 100}%`,
-                  top:    `${50 - r * 50}%`,
-                  left:   `${50 - r * 50}%`,
-                  border: "1px dashed rgba(99,102,241,0.18)",
-                }}
-              />
-            ))}
-
-            {/* ── Distance labels ── */}
-            {[{ r: 0.28, label: "250m" }, { r: 0.52, label: "500m" }, { r: 0.76, label: "1 km" }].map(({ r, label }) => (
-              <div
-                key={label}
-                className="absolute pointer-events-none"
-                style={{
-                  left:  `${50 + r * 50 - 0.5}%`,
-                  top:   `${50 - 0.5}%`,
-                  transform: "translate(4px, -50%)",
-                }}
-              >
-                <span className="text-[7px] font-medium" style={{ color: "rgba(99,102,241,0.55)" }}>{label}</span>
-              </div>
-            ))}
-
-            {/* ── Center pin ── */}
-            <div
-              className="absolute"
-              style={{ left: "50%", top: "50%", transform: "translate(-50%, -50%)", zIndex: 10 }}
-            >
-              <div className="flex h-5 w-5 items-center justify-center rounded-full bg-indigo-600 shadow-md">
-                <MapPin size={9} className="text-white" strokeWidth={2.5} />
-              </div>
-              {/* Center pulse ring */}
-              <div className="absolute inset-0 animate-ping rounded-full bg-indigo-400 opacity-30" />
-            </div>
-
-            {/* ── Activity dots ── */}
-            {RADAR_DOTS.map((dot) => {
-              const rad = dot.angle * (Math.PI / 180);
-              const x   = 50 + dot.r * 50 * Math.cos(rad);
-              const y   = 50 + dot.r * 50 * Math.sin(rad);
-              // label anchor: left side of radar → label left, right side → label right
-              const labelLeft  = x > 50;
-              const labelBelow = y > 50;
-              const DotIcon = dot.Icon;
-              return (
-                <div
-                  key={dot.id}
-                  className="absolute"
-                  style={{ left: `${x}%`, top: `${y}%`, transform: "translate(-50%,-50%)", zIndex: 20 }}
-                >
-                  {/* Ping ring */}
-                  <span className="relative flex h-3.5 w-3.5">
-                    <span
-                      className="absolute inline-flex h-full w-full animate-ping rounded-full opacity-50"
-                      style={{ background: dot.color, animationDelay: dot.pingDelay }}
-                    />
-                    <span
-                      className="relative inline-flex h-3.5 w-3.5 items-center justify-center rounded-full shadow-sm"
-                      style={{ background: dot.color }}
-                    >
-                      <DotIcon size={7} className="text-white" strokeWidth={2.5} />
-                    </span>
-                  </span>
-
-                  {/* Chip label */}
-                  <div
-                    className="absolute pointer-events-none whitespace-nowrap rounded-full px-1.5 py-0.5 shadow-sm"
-                    style={{
-                      background: dot.bg,
-                      border: `1px solid ${dot.border}`,
-                      /* position chip based on quadrant */
-                      ...(labelLeft  ? { left: "calc(100% + 5px)"  } : { right: "calc(100% + 5px)" }),
-                      ...(labelBelow ? { top:  "100%", marginTop: "2px" } : { bottom: "100%", marginBottom: "2px" }),
-                    }}
-                  >
-                    <span className="text-[7px] font-bold" style={{ color: dot.color }}>{dot.label}</span>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* ── Activity log (cycling 3-item strip) ── */}
+        {/* Feed — newest card pushes the stack down */}
         <div
-          className="border-t px-3 pb-3 pt-2"
-          style={{ borderColor: "var(--color-border)" }}
+          className="relative h-[400px] overflow-hidden px-3 pt-3"
+          style={{
+            background: "var(--color-surface-muted)",
+            maskImage: "linear-gradient(to bottom, black 82%, transparent 100%)",
+            WebkitMaskImage: "linear-gradient(to bottom, black 82%, transparent 100%)",
+          }}
         >
-          <p className="mb-1.5 text-[8px] font-bold uppercase tracking-widest" style={{ color: "var(--color-text-disabled)" }}>
-            Latest · just now
-          </p>
-          <div className="space-y-1.5 overflow-hidden">
-            {[0, 1, 2].map((offset) => {
-              const item = LOG_ITEMS[(logIdx + offset) % LOG_ITEMS.length];
-              const ItemIcon = item.Icon;
-              return (
-                <div
-                  key={`${logIdx}-${offset}`}
-                  className="animate-log-in flex items-center gap-2 rounded-lg px-2 py-1.5"
-                  style={{ background: item.bg, animationDelay: `${offset * 0.05}s` }}
-                >
-                  <span
-                    className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full"
-                    style={{ background: item.color + "22" }}
-                  >
-                    <ItemIcon size={9} style={{ color: item.color }} />
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-[9px] font-semibold" style={{ color: "var(--color-heading)" }}>{item.label}</p>
-                    <p className="truncate text-[8px]" style={{ color: "var(--color-text-disabled)" }}>{item.meta}</p>
-                  </div>
-                  <span className="h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: item.color }} />
-                </div>
-              );
-            })}
+          <div key={idx} className="anim-feed-push space-y-2">
+            {visible.map((item, o) => (
+              <div key={item.title} className={o === 0 ? "anim-feed-new" : undefined}>
+                <FeedRow item={item} />
+              </div>
+            ))}
           </div>
+        </div>
+
+        {/* Tab bar */}
+        <div className="flex items-center justify-around border-t px-2 py-2.5" style={{ borderColor: "var(--color-border)" }}>
+          <span className="flex flex-col items-center gap-0.5" style={{ color: "var(--color-brand-600)" }}>
+            <HomeIcon size={16} strokeWidth={2.4} />
+            <span className="text-[8px] font-bold">Feed</span>
+          </span>
+          <span className="flex flex-col items-center gap-0.5" style={{ color: "var(--color-text-disabled)" }}>
+            <Search size={16} />
+            <span className="text-[8px] font-medium">Explore</span>
+          </span>
+          <span className="flex flex-col items-center gap-0.5" style={{ color: "var(--color-text-disabled)" }}>
+            <Bell size={16} />
+            <span className="text-[8px] font-medium">Alerts</span>
+          </span>
+          <span className="flex flex-col items-center gap-0.5" style={{ color: "var(--color-text-disabled)" }}>
+            <CircleUserRound size={16} />
+            <span className="text-[8px] font-medium">Profile</span>
+          </span>
         </div>
       </div>
 
-
+      {/* Caption */}
+      <p className="mt-4 text-center text-xs font-medium" style={{ color: "var(--color-text-disabled)" }}>
+        A calm, verified feed — only your neighborhood.
+      </p>
     </div>
   );
 }
+
+
 
 
 

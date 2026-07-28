@@ -7,6 +7,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { joinWaitlist, type WaitlistResult } from "@/app/actions/waitlist";
 import { PincodeField } from "@/components/ui";
+import { useI18n } from "@/lib/i18n";
 import {
   Shield,
   Users,
@@ -203,6 +204,7 @@ function Reveal({
    SUCCESS CARD
    ═══════════════════════════════════════════════════════════════════════ */
 function SuccessCard({ posthog }: { posthog: ReturnType<typeof usePostHog> }) {
+  const { t } = useI18n();
   useEffect(() => {
     posthog?.capture("waitlist_signup_success");
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -215,14 +217,14 @@ function SuccessCard({ posthog }: { posthog: ReturnType<typeof usePostHog> }) {
       <span className="mx-auto flex h-16 w-16 items-center justify-center rounded-full" style={{ background: "var(--color-brand-50)" }}>
         <Check size={32} className="text-emerald-600" />
       </span>
-      <h2 className="mt-5 text-3xl font-bold" style={{ color: "var(--color-heading)", letterSpacing: "-0.02em" }}>You&apos;re on the list!</h2>
+      <h2 className="mt-5 text-3xl font-bold" style={{ color: "var(--color-heading)", letterSpacing: "-0.02em" }}>{t.waitlist.success.title}</h2>
       <p className="mt-3 text-base" style={{ color: "var(--color-text-secondary)" }}>
-        We&apos;ll notify you the moment Lokul goes live in your pin code.
+        {t.waitlist.success.sub}
       </p>
       <div className="mx-auto mt-7 rounded-2xl border p-5" style={{ borderColor: "var(--color-brand-200)", background: "var(--color-brand-50)" }}>
-        <p className="text-sm font-bold" style={{ color: "var(--color-brand-700)" }}>Want priority access?</p>
+        <p className="text-sm font-bold" style={{ color: "var(--color-brand-700)" }}>{t.waitlist.success.wantPriority}</p>
         <p className="mt-1 text-sm" style={{ color: "var(--color-text-secondary)" }}>
-          Share <span className="font-bold">lokul.club</span> with 3 neighbors and skip the queue.
+          {t.waitlist.success.shareA}<span className="font-bold">lokul.club</span>{t.waitlist.success.shareB}
         </p>
       </div>
     </div>
@@ -295,6 +297,7 @@ function ScreensConveyor() {
    ═══════════════════════════════════════════════════════════════════════ */
 export default function Home() {
   const posthog = usePostHog();
+  const { t } = useI18n();
   const [openFaq, setOpenFaq] = useState<number | null>(0);
   const [persona, setPersona] = useState<keyof typeof PERSONAS>("resident");
   const [state, action, pending] = useActionState<WaitlistResult | null, FormData>(
@@ -378,19 +381,19 @@ export default function Home() {
                 className="text-balance text-[clamp(2.5rem,5.5vw,4.5rem)] font-bold leading-[1.02] tracking-tight"
                 style={{ color: "var(--color-heading)", letterSpacing: "-0.04em" }}
               >
-                Your street.{" "}
+                {t.hero.line1}{" "}
                 <span className="relative whitespace-nowrap">
-                  <span style={{ color: "var(--color-brand-600)" }}>Your people.</span>
+                  <span style={{ color: "var(--color-brand-600)" }}>{t.hero.line2}</span>
                 </span>
                 <br />
-                Your Lokul.
+                {t.hero.line3}
               </h1>
 
               <p
                 className="mt-6 max-w-xl text-pretty text-lg leading-relaxed md:text-xl"
                 style={{ color: "var(--color-text-secondary)" }}
               >
-                50,000+ neighbors. One verified feed. Zero noise. Lokul is the operating system for Indian neighborhoods — safety alerts, RWA notices, trusted local services, and community events, all in one trusted place.
+                {t.hero.sub}
               </p>
 
               <div className="mt-8 flex flex-wrap items-center gap-3">
@@ -398,7 +401,7 @@ export default function Home() {
                 className="ds-button press group/cta px-6 py-3.5 text-base shadow-lg shadow-indigo-500/20 transition-all hover:scale-[1.02] hover:shadow-xl hover:shadow-indigo-500/30"
                 onClick={() => posthog?.capture("cta_click", { location: "hero" })}
               >
-                  Get my pin code on the list <ArrowRight size={16} className="transition-transform duration-300 group-hover/cta:translate-x-1" />
+                  {t.hero.ctaWaitlist} <ArrowRight size={16} className="transition-transform duration-300 group-hover/cta:translate-x-1" />
                 </a>
                 <a
                   href="/business"
@@ -406,16 +409,16 @@ export default function Home() {
                   style={{ borderColor: "var(--color-brand-200)", color: "var(--color-brand-700)", background: "var(--color-brand-50)" }}
                   onClick={() => posthog?.capture("cta_click", { location: "hero_business" })}
                 >
-                  <Store size={16} /> Register your business — free
+                  <Store size={16} /> {t.hero.ctaBusiness}
                   <ArrowRight size={14} className="transition-transform duration-300 group-hover/biz:translate-x-1" />
                 </a>
               </div>
 
               <ul className="mt-8 flex flex-wrap gap-x-6 gap-y-2">
-                {["Free forever for residents", "Verified profiles only", "No data selling, ever"].map((t) => (
-                  <li key={t} className="flex items-center gap-2 text-sm font-medium" style={{ color: "var(--color-text-secondary)" }}>
+                {t.hero.trust.map((item) => (
+                  <li key={item} className="flex items-center gap-2 text-sm font-medium" style={{ color: "var(--color-text-secondary)" }}>
                     <Check size={15} className="shrink-0 text-emerald-600" />
-                    {t}
+                    {item}
                   </li>
                 ))}
               </ul>
@@ -424,31 +427,31 @@ export default function Home() {
               {submitted ? (
                 <div className="mt-6 flex items-center gap-3 rounded-xl border px-4 py-3.5" style={{ background: "#F0FDF4", borderColor: "#BBF7D0" }}>
                   <Check size={18} className="shrink-0 text-emerald-600" />
-                  <p className="text-sm font-semibold" style={{ color: "#166534" }}>You&apos;re on the list! We&apos;ll notify you when Lokul goes live in your area.</p>
+                  <p className="text-sm font-semibold" style={{ color: "#166534" }}>{t.hero.successInline}</p>
                 </div>
               ) : (
                 <form action={action} className="mt-6">
                   <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-[1fr_1.4fr_8.5rem_auto]">
                     <input
                       className="ds-input h-11 min-w-0 text-sm"
-                      type="text" name="name" placeholder="Your name" required
+                      type="text" name="name" placeholder={t.hero.phName} required
                     />
                     <input
                       className="ds-input h-11 min-w-0 text-sm"
-                      type="email" name="email" placeholder="you@gmail.com" required
+                      type="email" name="email" placeholder={t.hero.phEmail} required
                     />
                     {/* PIN with "Use my location" button */}
                     <div className="relative">
                       <input
                         className="ds-input h-11 w-full min-w-0 pr-8 text-sm"
-                        type="text" name="pincode" placeholder="PIN code"
+                        type="text" name="pincode" placeholder={t.hero.phPin}
                         pattern="\d{6}" maxLength={6} inputMode="numeric" required
                         value={pinVal}
                         onChange={(e) => setPinVal(e.target.value.replace(/\D/g, ""))}
                       />
                       <button
                         type="button"
-                        title="Use my current location"
+                        title={t.hero.useLocation}
                         onClick={handleUseLocation}
                         disabled={locLoading}
                         className="absolute right-2 top-1/2 -translate-y-1/2 transition-colors disabled:opacity-40"
@@ -468,21 +471,21 @@ export default function Home() {
                       className="ds-button press group/cta h-11 whitespace-nowrap px-5 text-sm disabled:opacity-60 disabled:cursor-not-allowed"
                       onClick={() => posthog?.capture("waitlist_submit_click", { location: "hero_inline" })}
                     >
-                      {pending ? "Saving…" : <>Reserve my spot <ArrowRight size={14} className="transition-transform duration-300 group-hover/cta:translate-x-1" /></>}
+                      {pending ? t.hero.saving : <>{t.hero.reserve} <ArrowRight size={14} className="transition-transform duration-300 group-hover/cta:translate-x-1" /></>}
                     </button>
                   </div>
                   {/* City chip — shown when geo detected a city */}
                   {cityVal && (
                     <p className="mt-1.5 flex items-center gap-1 text-xs" style={{ color: "var(--color-text-disabled)" }}>
                       <MapPin size={10} className="shrink-0" />
-                      Detected: {cityVal}{pinVal ? ` · ${pinVal}` : ""} — edit if wrong
+                      {t.hero.detected}: {cityVal}{pinVal ? ` · ${pinVal}` : ""} {t.hero.editIfWrong}
                     </p>
                   )}
                   {state && !state.success && (
                     <p className="mt-2 text-xs text-red-600">{state.error}</p>
                   )}
                   <p className="mt-2 text-xs" style={{ color: "var(--color-text-disabled)" }}>
-                    No spam · No data selling · Unsubscribe anytime
+                    {t.hero.noSpam}
                   </p>
                 </form>
               )}
@@ -497,7 +500,7 @@ export default function Home() {
         <section className="border-y" style={{ borderColor: "var(--color-border)", background: "var(--color-surface-muted)" }}>
           <div className="ds-container flex flex-col items-center justify-between gap-4 py-5 md:flex-row">
             <p className="text-xs font-bold uppercase tracking-[0.18em]" style={{ color: "var(--color-text-disabled)" }}>
-              Built with residents in
+              {t.trustStrip.label}
             </p>
             <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
               {TRUST_LOCALITIES.slice(0, 7).map((loc) => (
@@ -505,7 +508,7 @@ export default function Home() {
                   {loc}
                 </span>
               ))}
-              <span className="text-sm font-semibold" style={{ color: "var(--color-brand-600)" }}>+ 23 more</span>
+              <span className="text-sm font-semibold" style={{ color: "var(--color-brand-600)" }}>{t.trustStrip.more}</span>
             </div>
           </div>
         </section>
@@ -517,13 +520,13 @@ export default function Home() {
               className="mb-3 inline-block rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-widest"
               style={{ background: "var(--color-brand-50)", color: "var(--color-brand-700)" }}
             >
-              Live now
+              {t.explore.chip}
             </span>
             <h2 className="text-2xl font-bold sm:text-3xl" style={{ color: "var(--color-heading)" }}>
-              See what&apos;s happening in your neighborhood
+              {t.explore.title}
             </h2>
             <p className="mt-3 text-sm" style={{ color: "var(--color-text-secondary)" }}>
-              Enter your 6-digit PIN code to browse local kirana stores, community posts, and safety alerts — no account needed.
+              {t.explore.sub}
             </p>
             <form onSubmit={handleExplore} className="mt-6 flex items-center gap-2 justify-center">
               <input
@@ -543,11 +546,11 @@ export default function Home() {
                 disabled={explorePin.length !== 6}
                 className="ds-button press h-11 px-5 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <Search size={14} /> Explore
+                <Search size={14} /> {t.explore.cta}
               </button>
             </form>
             <p className="mt-3 text-xs" style={{ color: "var(--color-text-disabled)" }}>
-              Try <button type="button" className="underline" onClick={() => { setExplorePin("560038"); router.push("/n/560038"); }}>560038 — Koramangala, Bengaluru</button>
+              {t.explore.tryLabel} <button type="button" className="underline" onClick={() => { setExplorePin("560038"); router.push("/n/560038"); }}>{t.explore.sample}</button>
             </p>
           </div>
         </section>
@@ -557,17 +560,17 @@ export default function Home() {
           <Reveal className="ds-container py-16 md:py-20">
             <div className="mx-auto max-w-3xl text-center">
               <p className="mb-6 text-lg leading-relaxed md:text-xl" style={{ color: "var(--color-text-secondary)" }}>
-                Every city in India has thousands of invisible micro-economies — street vendors, tutors, tailors, tiffin services — operating on word-of-mouth with zero digital presence.
+                {t.vision.p1}
               </p>
               <p className="mb-8 text-2xl font-bold leading-snug tracking-tight md:text-3xl" style={{ color: "var(--color-text-primary)" }}>
-                lokul is the infrastructure that makes local{" "}
-                <span style={{ color: "var(--color-brand-600)" }}>visible, trusted, and transactable.</span>
+                {t.vision.p2a}
+                <span style={{ color: "var(--color-brand-600)" }}>{t.vision.p2b}</span>
               </p>
               <div className="mx-auto h-px max-w-xs" style={{ background: "var(--color-border)" }} />
               <p className="mt-8 text-base md:text-lg" style={{ color: "var(--color-text-secondary)" }}>
-                We&apos;re not building a social network. We&apos;re building the{" "}
-                <strong style={{ color: "var(--color-text-primary)" }}>commerce and community layer</strong>{" "}
-                that sits beneath every Indian neighborhood.
+                {t.vision.p3a}
+                <strong style={{ color: "var(--color-text-primary)" }}>{t.vision.p3b}</strong>
+                {t.vision.p3c}
               </p>
             </div>
           </Reveal>
@@ -577,12 +580,12 @@ export default function Home() {
         <section className="border-b" style={{ borderColor: "var(--color-border)" }}>
           <Reveal className="ds-container py-14 md:py-18">
             <div className="mx-auto max-w-2xl text-center">
-              <div className="ds-chip mx-auto mb-5">Our Mission</div>
+              <div className="ds-chip mx-auto mb-5">{t.mission.chip}</div>
               <p className="text-lg leading-relaxed md:text-xl" style={{ color: "var(--color-text-secondary)" }}>
-                lokul&apos;s mission is to make India&apos;s neighborhood economy{" "}
-                <strong style={{ color: "var(--color-text-primary)" }}>visible, trusted, and transactable</strong>{" "}
-                — empowering every resident and local merchant to participate in the digital economy{" "}
-                <strong style={{ color: "var(--color-text-primary)" }}>without leaving their street.</strong>
+                {t.mission.m1}
+                <strong style={{ color: "var(--color-text-primary)" }}>{t.mission.m2}</strong>
+                {t.mission.m3}
+                <strong style={{ color: "var(--color-text-primary)" }}>{t.mission.m4}</strong>
               </p>
             </div>
           </Reveal>
@@ -593,16 +596,16 @@ export default function Home() {
           <div className="ds-container">
             <div className="mx-auto mb-12 max-w-2xl text-center">
               <h2 className="text-balance text-3xl font-bold tracking-tight md:text-5xl" style={{ color: "var(--color-heading)", letterSpacing: "-0.03em" }}>
-                Everything local. <span style={{ color: "var(--color-brand-600)" }}>Nothing else.</span>
+                {t.feed.title1}<span style={{ color: "var(--color-brand-600)" }}>{t.feed.title2}</span>
               </h2>
               <p className="mt-4 text-lg" style={{ color: "var(--color-text-secondary)" }}>
-                Four feed types. Each one verified. Nothing in your way.
+                {t.feed.sub}
               </p>
             </div>
 
             <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-              {FEED_TYPES.map(({ Icon, label, color, bg, count, desc }, i) => (
-                <Reveal key={label} delay={((i + 1) as 1 | 2 | 3 | 4)}>
+              {FEED_TYPES.map(({ Icon, label, color, bg }, i) => (
+                <Reveal key={label} delay={(((i % 4) + 1) as 1 | 2 | 3 | 4)}>
                   <article
                     className="lift group relative h-full overflow-hidden rounded-2xl border bg-white p-6"
                     style={{ borderColor: "var(--color-border)" }}
@@ -612,9 +615,9 @@ export default function Home() {
                       <Icon size={22} style={{ color }} />
                     </span>
                     <div className="relative">
-                      <p className="text-xs font-bold uppercase tracking-widest" style={{ color }}>{count}</p>
-                      <h3 className="mt-1.5 text-lg font-bold" style={{ color: "var(--color-heading)" }}>{label}</h3>
-                      <p className="mt-2 text-sm leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>{desc}</p>
+                      <p className="text-xs font-bold uppercase tracking-widest" style={{ color }}>{t.feed.items[i]?.count}</p>
+                      <h3 className="mt-1.5 text-lg font-bold" style={{ color: "var(--color-heading)" }}>{t.feed.items[i]?.label ?? label}</h3>
+                      <p className="mt-2 text-sm leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>{t.feed.items[i]?.desc}</p>
                     </div>
                   </article>
                 </Reveal>
@@ -628,26 +631,21 @@ export default function Home() {
           <div className="ds-container grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
             <div>
               <div className="ds-chip mb-4" style={{ borderColor: "var(--color-danger-bg)", background: "var(--color-danger-bg)", color: "var(--color-danger)" }}>
-                The problem
+                {t.problem.chip}
               </div>
               <h2 className="text-balance text-3xl font-bold tracking-tight md:text-5xl" style={{ color: "var(--color-heading)", letterSpacing: "-0.03em" }}>
-                Your neighborhood is invisible to you.
+                {t.problem.title}
               </h2>
               <p className="mt-5 text-lg leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
-                You&apos;re in 7 WhatsApp groups for one society. Critical alerts get buried under good-morning forwards. The plumber your neighbor swears by? You&apos;ll never find them. The RWA notice from yesterday? Missed.
+                {t.problem.para}
               </p>
               <ul className="mt-7 space-y-3">
-                {[
-                  "Safety news arrives too late — or never",
-                  "Local services are impossible to vet",
-                  "RWA notices vanish in group spam",
-                  "Real neighbors stay strangers",
-                ].map((t) => (
-                  <li key={t} className="flex items-start gap-3 text-base" style={{ color: "var(--color-foreground)" }}>
+                {t.problem.bullets.map((b) => (
+                  <li key={b} className="flex items-start gap-3 text-base" style={{ color: "var(--color-foreground)" }}>
                     <span className="mt-1 flex h-5 w-5 shrink-0 items-center justify-center rounded-full" style={{ background: "var(--color-danger-bg)" }}>
                       <AlertTriangle size={11} className="text-rose-700" />
                     </span>
-                    {t}
+                    {b}
                   </li>
                 ))}
               </ul>
@@ -662,18 +660,18 @@ export default function Home() {
         <section id="features" className="ds-section border-b" style={{ borderColor: "var(--color-border)", background: "var(--color-surface-muted)" }}>
           <div className="ds-container">
             <div className="mx-auto mb-12 max-w-2xl text-center">
-              <div className="ds-chip mx-auto mb-4">What you get</div>
+              <div className="ds-chip mx-auto mb-4">{t.bento.chip}</div>
               <h2 className="text-balance text-3xl font-bold tracking-tight md:text-5xl" style={{ color: "var(--color-heading)", letterSpacing: "-0.03em" }}>
-                Built different,<br />
-                <span style={{ color: "var(--color-brand-600)" }}>built for here.</span>
+                {t.bento.title1}<br />
+                <span style={{ color: "var(--color-brand-600)" }}>{t.bento.title2}</span>
               </h2>
               <p className="mt-4 text-lg" style={{ color: "var(--color-text-secondary)" }}>
-                Every feature designed around how Indian neighborhoods actually work — not adapted from a Western blueprint.
+                {t.bento.sub}
               </p>
             </div>
 
             <div className="grid auto-rows-fr gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {BENTO_FEATURES.map(({ Icon, title, desc, tone }, i) => {
+              {BENTO_FEATURES.map(({ Icon, title, tone }, i) => {
                 const accent   = tone === "danger" ? "#DC2626" : tone === "accent" ? "var(--color-accent-600)" : "var(--color-brand-600)";
                 const accentBg = tone === "danger" ? "#FEE2E2" : tone === "accent" ? "var(--color-accent-50)"  : "var(--color-brand-50)";
                 const delay    = ((i % 6) + 1) as 1 | 2 | 3 | 4 | 5 | 6;
@@ -686,8 +684,8 @@ export default function Home() {
                       <span className="mb-5 flex h-11 w-11 items-center justify-center rounded-xl transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3" style={{ background: accentBg, color: accent }}>
                         <Icon size={20} />
                       </span>
-                      <h3 className="text-lg font-bold leading-tight" style={{ color: "var(--color-heading)" }}>{title}</h3>
-                      <p className="mt-2 text-sm leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>{desc}</p>
+                      <h3 className="text-lg font-bold leading-tight" style={{ color: "var(--color-heading)" }}>{t.bento.items[i]?.title ?? title}</h3>
+                      <p className="mt-2 text-sm leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>{t.bento.items[i]?.desc}</p>
                     </article>
                   </Reveal>
                 );
@@ -700,15 +698,15 @@ export default function Home() {
         <section id="how" className="ds-section border-b" style={{ borderColor: "var(--color-border)" }}>
           <div className="ds-container">
             <div className="mx-auto mb-14 max-w-2xl text-center">
-              <div className="ds-chip mx-auto mb-4">Get started in 60 seconds</div>
+              <div className="ds-chip mx-auto mb-4">{t.how.chip}</div>
               <h2 className="text-balance text-3xl font-bold tracking-tight md:text-5xl" style={{ color: "var(--color-heading)", letterSpacing: "-0.03em" }}>
-                Three steps to your neighborhood.
+                {t.how.title}
               </h2>
             </div>
 
             <div className="relative grid gap-6 md:grid-cols-3 md:gap-4">
               <div className="absolute left-[10%] right-[10%] top-12 hidden h-px md:block" style={{ background: "linear-gradient(90deg, transparent, var(--color-border) 20%, var(--color-border) 80%, transparent)" }} />
-              {STEPS.map(({ num, Icon, title, desc }, i) => (
+              {STEPS.map(({ num, Icon }, i) => (
                 <Reveal key={num} delay={((i + 1) as 1 | 2 | 3)}>
                   <article className="lift group relative h-full rounded-2xl border bg-white p-6 text-center" style={{ borderColor: "var(--color-border)" }}>
                     <div
@@ -717,9 +715,9 @@ export default function Home() {
                     >
                       <Icon size={22} />
                     </div>
-                    <p className="mb-1 text-xs font-bold uppercase tracking-widest" style={{ color: "var(--color-brand-600)" }}>Step {num}</p>
-                    <h3 className="text-lg font-bold" style={{ color: "var(--color-heading)" }}>{title}</h3>
-                    <p className="mt-2 text-sm leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>{desc}</p>
+                    <p className="mb-1 text-xs font-bold uppercase tracking-widest" style={{ color: "var(--color-brand-600)" }}>{t.how.stepWord} {num}</p>
+                    <h3 className="text-lg font-bold" style={{ color: "var(--color-heading)" }}>{t.how.items[i]?.title}</h3>
+                    <p className="mt-2 text-sm leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>{t.how.items[i]?.desc}</p>
                   </article>
                 </Reveal>
               ))}
@@ -731,22 +729,16 @@ export default function Home() {
         <section id="personas" className="ds-section border-b" style={{ borderColor: "var(--color-border)", background: "var(--color-surface-muted)" }}>
           <div className="ds-container">
             <div className="mx-auto mb-10 max-w-2xl text-center">
-              <div className="ds-chip mx-auto mb-4">Made for everyone on the street</div>
+              <div className="ds-chip mx-auto mb-4">{t.personas.chip}</div>
               <h2 className="text-balance text-3xl font-bold tracking-tight md:text-5xl" style={{ color: "var(--color-heading)", letterSpacing: "-0.03em" }}>
-                Whoever you are on the street,<br />
-                <span style={{ color: "var(--color-brand-600)" }}>Lokul is for you.</span>
+                {t.personas.title1}<br />
+                <span style={{ color: "var(--color-brand-600)" }}>{t.personas.title2}</span>
               </h2>
             </div>
 
             <div className="mx-auto mb-8 flex max-w-xs sm:max-w-md gap-1 rounded-full border bg-white p-1 sm:p-1.5 shadow-sm" style={{ borderColor: "var(--color-border)" }}>
               {(Object.keys(PERSONAS) as Array<keyof typeof PERSONAS>).map((k) => {
                 const isActive = persona === k;
-                const shortLabel: Record<keyof typeof PERSONAS, string> = {
-                  resident: "Residents",
-                  rwa:      "RWA",
-                  merchant: "Merchants",
-                };
-                const fullLabel = PERSONAS[k].title.replace("For ", "");
                 return (
                   <button
                     key={k}
@@ -758,8 +750,7 @@ export default function Home() {
                       boxShadow:  isActive ? "0 4px 12px -2px rgba(79,70,229,0.4)" : "none",
                     }}
                   >
-                    <span className="sm:hidden">{shortLabel[k]}</span>
-                    <span className="hidden sm:inline">{fullLabel}</span>
+                    {t.personas.short[k]}
                   </button>
                 );
               })}
@@ -771,14 +762,14 @@ export default function Home() {
                   <active.Icon size={36} />
                 </div>
                 <div>
-                  <p className="mb-2 text-xs font-bold uppercase tracking-widest" style={{ color: "var(--color-brand-600)" }}>{active.title}</p>
+                  <p className="mb-2 text-xs font-bold uppercase tracking-widest" style={{ color: "var(--color-brand-600)" }}>{t.personas.items[persona].title}</p>
                   <h3 className="text-2xl font-bold leading-tight md:text-3xl" style={{ color: "var(--color-heading)", letterSpacing: "-0.02em" }}>
-                    {active.headline}
+                    {t.personas.items[persona].headline}
                   </h3>
                 </div>
               </div>
               <ul className="mt-8 grid gap-3 sm:grid-cols-2">
-                {active.bullets.map((b) => (
+                {t.personas.items[persona].bullets.map((b) => (
                   <li key={b} className="lift flex items-start gap-3 rounded-xl border p-4" style={{ borderColor: "var(--color-border)", background: "var(--color-surface-muted)" }}>
                     <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full" style={{ background: "var(--color-brand-600)" }}>
                       <Check size={12} className="text-white" />
@@ -805,26 +796,22 @@ export default function Home() {
               {/* Copy */}
               <div>
                 <div className="ds-chip mb-4">
-                  <Store size={12} /> Run a local business?
+                  <Store size={12} /> {t.band.chip}
                 </div>
                 <h2 className="text-balance text-3xl font-bold tracking-tight md:text-5xl" style={{ color: "var(--color-heading)", letterSpacing: "-0.03em" }}>
-                  Your customers live<br />
-                  <span style={{ color: "var(--color-brand-600)" }}>2 km from your door.</span>
+                  {t.band.title1}<br />
+                  <span style={{ color: "var(--color-brand-600)" }}>{t.band.title2}</span>
                 </h2>
                 <p className="mt-5 max-w-lg text-lg leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
-                  Kirana, tiffin, salon, tuition, repairs — get discovered by every verified resident around your shop. 320+ businesses already listed.
+                  {t.band.para}
                 </p>
                 <ul className="mt-7 grid gap-3 sm:grid-cols-3">
-                  {[
-                    { Icon: IndianRupee, t: "₹0 to list" },
-                    { Icon: BadgeCheck, t: "Verified badge" },
-                    { Icon: Radar, t: "2 km reach" },
-                  ].map(({ Icon, t }) => (
-                    <li key={t} className="flex items-center gap-2.5 rounded-xl border bg-white px-4 py-3 text-sm font-bold" style={{ borderColor: "var(--color-border)", color: "var(--color-heading)" }}>
+                  {[IndianRupee, BadgeCheck, Radar].map((Icon, i) => (
+                    <li key={t.band.perks[i]} className="flex items-center gap-2.5 rounded-xl border bg-white px-4 py-3 text-sm font-bold" style={{ borderColor: "var(--color-border)", color: "var(--color-heading)" }}>
                       <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg" style={{ background: "var(--color-brand-50)", color: "var(--color-brand-600)" }}>
                         <Icon size={16} />
                       </span>
-                      {t}
+                      {t.band.perks[i]}
                     </li>
                   ))}
                 </ul>
@@ -833,10 +820,10 @@ export default function Home() {
               {/* Lead teaser card */}
               <div className="lift rounded-3xl border bg-white p-7 shadow-xl md:p-9" style={{ borderColor: "var(--color-border)" }}>
                 <p className="text-xl font-bold" style={{ color: "var(--color-heading)", letterSpacing: "-0.02em" }}>
-                  Get listed in 3 minutes
+                  {t.band.cardTitle}
                 </p>
                 <p className="mt-1.5 text-sm" style={{ color: "var(--color-text-secondary)" }}>
-                  Start with just two details — finish the rest on the next page.
+                  {t.band.cardSub}
                 </p>
                 <form
                   className="mt-5 space-y-3"
@@ -852,7 +839,7 @@ export default function Home() {
                   <input
                     className="ds-input h-12"
                     type="text"
-                    placeholder="Business name — e.g. Sharma Kirana"
+                    placeholder={t.band.phBizName}
                     value={bizName}
                     onChange={(e) => setBizName(e.target.value)}
                     maxLength={120}
@@ -861,7 +848,7 @@ export default function Home() {
                     className="ds-input h-12"
                     type="tel"
                     inputMode="numeric"
-                    placeholder="Mobile number"
+                    placeholder={t.band.phPhone}
                     value={bizPhone}
                     onChange={(e) => setBizPhone(e.target.value.replace(/\D/g, "").slice(0, 10))}
                     maxLength={10}
@@ -870,12 +857,12 @@ export default function Home() {
                     type="submit"
                     className="ds-button press group/biz w-full justify-center px-6 py-3.5 text-base"
                   >
-                    Get listed — free
+                    {t.band.cta}
                     <ArrowRight size={16} className="transition-transform duration-300 group-hover/biz:translate-x-1" />
                   </button>
                 </form>
                 <p className="mt-3 text-center text-xs" style={{ color: "var(--color-text-disabled)" }}>
-                  No commission on walk-ins · Cancel anytime
+                  {t.band.note}
                 </p>
               </div>
             </div>
@@ -886,7 +873,7 @@ export default function Home() {
         <section className="overflow-hidden border-b py-10" style={{ borderColor: "var(--color-border)" }}>
           <div className="ds-container mb-5 text-center">
             <p className="text-xs font-bold uppercase tracking-[0.18em]" style={{ color: "var(--color-text-disabled)" }}>
-              Launching across India · 2026 — 2027
+              {t.cities.label}
             </p>
           </div>
           <div className="flex animate-marquee gap-12 whitespace-nowrap will-change-transform">
@@ -905,29 +892,29 @@ export default function Home() {
         <section className="ds-section border-b" style={{ borderColor: "var(--color-border)" }}>
           <div className="ds-container">
             <div className="mx-auto mb-12 max-w-2xl text-center">
-              <div className="ds-chip mx-auto mb-4">Early voices</div>
+              <div className="ds-chip mx-auto mb-4">{t.testimonials.chip}</div>
               <h2 className="text-balance text-3xl font-bold tracking-tight md:text-5xl" style={{ color: "var(--color-heading)", letterSpacing: "-0.03em" }}>
-                People have been<br />
-                waiting for this.
+                {t.testimonials.title1}<br />
+                {t.testimonials.title2}
               </h2>
             </div>
             <div className="grid gap-5 md:grid-cols-3">
-              {TESTIMONIALS.map((t, i) => (
-                <Reveal key={t.name} delay={((i + 1) as 1 | 2 | 3)}>
+              {TESTIMONIALS.map((tm, i) => (
+                <Reveal key={tm.name} delay={((i + 1) as 1 | 2 | 3)}>
                   <blockquote
                     className="lift relative flex h-full flex-col gap-5 rounded-2xl border bg-white p-7"
                     style={{ borderColor: "var(--color-border)" }}
                   >
                     <div className="flex gap-0.5" style={{ color: "var(--color-accent-500)" }}>
                       {Array.from({ length: 5 }).map((_, idx) => (
-                        <Star key={`star-${t.name}-${idx}`} size={14} fill="currentColor" />
+                        <Star key={`star-${tm.name}-${idx}`} size={14} fill="currentColor" />
                       ))}
                     </div>
                     <p className="text-base leading-relaxed" style={{ color: "var(--color-foreground)" }}>
-                      &ldquo;{t.quote}&rdquo;
+                      &ldquo;{t.testimonials.quotes[i] ?? tm.quote}&rdquo;
                     </p>
                     <footer className="mt-auto flex items-center gap-3 border-t pt-5" style={{ borderColor: "var(--color-border)" }}>
-                      <p className="text-xs font-semibold" style={{ color: "var(--color-text-secondary)" }}>{t.loc} · {t.role}</p>
+                      <p className="text-xs font-semibold" style={{ color: "var(--color-text-secondary)" }}>{tm.loc} · {tm.role}</p>
                     </footer>
                   </blockquote>
                 </Reveal>
@@ -956,33 +943,33 @@ export default function Home() {
                       className="ds-chip mx-auto mb-5 inline-flex"
                       style={{ borderColor: "rgba(255,255,255,0.15)", background: "rgba(255,255,255,0.06)", color: "white" }}
                     >
-                      <Zap size={11} fill="currentColor" /> Limited early access
+                      <Zap size={11} fill="currentColor" /> {t.waitlist.chip}
                     </div>
                     <h2 className="text-balance text-3xl font-bold tracking-tight text-white md:text-5xl" style={{ letterSpacing: "-0.03em" }}>
-                      Join 50,000+ neighbors<br />
-                      already on the list.
+                      {t.waitlist.title1}<br />
+                      {t.waitlist.title2}
                     </h2>
                     <p className="mx-auto mt-4 max-w-md text-base" style={{ color: "rgba(255,255,255,0.7)" }}>
-                      Reserve your spot in 30 seconds. Your locality launches faster the more neighbors join.
+                      {t.waitlist.sub}
                     </p>
                   </div>
 
                   <div className="rounded-3xl border bg-white p-6 shadow-2xl md:p-8" style={{ borderColor: "rgba(255,255,255,0.1)" }}>
                     <form action={action} className="space-y-5">
                       <div className="grid gap-4 sm:grid-cols-2">
-                        <Field label="Full name">
-                          <input className="ds-input" type="text"  name="name"  placeholder="Your name" required />
+                        <Field label={t.waitlist.fullName}>
+                          <input className="ds-input" type="text"  name="name"  placeholder={t.hero.phName} required />
                         </Field>
-                        <Field label="Email address">
-                          <input className="ds-input" type="email" name="email" placeholder="you@gmail.com" required />
+                        <Field label={t.waitlist.email}>
+                          <input className="ds-input" type="email" name="email" placeholder={t.hero.phEmail} required />
                         </Field>
-                        <PincodeField label="Pin code" name="pincode" required />
-                        <Field label="I'm joining as">
+                        <PincodeField label={t.waitlist.pin} name="pincode" required />
+                        <Field label={t.waitlist.joiningAs}>
                           <select className="ds-input" name="role" defaultValue="" required>
-                            <option value="" disabled>Select one</option>
-                            <option value="resident">Resident</option>
-                            <option value="merchant">Local merchant</option>
-                            <option value="rwa">RWA / Society manager</option>
+                            <option value="" disabled>{t.waitlist.selectOne}</option>
+                            <option value="resident">{t.waitlist.optResident}</option>
+                            <option value="merchant">{t.waitlist.optMerchant}</option>
+                            <option value="rwa">{t.waitlist.optRwa}</option>
                           </select>
                         </Field>
                       </div>
@@ -990,7 +977,7 @@ export default function Home() {
                       <label className="flex items-start gap-2.5">
                         <input type="checkbox" name="notify" defaultChecked className="mt-0.5 h-4 w-4 rounded border-gray-300" style={{ accentColor: "var(--color-brand-600)" }} />
                         <span className="text-sm" style={{ color: "var(--color-text-secondary)" }}>
-                          Notify me as soon as my pin code area goes live.
+                          {t.waitlist.notify}
                         </span>
                       </label>
 
@@ -1006,12 +993,12 @@ export default function Home() {
                         className="ds-button press group/cta w-full px-6 py-4 text-base transition-transform hover:scale-[1.01] disabled:opacity-60 disabled:cursor-not-allowed disabled:scale-100"
                         onClick={() => posthog?.capture("waitlist_submit_click")}
                       >
-                        {pending ? "Saving your spot…" : "Reserve my spot"}
+                        {pending ? t.waitlist.saving : t.waitlist.reserve}
                         {!pending && <ArrowRight size={16} className="transition-transform duration-300 group-hover/cta:translate-x-1" />}
                       </button>
 
                       <p className="text-center text-xs" style={{ color: "var(--color-text-disabled)" }}>
-                        No spam · No data selling · Unsubscribe anytime
+                        {t.waitlist.noSpam}
                       </p>
                     </form>
                   </div>
@@ -1025,13 +1012,13 @@ export default function Home() {
         <section id="faq" className="ds-section border-b" style={{ borderColor: "var(--color-border)" }}>
           <div className="ds-container">
             <div className="mx-auto mb-12 max-w-2xl text-center">
-              <div className="ds-chip mx-auto mb-4">Questions, answered</div>
+              <div className="ds-chip mx-auto mb-4">{t.faq.chip}</div>
               <h2 className="text-balance text-3xl font-bold tracking-tight md:text-5xl" style={{ color: "var(--color-heading)", letterSpacing: "-0.03em" }}>
-                Frequently asked.
+                {t.faq.title}
               </h2>
             </div>
             <div className="mx-auto max-w-3xl divide-y rounded-2xl border bg-white" style={{ borderColor: "var(--color-border)", ["--tw-divide-opacity" as string]: 1 }}>
-              {FAQS.map((f, i) => {
+              {t.faq.items.map((f, i) => {
                 const open = openFaq === i;
                 return (
                   <div key={f.q} className="px-6 transition-colors hover:bg-[color:var(--color-surface-muted)]/40">

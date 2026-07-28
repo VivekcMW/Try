@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import PostHogProvider from "@/components/PostHogProvider";
 import { ToastProvider } from "@/components/ui";
+import { LanguageProvider } from "@/lib/i18n";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -100,7 +101,9 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col">
         <PostHogProvider>
-          <ToastProvider>{children}</ToastProvider>
+          <LanguageProvider>
+            <ToastProvider>{children}</ToastProvider>
+          </LanguageProvider>
         </PostHogProvider>
       </body>
     </html>

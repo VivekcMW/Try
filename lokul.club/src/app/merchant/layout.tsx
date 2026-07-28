@@ -14,6 +14,7 @@ import {
   Menu,
   X,
   ChevronRight,
+  XCircle,
 } from "lucide-react";
 
 type MerchantData = {
@@ -21,6 +22,7 @@ type MerchantData = {
   name: string;
   category: string;
   avatarUrl?: string | null;
+  acceptingOrders?: boolean;
 };
 
 export default function MerchantLayout({ children }: { children: React.ReactNode }) {
@@ -96,6 +98,12 @@ export default function MerchantLayout({ children }: { children: React.ReactNode
           <div className="flex-1 overflow-hidden">
             <h1 className="truncate text-sm font-bold text-gray-900">{merchant.name}</h1>
             <p className="truncate text-xs text-gray-500">{merchant.category}</p>
+            {merchant.acceptingOrders === false && (
+              <div className="mt-1 flex items-center gap-1 text-xs text-red-600">
+                <XCircle className="w-3 h-3" />
+                <span>Orders Paused</span>
+              </div>
+            )}
           </div>
         </div>
 

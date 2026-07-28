@@ -2,11 +2,12 @@ import { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { ArrowLeft, CheckCircle, Clock, MapPin, Star } from 'lucide-react-native';
+import { ArrowLeft, CheckCircle, Clock, MapPin, Package, ShoppingCart, Star } from 'lucide-react-native';
 import { Avatar, Badge, Button, Card, HStack, Text, VStack } from '@/components/ui';
 import { AdSlot } from '@/components/AdSlot';
 import { useWalletStore } from '@/store/walletStore';
 import { useOnboardingStore } from '@/store/onboardingStore';
+import { useCartStore } from '@/store/cartStore';
 import { colors, spacing } from '@lokul/ui-tokens';
 
 const BASE = process.env.EXPO_PUBLIC_API_BASE ?? '';
@@ -19,21 +20,36 @@ type ApiMerchant = {
   ownerId?: string;
 };
 
+type CatalogItem = {
+  id: string; name: string; description?: string; pricePaise: number;
+  unit?: string; imageUrl?: string; isAvailable: boolean; kind: string;
+};
+
 export default function MerchantProfileScreen() {
   const { id }  = useLocalSearchParams<{ id: string }>();
   const router  = useRouter();
   const userId  = useWalletStore((s) => s.userId);
   const pinCode = useOnboardingStore((s) => s.pin);
+  const addToCart = useCartStore((s) => s.addItem);
+  const getItemQuantity = useCartStore((s) => s.getItemQuantity);
+  const getTotalItems = useCartStore((s) => s.getTotalItems);
   const [merchant, setMerchant] = useState<ApiMerchant | null>(null);
+  const [catalogItems, setCatalogItems] = useState<CatalogItem[]>([]);
   const [loading,  setLoading]  = useState(true);
 
   const load = useCallback(async () => {
     if (!id) return;
     setLoading(true);
     try {
+      // Fetch merchant details
       const res  = await fetch(`${BASE}/api/mobile/merchants/${id}`);
       const data = await res.json();
       setMerchant(data);
+      
+      // Fetch catalog items
+      const catalogRes = await fetch(`${BASE}/api/mobile/merchants/${id}/catalog`);
+      const catalogData = await catalogRes.json();
+      setCatalogItems(catalogData.items || []);
     } catch { /* noop */ } finally { setLoading(false); }
   }, [id]);
 
@@ -135,6 +151,90 @@ export default function MerchantProfileScreen() {
           )}
         </VStack>
 
+        {/* Catalog Items */}
+        {catalogItems.length > 0 && (
+          <VStack gap={3} style={styles.section}>
+            <Text variant="body" style={{ fontWeight: '700', color: colors.surface.heading }}>
+              Products & Services
+            </Text>
+            {catalogItems.map((item) => (
+              <Card key={item.id} padding={3} elevation="sm">
+                <HStack gap={3}>
+                  <View style={styles.itemImage}>
+                    <View style={styles.itemImagePlaceholder}>
+                      <Package size={24} color={colors.gray[400]} />
+                    </View>
+                  </View>
+                  <VStack gap={1} style={{ flex: 1 }}>
+                    <Text variant="body" style={{ fontWeight: '600', color: colors.surface.heading }}>
+                      {item.name}
+                    </Text>
+                    {!!item.description && (
+                      <Text variant="caption" tone="secondary" numberOfLines={2}>
+                        {item.description}
+                      </Text>
+                    )}
+                    <HStack gap={2} align="center">
+                      <Text variant="body" style={{ fontWeight: '700', color: colors.brand[600] }}>
+                        ₹{(item.pricePaise / 100).toFixed(2)}
+                      </Text>
+                      {item.unit && (
+                        <Text variant="caption" tone="secondary">per {item.unit}</Text>
+                      )}
+                    </HStack>
+                    {getItemQuantity(item.id) > 0 ? (
+                      <HStack gap={2} align="center" style={{ marginTop: spacing[2] }}>
+                        <Button
+                          label="-"
+                          size="sm"
+                          variant="secondary"
+                          onPress={() => {
+                            const qty = getItemQuantity(item.id);
+                            useCartStore.getState().updateQuantity(item.id, qty - 1);
+                          }}
+                          style={{ width: 40 }}
+                        />
+                        <Text variant="body" style={{ fontWeight: '600', minWidth: 30, textAlign: 'center' }}>
+                          {getItemQuantity(item.id)}
+                        </Text>
+                        <Button
+                          label="+"
+                          size="sm"
+                          onPress={() => {
+                            const qty = getItemQuantity(item.id);
+                            useCartStore.getState().updateQuantity(item.id, qty + 1);
+                          }}
+                          style={{ width: 40 }}
+                        />
+                      </HStack>
+                    ) : (
+                      <Button
+                        label="Add to Cart"
+                        size="sm"
+                        leftIcon={<ShoppingCart size={14} color="white" />}
+                        onPress={() => {
+                          addToCart({
+                            id: item.id,
+                            merchantId: merchant.id,
+                            merchantName: merchant.name,
+                            name: item.name,
+                            pricePaise: item.pricePaise,
+                            unit: item.unit,
+                            imageUrl: item.imageUrl,
+                            kind: item.kind,
+                          });
+                        }}
+                        style={{ marginTop: spacing[2], alignSelf: 'flex-start' }}
+                        disabled={!item.isAvailable}
+                      />
+                    )}
+                  </VStack>
+                </HStack>
+              </Card>
+            ))}
+          </VStack>
+        )}
+
         {/* CTA */}
         <View style={styles.section}>
           <VStack gap={3}>
@@ -171,6 +271,22 @@ export default function MerchantProfileScreen() {
           </VStack>
         </View>
       </ScrollView>
+      
+      {/* Floating Cart Button */}
+      {getTotalItems() > 0 && (
+        <Pressable
+          onPress={() => router.push('/(marketplace)/cart' as never)}
+          style={styles.floatingCart}
+          accessibilityRole="button"
+        >
+          <ShoppingCart size={24} color="white" />
+          <View style={styles.cartBadge}>
+            <Text variant="caption" style={{ color: 'white', fontSize: 10, fontWeight: '700' }}>
+              {getTotalItems()}
+            </Text>
+          </View>
+        </Pressable>
+      )}
     </SafeAreaView>
   );
 }
@@ -192,4 +308,23 @@ const styles = StyleSheet.create({
   statsCard: { marginHorizontal: spacing[4], marginTop: spacing[4] },
   statDivider: { width: 0.5, height: '60%', backgroundColor: colors.surface.border, alignSelf: 'center' },
   section: { paddingHorizontal: spacing[5], paddingTop: spacing[4] },
+  itemImage: { width: 80, height: 80, borderRadius: 8, overflow: 'hidden' },
+  itemImagePlaceholder: {
+    width: '100%', height: '100%', backgroundColor: colors.gray[100],
+    alignItems: 'center', justifyContent: 'center',
+  },
+  floatingCart: {
+    position: 'absolute', bottom: spacing[6], right: spacing[4],
+    width: 56, height: 56, borderRadius: 28,
+    backgroundColor: colors.brand[600],
+    alignItems: 'center', justifyContent: 'center',
+    shadowColor: '#000', shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3, shadowRadius: 8, elevation: 8,
+  },
+  cartBadge: {
+    position: 'absolute', top: -4, right: -4,
+    width: 20, height: 20, borderRadius: 10,
+    backgroundColor: colors.semantic.error,
+    alignItems: 'center', justifyContent: 'center',
+  },
 });

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Settings as SettingsIcon, User, Phone, MapPin, Clock, Store } from "lucide-react";
+import { Settings as SettingsIcon, User, Phone, MapPin, Clock, Store, AlertTriangle, XCircle, CheckCircle } from "lucide-react";
 
 type MerchantProfile = {
   id: string;
@@ -14,6 +14,9 @@ type MerchantProfile = {
   status: string;
   ratingAvg?: number | null;
   ratingCount?: number | null;
+  acceptingOrders?: boolean;
+  closedReason?: string | null;
+  closedUntil?: string | null;
   owner: {
     name: string;
     phone: string;
@@ -23,6 +26,11 @@ type MerchantProfile = {
 export default function SettingsPage() {
   const [merchant, setMerchant] = useState<MerchantProfile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [acceptingOrders, setAcceptingOrders] = useState(true);
+  const [closedReason, setClosedReason] = useState("");
+  const [autoReopen, setAutoReopen] = useState(false);
+  const [closedUntil, setClosedUntil] = useState("");
+  const [updating, setUpdating] = useState(false);
 
   useEffect(() => {
     async function loadProfile() {
@@ -32,10 +40,18 @@ export default function SettingsPage() {
         
         if (!data.authenticated) return;
 
-        setMerchant({
+        const merchantData = {
           ...data.merchant,
           owner: data.user,
-        });
+        };
+
+        setMerchant(merchantData);
+        setAcceptingOrders(merchantData.acceptingOrders ?? true);
+        setClosedReason(merchantData.closedReason || "");
+        if (merchantData.closedUntil) {
+          setAutoReopen(true);
+          setClosedUntil(new Date(merchantData.closedUntil).toISOString().slice(0, 16));
+        }
       } catch (error) {
         console.error("Failed to load profile:", error);
       } finally {
@@ -45,6 +61,68 @@ export default function SettingsPage() {
 
     loadProfile();
   }, []);
+
+  async function handleToggleOrders(enabled: boolean) {
+    setUpdating(true);
+    try {
+      const res = await fetch("/api/merchant/settings/accepting-orders", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          acceptingOrders: enabled,
+          closedReason: enabled ? null : closedReason || null,
+          closedUntil: enabled ? null : autoReopen && closedUntil ? new Date(closedUntil).toISOString() : null,
+        }),
+      });
+
+      const data = await res.json();
+      
+      if (res.ok) {
+        setAcceptingOrders(enabled);
+        if (enabled) {
+          setClosedReason("");
+          setAutoReopen(false);
+          setClosedUntil("");
+        }
+        alert(data.message);
+      } else {
+        alert(data.error || "Failed to update settings");
+      }
+    } catch (error) {
+      console.error("Failed to update accepting orders:", error);
+      alert("Failed to update settings");
+    } finally {
+      setUpdating(false);
+    }
+  }
+
+  async function handleSaveClosedSettings() {
+    setUpdating(true);
+    try {
+      const res = await fetch("/api/merchant/settings/accepting-orders", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          acceptingOrders: false,
+          closedReason: closedReason || null,
+          closedUntil: autoReopen && closedUntil ? new Date(closedUntil).toISOString() : null,
+        }),
+      });
+
+      const data = await res.json();
+      
+      if (res.ok) {
+        alert("Settings updated successfully");
+      } else {
+        alert(data.error || "Failed to update settings");
+      }
+    } catch (error) {
+      console.error("Failed to update closed settings:", error);
+      alert("Failed to update settings");
+    } finally {
+      setUpdating(false);
+    }
+  }
 
   if (loading) {
     return (
@@ -166,6 +244,125 @@ export default function SettingsPage() {
               <strong>Need to update your profile?</strong> Contact support or use the mobile app to edit your business information.
             </p>
           </div>
+        </div>
+
+        {/* Business Operations Card */}
+        <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+          <div className="mb-4 flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-600">
+              <Store className="h-5 w-5 text-white" />
+            </div>
+            <div>
+              <h2 className="text-lg font-semibold text-gray-900">Business Operations</h2>
+              <p className="text-sm text-gray-600">Control order acceptance</p>
+            </div>
+          </div>
+
+          {/* Accept Orders Toggle */}
+          <div className="flex items-center justify-between border-b border-gray-200 pb-4 mb-4">
+            <div className="flex-1">
+              <h3 className="font-medium text-gray-900">Accept Orders</h3>
+              <p className="text-sm text-gray-600 mt-1">
+                {acceptingOrders 
+                  ? "Your business is currently accepting orders from customers" 
+                  : "Your business is paused. Customers cannot place new orders"}
+              </p>
+            </div>
+            <label className="relative inline-flex items-center cursor-pointer ml-4">
+              <input 
+                type="checkbox" 
+                checked={acceptingOrders}
+                onChange={(e) => handleToggleOrders(e.target.checked)}
+                disabled={updating}
+                className="sr-only peer"
+              />
+              <div className="w-11 h-6 bg-gray-200 peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+            </label>
+          </div>
+          
+          {/* Closed Settings (shown when disabled) */}
+          {!acceptingOrders && (
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Reason for closing (visible to customers)
+                </label>
+                <select 
+                  value={closedReason}
+                  onChange={(e) => setClosedReason(e.target.value)}
+                  disabled={updating}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                >
+                  <option value="">No reason specified</option>
+                  <option value="On vacation">On vacation</option>
+                  <option value="Out of stock">Out of stock</option>
+                  <option value="Maintenance">Maintenance</option>
+                  <option value="High demand">High demand - temporarily paused</option>
+                  <option value="Holiday">Holiday</option>
+                  <option value="Personal reasons">Personal reasons</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+              
+              {/* Optional: Auto-reopen */}
+              <div>
+                <label className="flex items-center gap-2 mb-2 cursor-pointer">
+                  <input 
+                    type="checkbox" 
+                    checked={autoReopen}
+                    onChange={(e) => setAutoReopen(e.target.checked)}
+                    disabled={updating}
+                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  />
+                  <span className="text-sm font-medium text-gray-700">Auto-reopen at specific time</span>
+                </label>
+                {autoReopen && (
+                  <input 
+                    type="datetime-local"
+                    value={closedUntil}
+                    onChange={(e) => setClosedUntil(e.target.value)}
+                    disabled={updating}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    min={new Date().toISOString().slice(0, 16)}
+                  />
+                )}
+              </div>
+              
+              <button 
+                onClick={handleSaveClosedSettings}
+                disabled={updating}
+                className="w-full bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+              >
+                {updating ? "Saving..." : "Save Changes"}
+              </button>
+            </div>
+          )}
+          
+          {/* Warning message when orders are disabled */}
+          {!acceptingOrders && (
+            <div className="mt-4 bg-yellow-50 border border-yellow-200 rounded-lg p-4 flex gap-3">
+              <AlertTriangle className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
+              <div className="flex-1">
+                <p className="text-sm font-medium text-yellow-900 mb-1">Orders Paused</p>
+                <p className="text-sm text-yellow-800">
+                  Customers cannot place new orders while your business is paused. Existing orders can still be managed normally.
+                </p>
+              </div>
+            </div>
+          )}
+          
+          {/* Success message when orders are enabled */}
+          {acceptingOrders && (
+            <div className="bg-green-50 border border-green-200 rounded-lg p-4 flex gap-3">
+              <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+              <div className="flex-1">
+                <p className="text-sm font-medium text-green-900 mb-1">Accepting Orders</p>
+                <p className="text-sm text-green-800">
+                  Your business is live and customers can place orders normally.
+                </p>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Owner Information Card */}

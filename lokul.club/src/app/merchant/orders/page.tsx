@@ -14,6 +14,7 @@ import {
   AlertCircle,
   Loader2,
   ChevronRight,
+  AlertTriangle,
 } from "lucide-react";
 
 type Order = {
@@ -58,6 +59,7 @@ export default function OrdersPage() {
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
+  const [acceptingOrders, setAcceptingOrders] = useState(true);
 
   const loadStats = useCallback(async () => {
     try {
@@ -92,6 +94,19 @@ export default function OrdersPage() {
     loadOrders();
   }, [loadStats, loadOrders]);
 
+  useEffect(() => {
+    async function checkAcceptingOrders() {
+      try {
+        const res = await fetch("/api/merchant/settings/accepting-orders");
+        const data = await res.json();
+        setAcceptingOrders(data.acceptingOrders ?? true);
+      } catch (error) {
+        console.error("Failed to check accepting orders:", error);
+      }
+    }
+    checkAcceptingOrders();
+  }, []);
+
   const getStatusBadge = (status: string) => {
     const badges: Record<string, { label: string; className: string }> = {
       pending: { label: "Pending", className: "bg-yellow-100 text-yellow-800" },
@@ -117,6 +132,26 @@ export default function OrdersPage() {
           View and manage customer orders
         </p>
       </div>
+
+      {/* Alert Banner - Orders Paused */}
+      {!acceptingOrders && (
+        <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4 flex gap-3">
+          <AlertTriangle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+          <div className="flex-1">
+            <p className="text-sm font-medium text-red-900 mb-1">Orders Are Currently Paused</p>
+            <p className="text-sm text-red-800 mb-3">
+              Your business is not accepting new orders. Customers will see that you're temporarily unavailable.
+            </p>
+            <Link 
+              href="/merchant/settings"
+              className="inline-flex items-center gap-2 bg-red-600 text-white text-sm px-4 py-2 rounded-lg hover:bg-red-700 transition-colors"
+            >
+              Go to Settings to Resume Orders
+              <ChevronRight className="w-4 h-4" />
+            </Link>
+          </div>
+        </div>
+      )}
 
       {/* Stats Dashboard */}
       {stats && (

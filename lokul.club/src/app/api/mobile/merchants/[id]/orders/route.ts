@@ -7,10 +7,10 @@ import { prisma } from "@/lib/prisma";
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const merchantId = params.id;
+    const { id: merchantId } = await params;
     const body = await req.json();
     
     const {
@@ -63,6 +63,18 @@ export async function POST(
 
     if (!merchant || merchant.isBlacklisted) {
       return NextResponse.json({ error: "Merchant not available" }, { status: 404 });
+    }
+
+    // Check if merchant is accepting orders
+    if (!merchant.acceptingOrders) {
+      return NextResponse.json(
+        {
+          error: "Merchant is currently not accepting orders",
+          reason: merchant.closedReason || undefined,
+          reopensAt: merchant.closedUntil?.toISOString() || undefined,
+        },
+        { status: 422 }
+      );
     }
 
     // Fetch catalog items with current prices

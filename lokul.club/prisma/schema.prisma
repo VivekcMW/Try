@@ -663,6 +663,9 @@ model Merchant {
   isBlacklisted      Boolean        @default(false)
   ratingAvg          Float?
   ratingCount        Int            @default(0)
+  acceptingOrders    Boolean        @default(true) // Can merchant accept new orders?
+  closedReason       String?        // Reason for not accepting orders (shown to customers)
+  closedUntil        DateTime?      // Optional: auto-reopen at this time
   createdAt          DateTime       @default(now())
   updatedAt          DateTime       @updatedAt
 

@@ -421,14 +421,14 @@ function RegisterWizard() {
               <p className="mt-4 rounded-lg border border-red-200 bg-red-50 px-4 py-2.5 text-sm text-red-700">{state.error}</p>
             )}
 
-            <div className="mt-8 flex items-center justify-between">
-              <button type="button" onClick={() => goto(1)} className="press flex items-center gap-1.5 rounded-md px-4 py-3 text-sm font-semibold transition-colors hover:bg-gray-50" style={{ color: "var(--color-text-secondary)" }}>
+            <div className="mt-8 flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <button type="button" onClick={() => goto(1)} className="press flex items-center justify-center gap-1.5 rounded-md px-4 py-3 text-sm font-semibold transition-colors hover:bg-gray-50" style={{ color: "var(--color-text-secondary)" }}>
                 <ArrowLeft size={15} /> {t.biz.back}
               </button>
               <button
                 type="submit"
                 disabled={!step2Valid || pending}
-                className="press flex items-center gap-2 rounded-lg px-7 py-3 text-sm font-bold text-white shadow-lg transition-all hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100"
+                className="press flex items-center justify-center gap-2 whitespace-nowrap rounded-lg px-7 py-3 text-sm font-bold text-white shadow-lg transition-all hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100"
                 style={{ background: "linear-gradient(135deg, var(--color-brand-500), var(--color-brand-600))", boxShadow: "0 10px 28px -8px rgba(79,70,229,0.5)" }}
                 onClick={() => posthog?.capture("merchant_register_submit", { category })}
               >

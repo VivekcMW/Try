@@ -59,7 +59,7 @@ export default function Navbar() {
 
         {/* Desktop nav links */}
         <nav
-          className="hidden items-center gap-7 text-sm font-medium md:flex"
+          className="hidden items-center gap-5 whitespace-nowrap text-sm font-medium lg:flex lg:gap-7"
           style={{ color: "var(--color-text-secondary)" }}
         >
           <a href="/#how"      className="transition-colors hover:text-[color:var(--color-heading)]">{t.nav.how}</a>
@@ -76,17 +76,19 @@ export default function Navbar() {
         </nav>
 
         {/* CTA */}
-        <div className="flex items-center gap-2">
-          <LanguageSwitcher />
+        <div className="flex min-w-0 shrink-0 items-center gap-1.5 sm:gap-2">
+          <span className="hidden min-[400px]:inline-flex">
+            <LanguageSwitcher />
+          </span>
           <a
             href="/business"
-            aria-label="For Business"
-            className="flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-semibold md:hidden"
+            aria-label={t.nav.business}
+            className="flex shrink-0 items-center gap-1.5 rounded-full border px-2.5 py-1.5 text-sm font-semibold lg:hidden"
             style={{ borderColor: "var(--color-brand-200)", background: "var(--color-brand-50)", color: "var(--color-brand-700)" }}
           >
-            <Store size={13} /> {t.nav.business}
+            <Store size={13} /> <span className="hidden min-[400px]:inline">{t.nav.business}</span>
           </a>
-          <a href="/#waitlist" className="ds-button press text-sm transition-transform hover:scale-[1.02]">
+          <a href="/#waitlist" className="ds-button press shrink-0 text-sm transition-transform hover:scale-[1.02]">
             <span className="hidden sm:inline">{t.nav.ctaLong}</span>
             <span className="sm:hidden">{t.nav.join}</span>
             <ArrowRight size={14} />

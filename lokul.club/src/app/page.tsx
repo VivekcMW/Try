@@ -431,7 +431,7 @@ export default function Home() {
                 </div>
               ) : (
                 <form action={action} className="mt-6">
-                  <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-[1fr_1.4fr_8.5rem_auto]">
+                  <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-[1fr_1.4fr_8.5rem_auto]">
                     <input
                       className="ds-input h-11 min-w-0 text-sm"
                       type="text" name="name" placeholder={t.hero.phName} required

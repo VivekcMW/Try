@@ -7,15 +7,17 @@ import {
   Package,
   Clock,
   Search,
-  Filter,
-  Phone,
   CheckCircle,
   XCircle,
   AlertCircle,
   Loader2,
   ChevronRight,
   AlertTriangle,
+  Calendar,
+  Download,
+  UtensilsCrossed,
 } from "lucide-react";
+import { useMerchantProfile, useProfileLabels } from "@/lib/merchant-profile-context";
 
 type Order = {
   id: string;
@@ -23,6 +25,8 @@ type Order = {
   status: string;
   totalPaise: number;
   createdAt: string;
+  scheduledAt?: string | null;
+  deliveryMode?: string | null;
   customer: {
     id: string;
     name: string;
@@ -51,15 +55,27 @@ const STATUS_FILTERS = [
   { value: "in_progress", label: "In Progress", color: "purple" },
   { value: "completed", label: "Completed", color: "green" },
   { value: "cancelled", label: "Cancelled", color: "red" },
+  { value: "scheduled", label: "Scheduled", color: "indigo" },
 ];
 
 export default function OrdersPage() {
+  const profile = useMerchantProfile();
+  const labels = useProfileLabels();
+  const isFood = profile === "food";
+
   const [orders, setOrders] = useState<Order[]>([]);
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
   const [acceptingOrders, setAcceptingOrders] = useState(true);
+  const [kitchenView, setKitchenView] = useState(false);
+
+  // Bulk selection state
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [bulkLoading, setBulkLoading] = useState(false);
 
   const loadStats = useCallback(async () => {
     try {
@@ -75,19 +91,27 @@ export default function OrdersPage() {
     try {
       setLoading(true);
       const params = new URLSearchParams();
-      if (statusFilter && statusFilter !== "all") params.set("status", statusFilter);
+      if (statusFilter === "scheduled") {
+        params.set("scheduled", "1");
+      } else if (statusFilter && statusFilter !== "all") {
+        params.set("status", statusFilter);
+      }
       if (searchQuery) params.set("search", searchQuery);
-      
+      if (fromDate) params.set("from_date", fromDate);
+      if (toDate) params.set("to_date", toDate);
+
       const res = await fetch(`/api/merchant/orders?${params.toString()}`);
       const data = await res.json();
       setOrders(data.orders || []);
+      // Clear selection whenever orders reload
+      setSelectedIds(new Set());
     } catch (error) {
       console.error("Failed to load orders:", error);
       setOrders([]);
     } finally {
       setLoading(false);
     }
-  }, [statusFilter, searchQuery]);
+  }, [statusFilter, searchQuery, fromDate, toDate]);
 
   useEffect(() => {
     loadStats();
@@ -106,6 +130,95 @@ export default function OrdersPage() {
     }
     checkAcceptingOrders();
   }, []);
+
+  // --- Bulk selection helpers ---
+  const allVisibleIds = orders.map((o) => o.id);
+  const allSelected =
+    allVisibleIds.length > 0 && allVisibleIds.every((id) => selectedIds.has(id));
+  const someSelected = allVisibleIds.some((id) => selectedIds.has(id));
+
+  function toggleSelectAll() {
+    if (allSelected) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(allVisibleIds));
+    }
+  }
+
+  function toggleSelectOne(id: string) {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  }
+
+  // --- Bulk actions ---
+  async function handleBulkAction(action: "confirm" | "cancel") {
+    if (action === "cancel") {
+      const ok = window.confirm(
+        `Cancel ${selectedIds.size} selected order(s)? This cannot be undone.`
+      );
+      if (!ok) return;
+    }
+
+    setBulkLoading(true);
+    try {
+      await Promise.all(
+        Array.from(selectedIds).map((id) =>
+          fetch(`/api/merchant/orders/${id}/status`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ action }),
+          })
+        )
+      );
+    } catch (error) {
+      console.error("Bulk action failed:", error);
+    } finally {
+      setBulkLoading(false);
+      setSelectedIds(new Set());
+      loadOrders();
+    }
+  }
+
+  // --- Export CSV ---
+  function handleExportCSV() {
+    const header = "Order #,Status,Customer,Phone,Total (₹),Date";
+    const rows = orders.map((order) => {
+      const dateStr = new Date(order.createdAt).toLocaleDateString("en-IN", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+      });
+      const total = (order.totalPaise / 100).toFixed(2);
+      // Escape fields that may contain commas
+      const escape = (v: string) => (v.includes(",") ? `"${v}"` : v);
+      return [
+        escape(order.orderNumber),
+        escape(order.status),
+        escape(order.customer.name),
+        escape(order.customer.phone),
+        total,
+        escape(dateStr),
+      ].join(",");
+    });
+
+    const csv = [header, ...rows].join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `lokul-orders-${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
 
   const getStatusBadge = (status: string) => {
     const badges: Record<string, { label: string; className: string }> = {
@@ -126,11 +239,36 @@ export default function OrdersPage() {
   return (
     <div className="p-6 lg:p-8">
       {/* Header */}
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Orders</h1>
-        <p className="mt-1 text-sm text-gray-600">
-          View and manage customer orders
-        </p>
+      <div className="mb-6 flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">{labels.orders}</h1>
+          <p className="mt-1 text-sm text-gray-600">
+            View and manage customer orders
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          {isFood && (
+            <button
+              onClick={() => setKitchenView((v) => !v)}
+              className={`inline-flex items-center gap-2 rounded-lg border px-4 py-2 text-sm font-medium transition ${
+                kitchenView
+                  ? "border-orange-500 bg-orange-500 text-white hover:bg-orange-600"
+                  : "border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
+              }`}
+            >
+              <UtensilsCrossed className="h-4 w-4" />
+              Kitchen View
+            </button>
+          )}
+          <button
+            onClick={handleExportCSV}
+            disabled={orders.length === 0}
+            className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <Download className="h-4 w-4" />
+            Export CSV
+          </button>
+        </div>
       </div>
 
       {/* Alert Banner - Orders Paused */}
@@ -142,7 +280,7 @@ export default function OrdersPage() {
             <p className="text-sm text-red-800 mb-3">
               Your business is not accepting new orders. Customers will see that you're temporarily unavailable.
             </p>
-            <Link 
+            <Link
               href="/merchant/settings"
               className="inline-flex items-center gap-2 bg-red-600 text-white text-sm px-4 py-2 rounded-lg hover:bg-red-700 transition-colors"
             >
@@ -209,36 +347,123 @@ export default function OrdersPage() {
       )}
 
       {/* Filters */}
-      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        {/* Status Tabs */}
-        <div className="flex flex-wrap gap-2">
-          {STATUS_FILTERS.map((filter) => (
-            <button
-              key={filter.value}
-              onClick={() => setStatusFilter(filter.value)}
-              className={`rounded-lg px-4 py-2 text-sm font-medium transition ${
-                statusFilter === filter.value
-                  ? "bg-blue-600 text-white"
-                  : "border border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
-              }`}
-            >
-              {filter.label}
-            </button>
-          ))}
+      <div className="mb-6 flex flex-col gap-4">
+        {/* Row 1: Select All + Status Tabs + Search */}
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-3 flex-wrap">
+            {/* Select All checkbox */}
+            <label className="flex items-center gap-2 cursor-pointer select-none" title="Select all visible orders">
+              <input
+                type="checkbox"
+                checked={allSelected}
+                ref={(el) => {
+                  if (el) el.indeterminate = someSelected && !allSelected;
+                }}
+                onChange={toggleSelectAll}
+                className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+              />
+              <span className="text-sm text-gray-600">Select All</span>
+            </label>
+
+            {/* Status Tabs */}
+            <div className="flex flex-wrap gap-2">
+              {STATUS_FILTERS.map((filter) => (
+                <button
+                  key={filter.value}
+                  onClick={() => setStatusFilter(filter.value)}
+                  className={`rounded-lg px-4 py-2 text-sm font-medium transition ${
+                    statusFilter === filter.value
+                      ? "bg-blue-600 text-white"
+                      : "border border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
+                  }`}
+                >
+                  {filter.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Search */}
+          <div className="relative flex-1 sm:max-w-xs">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search by order # or customer..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full rounded-lg border border-gray-300 py-2 pl-10 pr-4 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+            />
+          </div>
         </div>
 
-        {/* Search */}
-        <div className="relative flex-1 sm:max-w-xs">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Search by order # or customer..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full rounded-lg border border-gray-300 py-2 pl-10 pr-4 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-          />
+        {/* Row 2: Date Range */}
+        <div className="flex flex-wrap items-center gap-3">
+          {/* From date */}
+          <div className="relative">
+            <Calendar className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400 pointer-events-none" />
+            <label className="sr-only" htmlFor="from-date">From</label>
+            <input
+              id="from-date"
+              type="date"
+              value={fromDate}
+              onChange={(e) => setFromDate(e.target.value)}
+              className="rounded-lg border border-gray-300 py-2 pl-10 pr-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+              aria-label="From date"
+            />
+            <span className="pointer-events-none absolute -top-2 left-3 bg-white px-1 text-xs text-gray-500">From</span>
+          </div>
+
+          {/* To date */}
+          <div className="relative">
+            <Calendar className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400 pointer-events-none" />
+            <label className="sr-only" htmlFor="to-date">To</label>
+            <input
+              id="to-date"
+              type="date"
+              value={toDate}
+              onChange={(e) => setToDate(e.target.value)}
+              className="rounded-lg border border-gray-300 py-2 pl-10 pr-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+              aria-label="To date"
+            />
+            <span className="pointer-events-none absolute -top-2 left-3 bg-white px-1 text-xs text-gray-500">To</span>
+          </div>
+
+          {/* Clear button — only visible when a date is set */}
+          {(fromDate || toDate) && (
+            <button
+              onClick={() => { setFromDate(""); setToDate(""); }}
+              className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
+            >
+              Clear
+            </button>
+          )}
         </div>
       </div>
+
+      {/* Bulk Action Bar */}
+      {selectedIds.size > 0 && (
+        <div className="mb-4 flex items-center gap-4 rounded-lg border border-blue-200 bg-blue-50 px-4 py-3">
+          <span className="flex-1 text-sm font-medium text-blue-900">
+            {selectedIds.size} order{selectedIds.size !== 1 ? "s" : ""} selected
+          </span>
+          <button
+            onClick={() => handleBulkAction("confirm")}
+            disabled={bulkLoading}
+            className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {bulkLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle className="h-4 w-4" />}
+            Confirm All
+          </button>
+          <button
+            onClick={() => handleBulkAction("cancel")}
+            disabled={bulkLoading}
+            className="inline-flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {bulkLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <XCircle className="h-4 w-4" />}
+            Cancel All
+          </button>
+        </div>
+      )}
 
       {/* Orders List */}
       {loading ? (
@@ -252,66 +477,170 @@ export default function OrdersPage() {
           <p className="mt-2 text-sm text-gray-600">
             {statusFilter === "all"
               ? "Your orders will appear here once customers start ordering"
+              : statusFilter === "scheduled"
+              ? "No scheduled orders found"
               : `No ${statusFilter} orders found`}
           </p>
+        </div>
+      ) : isFood && kitchenView ? (
+        <div>
+          {/* Kitchen View: Confirm All Pending */}
+          {orders.some((o) => o.status === "pending") && (
+            <div className="mb-4">
+              <button
+                onClick={() => {
+                  const pendingIds = orders.filter((o) => o.status === "pending").map((o) => o.id);
+                  setBulkLoading(true);
+                  Promise.all(
+                    pendingIds.map((id) =>
+                      fetch(`/api/merchant/orders/${id}/status`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ action: "confirm" }),
+                      })
+                    )
+                  ).finally(() => {
+                    setBulkLoading(false);
+                    loadOrders();
+                  });
+                }}
+                disabled={bulkLoading}
+                className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700 disabled:opacity-50"
+              >
+                {bulkLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle className="h-4 w-4" />}
+                Confirm All Pending
+              </button>
+            </div>
+          )}
+          <div className="grid grid-cols-2 gap-3 lg:grid-cols-3">
+            {orders.map((order) => {
+              const placedMins = Math.floor((Date.now() - new Date(order.createdAt).getTime()) / 60000);
+              const timeAgo = placedMins < 60 ? `${placedMins}m ago` : `${Math.floor(placedMins / 60)}h ago`;
+              return (
+                <div
+                  key={order.id}
+                  className="rounded-xl border border-gray-200 bg-white p-3 shadow-sm"
+                >
+                  <div className="mb-2 flex items-center justify-between gap-2">
+                    <span className="text-sm font-bold text-gray-900 truncate">{order.orderNumber}</span>
+                    {getStatusBadge(order.status)}
+                  </div>
+                  <ul className="mb-2 space-y-0.5">
+                    {order.orderItems.map((item) => (
+                      <li key={item.id} className="text-xs text-gray-700">
+                        {item.quantity}× {item.name}
+                      </li>
+                    ))}
+                  </ul>
+                  <p className="text-xs text-gray-400">{timeAgo}</p>
+                  {order.status === "confirmed" && (
+                    <button
+                      onClick={() =>
+                        fetch(`/api/merchant/orders/${order.id}/status`, {
+                          method: "POST",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({ action: "ready" }),
+                        }).then(() => loadOrders())
+                      }
+                      className="mt-2 w-full rounded-lg bg-green-600 py-1.5 text-xs font-medium text-white transition hover:bg-green-700"
+                    >
+                      Mark Ready
+                    </button>
+                  )}
+                </div>
+              );
+            })}
+          </div>
         </div>
       ) : (
         <div className="space-y-3">
           {orders.map((order) => (
-            <Link
-              key={order.id}
-              href={`/merchant/orders/${order.id}`}
-              className="block rounded-xl border border-gray-200 bg-white p-4 transition hover:border-blue-300 hover:shadow-md"
-            >
-              <div className="flex items-center justify-between">
-                {/* Left: Order Info */}
-                <div className="flex-1">
-                  <div className="flex items-center gap-3">
-                    <span className="text-lg font-bold text-gray-900">{order.orderNumber}</span>
-                    {getStatusBadge(order.status)}
-                  </div>
-                  
-                  {/* Customer Info */}
-                  <div className="mt-2 flex items-center gap-2">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-200 text-sm font-medium text-gray-600">
-                      {order.customer.name.charAt(0).toUpperCase()}
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-gray-900">{order.customer.name}</p>
-                      <p className="text-xs text-gray-600">{order.customer.phone}</p>
-                    </div>
-                  </div>
-
-                  {/* Items Summary */}
-                  <div className="mt-3 text-sm text-gray-600">
-                    {order.orderItems.length === 1 ? (
-                      <span>1 item: {order.orderItems[0].name}</span>
-                    ) : (
-                      <span>
-                        {order.orderItems.length} items: {order.orderItems[0].name}
-                        {order.orderItems.length > 1 && ` +${order.orderItems.length - 1} more`}
-                      </span>
-                    )}
-                  </div>
-                </div>
-
-                {/* Right: Amount & Time */}
-                <div className="ml-4 text-right">
-                  <p className="text-lg font-bold text-gray-900">
-                    ₹{(order.totalPaise / 100).toFixed(2)}
-                  </p>
-                  <p className="mt-1 text-xs text-gray-500">
-                    {new Date(order.createdAt).toLocaleString("en-IN", {
-                      day: "numeric",
-                      month: "short",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </p>
-                  <ChevronRight className="ml-auto mt-2 h-5 w-5 text-gray-400" />
-                </div>
+            <div key={order.id} className="flex items-start gap-3">
+              {/* Row checkbox */}
+              <div className="flex items-center pt-5">
+                <input
+                  type="checkbox"
+                  checked={selectedIds.has(order.id)}
+                  onChange={() => toggleSelectOne(order.id)}
+                  onClick={(e) => e.stopPropagation()}
+                  className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                />
               </div>
-            </Link>
+
+              <Link
+                href={`/merchant/orders/${order.id}`}
+                className="block flex-1 rounded-xl border border-gray-200 bg-white p-4 transition hover:border-blue-300 hover:shadow-md"
+              >
+                <div className="flex items-center justify-between">
+                  {/* Left: Order Info */}
+                  <div className="flex-1">
+                    <div className="flex items-center gap-3 flex-wrap">
+                      <span className="text-lg font-bold text-gray-900">{order.orderNumber}</span>
+                      {getStatusBadge(order.status)}
+                      {order.deliveryMode && (
+                        <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                          order.deliveryMode === "home_delivery"
+                            ? "bg-blue-50 text-blue-700"
+                            : "bg-gray-100 text-gray-700"
+                        }`}>
+                          {order.deliveryMode === "home_delivery" ? "Delivery" : "Pickup"}
+                        </span>
+                      )}
+                      {order.scheduledAt && (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-indigo-100 px-2.5 py-0.5 text-xs font-medium text-indigo-700">
+                          📅 Scheduled:{" "}
+                          {new Date(order.scheduledAt).toLocaleString("en-IN", {
+                            day: "numeric",
+                            month: "short",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Customer Info */}
+                    <div className="mt-2 flex items-center gap-2">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-200 text-sm font-medium text-gray-600">
+                        {order.customer.name.charAt(0).toUpperCase()}
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-gray-900">{order.customer.name}</p>
+                        <p className="text-xs text-gray-600">{order.customer.phone}</p>
+                      </div>
+                    </div>
+
+                    {/* Items Summary */}
+                    <div className="mt-3 text-sm text-gray-600">
+                      {order.orderItems.length === 1 ? (
+                        <span>1 item: {order.orderItems[0].name}</span>
+                      ) : (
+                        <span>
+                          {order.orderItems.length} items: {order.orderItems[0].name}
+                          {order.orderItems.length > 1 && ` +${order.orderItems.length - 1} more`}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Right: Amount & Time */}
+                  <div className="ml-4 text-right">
+                    <p className="text-lg font-bold text-gray-900">
+                      ₹{(order.totalPaise / 100).toFixed(2)}
+                    </p>
+                    <p className="mt-1 text-xs text-gray-500">
+                      {new Date(order.createdAt).toLocaleString("en-IN", {
+                        day: "numeric",
+                        month: "short",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </p>
+                    <ChevronRight className="ml-auto mt-2 h-5 w-5 text-gray-400" />
+                  </div>
+                </div>
+              </Link>
+            </div>
           ))}
         </div>
       )}

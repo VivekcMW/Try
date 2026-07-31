@@ -20,6 +20,7 @@ export async function PATCH(
     const {
       name, description, pricePaise, unit, durationMins,
       imageUrl, isAvailable, sortOrder, attributes,
+      catalogCategory, stockCount,
     } = body;
 
     const existing = await prisma.merchantCatalogItem.findUnique({ where: { id: itemId } });
@@ -39,6 +40,8 @@ export async function PATCH(
         ...(isAvailable !== undefined ? { isAvailable } : {}),
         ...(sortOrder !== undefined ? { sortOrder } : {}),
         ...(attributes !== undefined ? { attributes } : {}),
+        ...(catalogCategory !== undefined ? { catalogCategory } : {}),
+        ...(stockCount !== undefined ? { stockCount } : {}),
       },
     });
 

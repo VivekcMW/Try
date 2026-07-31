@@ -251,6 +251,9 @@ model User {
   // Merchant orders
   merchantOrders  MerchantOrder[] @relation("CustomerOrders")
 
+  // Subscriptions
+  subscriptions Subscription[] @relation("UserSubscriptions")
+
   // Communities
   communitiesCreated   Community[]       @relation("CommunityCreator")
   communityMemberships CommunityMember[]
@@ -692,6 +695,19 @@ model Merchant {
   businessHoursStart String?        // e.g., "09:00" (24-hour format)
   businessHoursEnd   String?        // e.g., "21:00" (24-hour format)
   estimatedDeliveryMins Int?        // Typical preparation time in minutes (e.g., 30)
+  deliveryFeePaise   Int?           // Delivery charge in paise; null = use platform default
+  notifPrefs         Json?          // { newOrder: bool, orderUpdates: bool, lowStock: bool }
+  workflowProfile    String         @default("retail") // retail | food | appointments | home_services | subscriptions | events
+  addressLine1       String?            // Physical shop address
+  addressLine2       String?            // Floor, landmark, building
+  serviceRadiusKm    Float?             // Delivery/service radius in km (null = platform default)
+  minimumOrderPaise  Int?               // Minimum order amount; null = no minimum
+  freeDeliveryAbovePaise Int?           // Free delivery if order > this value; null = disabled
+  gstNumber          String?            // GST registration number
+  fssaiNumber        String?            // FSSAI license (food merchants)
+  businessLicense    String?            // Generic business license / reg number
+  closedWeekdays     Json?              // e.g. [0,7] where 0=Sun,7=recurring holidays
+  paymentMethods     Json?              // e.g. ["cash","upi","card"]
   createdAt          DateTime       @default(now())
   updatedAt          DateTime       @updatedAt
 
@@ -702,7 +718,12 @@ model Merchant {
   advertisers   Advertiser[]
   catalogItems  MerchantCatalogItem[]
   offers        MerchantOffer[]
+  coupons       MerchantCoupon[]
+  branches      MerchantBranch[]
+  broadcasts    MerchantBroadcast[]
   orders        MerchantOrder[]       @relation("MerchantOrders")
+  subscriptionPlans Subscription[]    @relation("MerchantSubscriptions")
+  plans             SubscriptionPlan[] @relation("MerchantPlans")
 
   @@index([pinCode])
   @@index([city])
@@ -736,6 +757,8 @@ model MerchantCatalogItem {
   isAvailable  Boolean         @default(true)
   sortOrder    Int             @default(0)
   attributes   Json? // { "isVeg": true } | { "doctorName": "Dr. Rao" } etc.
+  catalogCategory String?     // e.g., "Starters", "Mains", "Beverages"
+  stockCount   Int?            // null = unlimited; 0 = out of stock
   createdAt    DateTime        @default(now())
   updatedAt    DateTime        @updatedAt
 
@@ -744,6 +767,7 @@ model MerchantCatalogItem {
 
   @@index([merchantId, kind])
   @@index([merchantId, isAvailable])
+  @@index([merchantId, catalogCategory])
 }
 
 enum OfferType {
@@ -1792,6 +1816,67 @@ model QuoteRequest {
   @@index([merchantId])
   @@index([status])
   @@index([createdAt])
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SUBSCRIPTIONS
+// ─────────────────────────────────────────────────────────────────────────────
+
+model SubscriptionPlan {
+  id           String   @id @default(cuid())
+  merchantId   String
+  name         String
+  description  String?
+  pricePaise   Int
+  frequency    String   @default("daily") // daily | weekdays | alternate | weekly
+  unit         String?
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  merchant      Merchant       @relation("MerchantPlans", fields: [merchantId], references: [id], onDelete: Cascade)
+  subscriptions Subscription[]
+
+  @@index([merchantId])
+}
+
+model Subscription {
+  id           String    @id @default(cuid())
+  planId       String
+  merchantId   String
+  customerId   String
+  quantity     Int       @default(1)
+  status       String    @default("active") // active | paused | cancelled
+  startDate    DateTime
+  pausedFrom   DateTime?
+  pausedUntil  DateTime?
+  cancelledAt  DateTime?
+  notes        String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  plan       SubscriptionPlan       @relation(fields: [planId], references: [id])
+  merchant   Merchant               @relation("MerchantSubscriptions", fields: [merchantId], references: [id])
+  customer   User                   @relation("UserSubscriptions", fields: [customerId], references: [id])
+  deliveries SubscriptionDelivery[]
+
+  @@index([merchantId])
+  @@index([customerId])
+  @@index([planId])
+}
+
+model SubscriptionDelivery {
+  id             String    @id @default(cuid())
+  subscriptionId String
+  deliveryDate   String    // YYYY-MM-DD
+  status         String    @default("pending") // pending | delivered | missed
+  deliveredAt    DateTime?
+  notes          String?
+
+  subscription Subscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+
+  @@index([subscriptionId, deliveryDate])
+  @@index([deliveryDate, status])
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -2973,4 +3058,68 @@ model AmenityBooking {
 
   @@index([ownerId])
   @@index([pinCode])
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// MERCHANT COUPONS
+// ─────────────────────────────────────────────────────────────────────────────
+
+model MerchantCoupon {
+  id             String    @id @default(cuid())
+  merchantId     String
+  code           String
+  description    String?
+  discountType   String    // "percent_off" | "flat_off"
+  discountValue  Int       // percent (0-100) or paise
+  minSpendPaise  Int?
+  maxUsesTotal   Int?
+  maxUsesPerUser Int       @default(1)
+  usedCount      Int       @default(0)
+  isActive       Boolean   @default(true)
+  expiresAt      DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  merchant Merchant @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+
+  @@unique([merchantId, code])
+  @@index([merchantId, isActive])
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// MERCHANT BRANCHES
+// ─────────────────────────────────────────────────────────────────────────────
+
+model MerchantBranch {
+  id         String   @id @default(cuid())
+  merchantId String
+  name       String
+  address    String
+  pinCode    String
+  city       String
+  lat        Float?
+  lng        Float?
+  phone      String?
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  merchant Merchant @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+
+  @@index([merchantId])
+  @@index([pinCode])
+}
+
+model MerchantBroadcast {
+  id          String   @id @default(cuid())
+  merchantId  String
+  title       String
+  message     String
+  sentTo      Int      @default(0)
+  createdAt   DateTime @default(now())
+
+  merchant Merchant @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+
+  @@index([merchantId])
+  @@index([createdAt])
 }

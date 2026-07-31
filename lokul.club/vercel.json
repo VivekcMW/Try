@@ -3,6 +3,14 @@
     {
       "path": "/api/cron/news-refresh",
       "schedule": "0 6 * * *"
+    },
+    {
+      "path": "/api/cron/orders-timeout",
+      "schedule": "0 * * * *"
+    },
+    {
+      "path": "/api/cron/subscription-deliveries",
+      "schedule": "0 0 * * *"
     }
   ]
 }

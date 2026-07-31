@@ -3,19 +3,9 @@
 import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
-import {
-  Store,
-  LayoutDashboard,
-  Package,
-  Tag,
-  ShoppingCart,
-  Settings,
-  LogOut,
-  Menu,
-  X,
-  ChevronRight,
-  XCircle,
-} from "lucide-react";
+import { Store, LogOut, Menu, X, XCircle } from "lucide-react";
+import { PROFILE_NAV, getProfileFromCategory, type WorkflowProfile } from "@/lib/merchant-profiles";
+import { MerchantProfileProvider } from "@/lib/merchant-profile-context";
 
 type MerchantData = {
   id: string;
@@ -23,6 +13,7 @@ type MerchantData = {
   category: string;
   avatarUrl?: string | null;
   acceptingOrders?: boolean;
+  workflowProfile?: WorkflowProfile;
 };
 
 export default function MerchantLayout({ children }: { children: React.ReactNode }) {
@@ -32,7 +23,6 @@ export default function MerchantLayout({ children }: { children: React.ReactNode
   const [loading, setLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  // Check authentication
   useEffect(() => {
     async function checkAuth() {
       try {
@@ -52,7 +42,6 @@ export default function MerchantLayout({ children }: { children: React.ReactNode
       }
     }
 
-    // Skip auth check on login page
     if (pathname?.includes("/login")) {
       setLoading(false);
       return;
@@ -66,7 +55,6 @@ export default function MerchantLayout({ children }: { children: React.ReactNode
     router.push("/merchant/login");
   };
 
-  // Show nothing while checking auth
   if (loading || !merchant) {
     if (pathname?.includes("/login")) {
       return <>{children}</>;
@@ -78,164 +66,121 @@ export default function MerchantLayout({ children }: { children: React.ReactNode
     );
   }
 
-  const navItems = [
-    { icon: LayoutDashboard, label: "Dashboard", href: "/merchant" },
-    { icon: Package, label: "Catalog", href: "/merchant/catalog" },
-    { icon: Tag, label: "Offers", href: "/merchant/offers" },
-    { icon: ShoppingCart, label: "Orders", href: "/merchant/orders" },
-    { icon: Settings, label: "Settings", href: "/merchant/settings" },
-  ];
+  const profile: WorkflowProfile =
+    merchant.workflowProfile ?? getProfileFromCategory(merchant.category);
+  const navItems = PROFILE_NAV[profile];
+
+  const SidebarContent = () => (
+    <>
+      <nav className="flex-1 space-y-1 overflow-y-auto p-4">
+        {navItems.map((item) => {
+          const Icon = item.icon;
+          const isActive = pathname === item.href;
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              onClick={() => setSidebarOpen(false)}
+              className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition ${
+                isActive
+                  ? "bg-mw-primary-50 text-mw-primary-700"
+                  : "text-gray-700 hover:bg-gray-100"
+              }`}
+            >
+              <Icon size={18} />
+              {item.label}
+            </Link>
+          );
+        })}
+      </nav>
+      <div className="border-t border-gray-200 p-4">
+        <button
+          onClick={handleLogout}
+          className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-red-600 transition hover:bg-red-50"
+        >
+          <LogOut size={18} />
+          Logout
+        </button>
+      </div>
+    </>
+  );
+
+  const MerchantHeader = ({ showClose = false }: { showClose?: boolean }) => (
+    <div className={`flex h-16 items-center border-b border-gray-200 px-6 ${showClose ? "justify-between" : ""}`}>
+      <div className="flex items-center gap-3">
+        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-mw-primary-600">
+          <Store className="h-5 w-5 text-white" />
+        </div>
+        <div className="flex-1 overflow-hidden">
+          <h1 className="truncate text-sm font-bold text-gray-900">{merchant.name}</h1>
+          <p className="truncate text-xs text-gray-500">{merchant.category}</p>
+          {merchant.acceptingOrders === false && (
+            <div className="mt-1 flex items-center gap-1 text-xs text-red-600">
+              <XCircle className="w-3 h-3" />
+              <span>Orders Paused</span>
+            </div>
+          )}
+        </div>
+      </div>
+      {showClose && (
+        <button onClick={() => setSidebarOpen(false)} className="text-gray-500 hover:text-gray-900">
+          <X size={20} />
+        </button>
+      )}
+    </div>
+  );
 
   return (
-    <div className="flex h-screen overflow-hidden bg-gray-50">
-      {/* Sidebar - Desktop */}
-      <aside className="hidden w-64 flex-col border-r border-gray-200 bg-white lg:flex">
-        {/* Logo */}
-        <div className="flex h-16 items-center gap-3 border-b border-gray-200 px-6">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-mw-primary-600">
-            <Store className="h-5 w-5 text-white" />
-          </div>
-          <div className="flex-1 overflow-hidden">
-            <h1 className="truncate text-sm font-bold text-gray-900">{merchant.name}</h1>
-            <p className="truncate text-xs text-gray-500">{merchant.category}</p>
-            {merchant.acceptingOrders === false && (
-              <div className="mt-1 flex items-center gap-1 text-xs text-red-600">
-                <XCircle className="w-3 h-3" />
-                <span>Orders Paused</span>
-              </div>
-            )}
-          </div>
-        </div>
+    <MerchantProfileProvider value={profile}>
+      <div className="flex h-screen overflow-hidden bg-gray-50">
+        {/* Desktop sidebar */}
+        <aside className="hidden w-64 flex-col border-r border-gray-200 bg-white lg:flex">
+          <MerchantHeader />
+          <SidebarContent />
+        </aside>
 
-        {/* Nav */}
-        <nav className="flex-1 space-y-1 overflow-y-auto p-4">
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = pathname === item.href;
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition ${
-                  isActive
-                    ? "bg-mw-primary-50 text-mw-primary-700"
-                    : "text-gray-700 hover:bg-gray-100"
-                }`}
-              >
-                <Icon size={18} />
-                {item.label}
-              </Link>
-            );
-          })}
-        </nav>
+        {/* Mobile overlay */}
+        {sidebarOpen && (
+          <div
+            className="fixed inset-0 z-40 bg-black/50 lg:hidden"
+            onClick={() => setSidebarOpen(false)}
+          />
+        )}
 
-        {/* Logout */}
-        <div className="border-t border-gray-200 p-4">
-          <button
-            onClick={handleLogout}
-            className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-red-600 transition hover:bg-red-50"
-          >
-            <LogOut size={18} />
-            Logout
-          </button>
-        </div>
-      </aside>
+        {/* Mobile sidebar */}
+        <aside
+          className={`fixed inset-y-0 left-0 z-50 w-64 flex flex-col border-r border-gray-200 bg-white transition-transform lg:hidden ${
+            sidebarOpen ? "translate-x-0" : "-translate-x-full"
+          }`}
+        >
+          <MerchantHeader showClose />
+          <SidebarContent />
+        </aside>
 
-      {/* Mobile sidebar overlay */}
-      {sidebarOpen && (
-        <div
-          className="fixed inset-0 z-40 bg-black/50 lg:hidden"
-          onClick={() => setSidebarOpen(false)}
-        />
-      )}
-
-      {/* Mobile sidebar */}
-      <aside
-        className={`fixed inset-y-0 left-0 z-50 w-64 transform flex-col border-r border-gray-200 bg-white transition-transform lg:hidden ${
-          sidebarOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
-      >
-        {/* Logo */}
-        <div className="flex h-16 items-center justify-between border-b border-gray-200 px-6">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-mw-primary-600">
-              <Store className="h-5 w-5 text-white" />
-            </div>
-            <div className="flex-1 overflow-hidden">
-              <h1 className="truncate text-sm font-bold text-gray-900">{merchant.name}</h1>
-              <p className="truncate text-xs text-gray-500">{merchant.category}</p>
-            </div>
-          </div>
-          <button onClick={() => setSidebarOpen(false)} className="text-gray-500 hover:text-gray-900">
-            <X size={20} />
-          </button>
-        </div>
-
-        {/* Nav */}
-        <nav className="flex-1 space-y-1 overflow-y-auto p-4">
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = pathname === item.href;
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                onClick={() => setSidebarOpen(false)}
-                className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition ${
-                  isActive
-                    ? "bg-mw-primary-50 text-mw-primary-700"
-                    : "text-gray-700 hover:bg-gray-100"
-                }`}
-              >
-                <Icon size={18} />
-                {item.label}
-              </Link>
-            );
-          })}
-        </nav>
-
-        {/* Logout */}
-        <div className="border-t border-gray-200 p-4">
-          <button
-            onClick={handleLogout}
-            className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-red-600 transition hover:bg-red-50"
-          >
-            <LogOut size={18} />
-            Logout
-          </button>
-        </div>
-      </aside>
-
-      {/* Main content */}
-      <div className="flex flex-1 flex-col overflow-hidden">
-        {/* Top bar */}
-        <header className="flex h-16 items-center justify-between border-b border-gray-200 bg-white px-4 lg:px-6">
-          <button
-            onClick={() => setSidebarOpen(true)}
-            className="text-gray-500 hover:text-gray-900 lg:hidden"
-          >
-            <Menu size={24} />
-          </button>
-          
-          <div className="hidden lg:block">
-            {/* Breadcrumb or page title can go here */}
-          </div>
-
-          <div className="ml-auto flex items-center gap-4">
-            <Link
-              href="/business"
-              className="text-sm font-medium text-gray-600 hover:text-gray-900"
+        {/* Main content */}
+        <div className="flex flex-1 flex-col overflow-hidden">
+          <header className="flex h-16 items-center justify-between border-b border-gray-200 bg-white px-4 lg:px-6">
+            <button
+              onClick={() => setSidebarOpen(true)}
+              className="text-gray-500 hover:text-gray-900 lg:hidden"
             >
-              View on App →
-            </Link>
-          </div>
-        </header>
-
-        {/* Page content */}
-        <main className="flex-1 overflow-y-auto">
-          {children}
-        </main>
+              <Menu size={24} />
+            </button>
+            <div className="hidden lg:block" />
+            <div className="ml-auto flex items-center gap-4">
+              <Link
+                href="/business"
+                className="text-sm font-medium text-gray-600 hover:text-gray-900"
+              >
+                View on App →
+              </Link>
+            </div>
+          </header>
+          <main className="flex-1 overflow-y-auto">
+            {children}
+          </main>
+        </div>
       </div>
-    </div>
+    </MerchantProfileProvider>
   );
 }

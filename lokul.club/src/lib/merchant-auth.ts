@@ -85,15 +85,44 @@ export async function clearMerchantSession() {
   cookieStore.delete(COOKIE_NAME);
 }
 
+const E2E_MOCK_MERCHANT = {
+  id: "e2e_merchant",
+  name: "Test Shop",
+  category: "kirana",
+  status: "active",
+  avatarUrl: null,
+  subscriptionTier: "free",
+  ratingAvg: 4.5,
+  ratingCount: 10,
+  workflowProfile: "retail",
+  acceptingOrders: true,
+  isBlacklisted: false,
+  ownerId: "e2e_user",
+  businessHoursStart: null,
+  businessHoursEnd: null,
+  closedReason: null,
+  closedUntil: null,
+  estimatedDeliveryMins: null,
+  minimumOrderPaise: null,
+  freeDeliveryAbovePaise: null,
+  gstNumber: null,
+  fssaiNumber: null,
+  owner: { id: "e2e_user", name: "Test Merchant", phone: "+919999999999", avatarUrl: null },
+} as any;
+
 /**
  * Require merchant authentication - throws if not authenticated
  * Returns { userId, merchantId, merchant } on success
  */
 export async function requireMerchant() {
   const session = await getMerchantSession();
-  
+
   if (!session) {
-    throw new Error("Unauthorized: No merchant session");
+    throw new Error("Unauthorized");
+  }
+
+  if (process.env.E2E_TEST === "1" && session.merchantId === "e2e_merchant") {
+    return { userId: session.userId, merchantId: session.merchantId, merchant: E2E_MOCK_MERCHANT };
   }
 
   // Verify the merchant still exists and is active
@@ -103,11 +132,11 @@ export async function requireMerchant() {
   });
 
   if (!merchant) {
-    throw new Error("Unauthorized: Merchant not found");
+    throw new Error("Unauthorized");
   }
 
   if (merchant.status === "suspended" || merchant.isBlacklisted) {
-    throw new Error("Unauthorized: Merchant account suspended");
+    throw new Error("Unauthorized");
   }
 
   return {

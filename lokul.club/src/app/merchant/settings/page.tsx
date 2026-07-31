@@ -1,13 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Settings as SettingsIcon, User, Phone, MapPin, Clock, Store, AlertTriangle, XCircle, CheckCircle } from "lucide-react";
+import { Settings as SettingsIcon, User, Phone, MapPin, Clock, Store, AlertTriangle, XCircle, CheckCircle, Pencil, Bell, Wrench, ShoppingCart, Shield, CalendarX, CreditCard, ChevronDown, ChevronUp } from "lucide-react";
+import { useMerchantProfile } from "@/lib/merchant-profile-context";
 
 type MerchantProfile = {
   id: string;
   name: string;
   category: string;
   description?: string | null;
+  avatarUrl?: string | null;
   address?: string | null;
   phone?: string | null;
   whatsapp?: string | null;
@@ -27,6 +29,7 @@ type MerchantProfile = {
 };
 
 export default function SettingsPage() {
+  const profile = useMerchantProfile();
   const [merchant, setMerchant] = useState<MerchantProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [acceptingOrders, setAcceptingOrders] = useState(true);
@@ -37,6 +40,50 @@ export default function SettingsPage() {
   const [businessHoursEnd, setBusinessHoursEnd] = useState("");
   const [estimatedDeliveryMins, setEstimatedDeliveryMins] = useState(30);
   const [updating, setUpdating] = useState(false);
+
+  // Profile edit state
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [profileForm, setProfileForm] = useState({ name: "", description: "", avatarUrl: "" });
+
+  // Delivery fee state (in rupees for the UI; stored as paise)
+  const [deliveryFeeRupees, setDeliveryFeeRupees] = useState(20);
+  const [savingDeliveryFee, setSavingDeliveryFee] = useState(false);
+
+  // Visit / Inspection Charge (home_services only)
+  const [visitChargeRupees, setVisitChargeRupees] = useState(0);
+  const [savingVisitCharge, setSavingVisitCharge] = useState(false);
+
+  // Location state
+  const [addressLine1, setAddressLine1] = useState("");
+  const [addressLine2, setAddressLine2] = useState("");
+  const [serviceRadiusKm, setServiceRadiusKm] = useState<number | "">("");
+  const [savingLocation, setSavingLocation] = useState(false);
+
+  // Order rules state
+  const [minimumOrderRupees, setMinimumOrderRupees] = useState<number | "">("");
+  const [freeDeliveryAboveRupees, setFreeDeliveryAboveRupees] = useState<number | "">("");
+  const [savingOrderRules, setSavingOrderRules] = useState(false);
+
+  // Compliance state
+  const [gstNumber, setGstNumber] = useState("");
+  const [fssaiNumber, setFssaiNumber] = useState("");
+  const [businessLicense, setBusinessLicense] = useState("");
+  const [savingCompliance, setSavingCompliance] = useState(false);
+  const [complianceExpanded, setComplianceExpanded] = useState(false);
+
+  // Schedule state
+  const [closedWeekdays, setClosedWeekdays] = useState<number[]>([]);
+  const [paymentMethods, setPaymentMethods] = useState<string[]>([]);
+  const [savingSchedule, setSavingSchedule] = useState(false);
+  const [savingPayments, setSavingPayments] = useState(false);
+
+  // Notification preferences state
+  const [notifPrefs, setNotifPrefs] = useState({
+    newOrder: true,
+    orderUpdates: true,
+    lowStock: true,
+  });
+  const [notifSavedFlash, setNotifSavedFlash] = useState(false);
 
   useEffect(() => {
     async function loadProfile() {
@@ -60,6 +107,85 @@ export default function SettingsPage() {
         if (merchantData.closedUntil) {
           setAutoReopen(true);
           setClosedUntil(new Date(merchantData.closedUntil).toISOString().slice(0, 16));
+        }
+        setProfileForm({
+          name: merchantData.name || "",
+          description: merchantData.description || "",
+          avatarUrl: merchantData.avatarUrl || "",
+        });
+
+        // Load notification preferences
+        try {
+          const notifRes = await fetch("/api/merchant/settings/notifications");
+          if (notifRes.ok) {
+            const notifData = await notifRes.json();
+            setNotifPrefs(notifData);
+          }
+        } catch {
+          // Use defaults silently
+        }
+
+        // Load visit charge (home_services only)
+        try {
+          const vcRes = await fetch("/api/merchant/settings/visit-charge");
+          if (vcRes.ok) {
+            const vcData = await vcRes.json();
+            if (typeof vcData.visitChargePaise === "number") {
+              setVisitChargeRupees(vcData.visitChargePaise / 100);
+            }
+          }
+        } catch {
+          // Use defaults silently
+        }
+
+        // Load location settings
+        try {
+          const locRes = await fetch("/api/merchant/settings/location");
+          if (locRes.ok) {
+            const locData = await locRes.json();
+            setAddressLine1(locData.addressLine1 || "");
+            setAddressLine2(locData.addressLine2 || "");
+            setServiceRadiusKm(locData.serviceRadiusKm ?? "");
+          }
+        } catch {
+          // Use defaults silently
+        }
+
+        // Load order rules
+        try {
+          const orRes = await fetch("/api/merchant/settings/order-rules");
+          if (orRes.ok) {
+            const orData = await orRes.json();
+            setMinimumOrderRupees(orData.minimumOrderRupees ?? "");
+            setFreeDeliveryAboveRupees(orData.freeDeliveryAboveRupees ?? "");
+          }
+        } catch {
+          // Use defaults silently
+        }
+
+        // Load compliance data
+        try {
+          const compRes = await fetch("/api/merchant/settings/compliance");
+          if (compRes.ok) {
+            const compData = await compRes.json();
+            setGstNumber(compData.gstNumber || "");
+            setFssaiNumber(compData.fssaiNumber || "");
+            setBusinessLicense(compData.businessLicense || "");
+          }
+        } catch {
+          // Use defaults silently
+        }
+
+        // Load schedule data
+        try {
+          const schedRes = await fetch("/api/merchant/settings/schedule");
+          if (schedRes.ok) {
+            const schedData = await schedRes.json();
+            setClosedWeekdays(schedData.closedWeekdays ?? []);
+            setPaymentMethods(schedData.paymentMethods ?? []);
+          }
+        } catch {
+          // Use defaults silently
         }
       } catch (error) {
         console.error("Failed to load profile:", error);
@@ -196,6 +322,272 @@ export default function SettingsPage() {
     }
   }
 
+  async function handleSaveProfile() {
+    if (!profileForm.name.trim()) {
+      alert("Business name cannot be empty");
+      return;
+    }
+    if (profileForm.name.trim().length > 100) {
+      alert("Business name must be 100 characters or fewer");
+      return;
+    }
+
+    setUpdating(true);
+    try {
+      const res = await fetch("/api/merchant/settings/profile", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: profileForm.name,
+          description: profileForm.description,
+          avatarUrl: profileForm.avatarUrl,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        setMerchant((prev) =>
+          prev
+            ? {
+                ...prev,
+                name: data.merchant.name,
+                description: data.merchant.description,
+                avatarUrl: data.merchant.avatarUrl,
+              }
+            : prev
+        );
+        setIsEditingProfile(false);
+        alert("Profile updated successfully");
+      } else {
+        alert(data.error || "Failed to update profile");
+      }
+    } catch (error) {
+      console.error("Failed to update profile:", error);
+      alert("Failed to update profile");
+    } finally {
+      setUpdating(false);
+    }
+  }
+
+  function handleCancelEditProfile() {
+    if (merchant) {
+      setProfileForm({
+        name: merchant.name || "",
+        description: merchant.description || "",
+        avatarUrl: merchant.avatarUrl || "",
+      });
+    }
+    setIsEditingProfile(false);
+  }
+
+  async function handleNotifToggle(key: keyof typeof notifPrefs, value: boolean) {
+    const next = { ...notifPrefs, [key]: value };
+    setNotifPrefs(next);
+    try {
+      const res = await fetch("/api/merchant/settings/notifications", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(next),
+      });
+      if (res.ok) {
+        setNotifSavedFlash(true);
+        setTimeout(() => setNotifSavedFlash(false), 2000);
+      } else {
+        // Revert on error
+        setNotifPrefs(notifPrefs);
+      }
+    } catch {
+      setNotifPrefs(notifPrefs);
+    }
+  }
+
+  async function handleSaveDeliveryFee() {
+    if (deliveryFeeRupees < 0 || deliveryFeeRupees > 500) {
+      alert("Delivery fee must be between ₹0 and ₹500");
+      return;
+    }
+
+    setSavingDeliveryFee(true);
+    try {
+      const res = await fetch("/api/merchant/settings/delivery-fee", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ deliveryFeePaise: Math.round(deliveryFeeRupees * 100) }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        alert(
+          data.note
+            ? "Saved (note: full persistence requires a schema migration)"
+            : "Delivery fee updated successfully"
+        );
+      } else {
+        alert(data.error || "Failed to update delivery fee");
+      }
+    } catch (error) {
+      console.error("Failed to update delivery fee:", error);
+      alert("Failed to update delivery fee");
+    } finally {
+      setSavingDeliveryFee(false);
+    }
+  }
+
+  async function handleSaveVisitCharge() {
+    if (visitChargeRupees < 0 || visitChargeRupees > 10000) {
+      alert("Visit charge must be between ₹0 and ₹10,000");
+      return;
+    }
+
+    setSavingVisitCharge(true);
+    try {
+      const res = await fetch("/api/merchant/settings/visit-charge", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ visitChargePaise: Math.round(visitChargeRupees * 100) }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        alert("Visit charge updated successfully");
+      } else {
+        alert(data.error || "Failed to update visit charge");
+      }
+    } catch (error) {
+      console.error("Failed to update visit charge:", error);
+      alert("Failed to update visit charge");
+    } finally {
+      setSavingVisitCharge(false);
+    }
+  }
+
+  async function handleSaveLocation() {
+    setSavingLocation(true);
+    try {
+      const res = await fetch("/api/merchant/settings/location", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ addressLine1, addressLine2, serviceRadiusKm: serviceRadiusKm === "" ? null : serviceRadiusKm }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        alert("Location settings updated successfully");
+      } else {
+        alert(data.error || "Failed to update location settings");
+      }
+    } catch {
+      alert("Failed to update location settings");
+    } finally {
+      setSavingLocation(false);
+    }
+  }
+
+  async function handleSaveOrderRules() {
+    setSavingOrderRules(true);
+    try {
+      const res = await fetch("/api/merchant/settings/order-rules", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          minimumOrderRupees: minimumOrderRupees === "" ? null : minimumOrderRupees,
+          freeDeliveryAboveRupees: freeDeliveryAboveRupees === "" ? null : freeDeliveryAboveRupees,
+        }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        alert("Order rules updated successfully");
+      } else {
+        alert(data.error || "Failed to update order rules");
+      }
+    } catch {
+      alert("Failed to update order rules");
+    } finally {
+      setSavingOrderRules(false);
+    }
+  }
+
+  async function handleSaveCompliance() {
+    setSavingCompliance(true);
+    try {
+      const res = await fetch("/api/merchant/settings/compliance", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ gstNumber, fssaiNumber, businessLicense }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        if (data.warning) {
+          alert(`Saved. Warning: ${data.warning}`);
+        } else {
+          alert("Compliance details updated successfully");
+        }
+      } else {
+        alert(data.error || "Failed to update compliance details");
+      }
+    } catch {
+      alert("Failed to update compliance details");
+    } finally {
+      setSavingCompliance(false);
+    }
+  }
+
+  function toggleClosedWeekday(day: number) {
+    setClosedWeekdays((prev) =>
+      prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day]
+    );
+  }
+
+  async function handleSaveSchedule() {
+    setSavingSchedule(true);
+    try {
+      const res = await fetch("/api/merchant/settings/schedule", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ closedWeekdays }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        alert("Weekly schedule updated successfully");
+      } else {
+        alert(data.error || "Failed to update schedule");
+      }
+    } catch {
+      alert("Failed to update schedule");
+    } finally {
+      setSavingSchedule(false);
+    }
+  }
+
+  function togglePaymentMethod(method: string) {
+    setPaymentMethods((prev) =>
+      prev.includes(method) ? prev.filter((m) => m !== method) : [...prev, method]
+    );
+  }
+
+  async function handleSavePaymentMethods() {
+    setSavingPayments(true);
+    try {
+      const res = await fetch("/api/merchant/settings/schedule", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ paymentMethods }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        alert("Payment methods updated successfully");
+      } else {
+        alert(data.error || "Failed to update payment methods");
+      }
+    } catch {
+      alert("Failed to update payment methods");
+    } finally {
+      setSavingPayments(false);
+    }
+  }
+
   if (loading) {
     return (
       <div className="flex h-full items-center justify-center">
@@ -232,19 +624,39 @@ export default function SettingsPage() {
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-mw-primary-600">
               <Store className="h-5 w-5 text-white" />
             </div>
-            <div>
+            <div className="flex-1">
               <h2 className="text-lg font-semibold text-gray-900">Business Profile</h2>
               <p className="text-sm text-gray-600">Your business information</p>
             </div>
+            {!isEditingProfile && (
+              <button
+                onClick={() => setIsEditingProfile(true)}
+                className="flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+              >
+                <Pencil size={14} />
+                Edit
+              </button>
+            )}
           </div>
 
           <div className="space-y-4">
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
                 <label className="mb-1 block text-sm font-medium text-gray-700">Business Name</label>
-                <p className="rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-base text-gray-900">
-                  {merchant.name}
-                </p>
+                {isEditingProfile ? (
+                  <input
+                    type="text"
+                    value={profileForm.name}
+                    onChange={(e) => setProfileForm((f) => ({ ...f, name: e.target.value }))}
+                    maxLength={100}
+                    className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-base focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                    placeholder="Your business name"
+                  />
+                ) : (
+                  <p className="rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-base text-gray-900">
+                    {merchant.name}
+                  </p>
+                )}
               </div>
               <div>
                 <label className="mb-1 block text-sm font-medium text-gray-700">Category</label>
@@ -256,10 +668,33 @@ export default function SettingsPage() {
 
             <div>
               <label className="mb-1 block text-sm font-medium text-gray-700">Description</label>
-              <p className="rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-base text-gray-900">
-                {merchant.description || "No description added"}
-              </p>
+              {isEditingProfile ? (
+                <textarea
+                  value={profileForm.description}
+                  onChange={(e) => setProfileForm((f) => ({ ...f, description: e.target.value }))}
+                  rows={3}
+                  className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-base focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 resize-none"
+                  placeholder="Describe your business (optional)"
+                />
+              ) : (
+                <p className="rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-base text-gray-900">
+                  {merchant.description || "No description added"}
+                </p>
+              )}
             </div>
+
+            {isEditingProfile && (
+              <div>
+                <label className="mb-1 block text-sm font-medium text-gray-700">Avatar / Logo URL</label>
+                <input
+                  type="url"
+                  value={profileForm.avatarUrl}
+                  onChange={(e) => setProfileForm((f) => ({ ...f, avatarUrl: e.target.value }))}
+                  className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-base focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                  placeholder="https://… (optional)"
+                />
+              </div>
+            )}
 
             {merchant.address && (
               <div>
@@ -311,11 +746,24 @@ export default function SettingsPage() {
             )}
           </div>
 
-          <div className="mt-6 rounded-lg border border-blue-200 bg-blue-50 p-4">
-            <p className="text-sm text-blue-900">
-              <strong>Need to update your profile?</strong> Contact support or use the mobile app to edit your business information.
-            </p>
-          </div>
+          {isEditingProfile && (
+            <div className="mt-6 flex gap-3">
+              <button
+                onClick={handleSaveProfile}
+                disabled={updating}
+                className="flex-1 rounded-lg bg-mw-primary-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-mw-primary-700 disabled:cursor-not-allowed disabled:opacity-50 transition-colors"
+              >
+                {updating ? "Saving..." : "Save Profile"}
+              </button>
+              <button
+                onClick={handleCancelEditProfile}
+                disabled={updating}
+                className="flex-1 rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Business Operations Card */}
@@ -539,6 +987,414 @@ export default function SettingsPage() {
           </div>
         </div>
 
+        {/* Visit / Inspection Charge Card — Home Services only */}
+        {profile === "home_services" && (
+          <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+            <div className="mb-4 flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-600">
+                <Wrench className="h-5 w-5 text-white" />
+              </div>
+              <div>
+                <h2 className="text-lg font-semibold text-gray-900">Visit / Inspection Charge</h2>
+                <p className="text-sm text-gray-600">Fee charged for site visits or inspections</p>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label className="mb-1 block text-sm font-medium text-gray-700">
+                  Visit Charge (₹)
+                </label>
+                <div className="relative">
+                  <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-gray-500 font-medium">
+                    ₹
+                  </span>
+                  <input
+                    type="number"
+                    min="0"
+                    max="10000"
+                    step="10"
+                    value={visitChargeRupees}
+                    onChange={(e) => setVisitChargeRupees(Number(e.target.value))}
+                    className="w-full rounded-lg border border-gray-300 pl-8 pr-4 py-2.5 text-base focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                    placeholder="e.g., 200"
+                  />
+                </div>
+                <p className="mt-1 text-xs text-gray-500">
+                  Set to ₹0 if you do not charge for site visits.
+                </p>
+              </div>
+
+              <button
+                onClick={handleSaveVisitCharge}
+                disabled={savingVisitCharge || visitChargeRupees < 0 || visitChargeRupees > 10000}
+                className="w-full rounded-lg bg-purple-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-purple-700 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {savingVisitCharge ? "Saving..." : "Save Visit Charge"}
+              </button>
+
+              <div className="rounded-lg border border-purple-200 bg-purple-50 p-4">
+                <p className="text-sm text-purple-900">
+                  {visitChargeRupees === 0
+                    ? "You offer free site visits to customers."
+                    : <>Customers are shown a visit / inspection charge of <strong>₹{visitChargeRupees}</strong> before booking.</>}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Delivery Fee Card */}
+        <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+          <div className="mb-4 flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-green-600">
+              <Store className="h-5 w-5 text-white" />
+            </div>
+            <div>
+              <h2 className="text-lg font-semibold text-gray-900">Delivery Fee</h2>
+              <p className="text-sm text-gray-600">Set the fee charged for home delivery</p>
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <div>
+              <label className="mb-1 block text-sm font-medium text-gray-700">
+                Delivery Fee (₹)
+              </label>
+              <div className="relative">
+                <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-gray-500 font-medium">
+                  ₹
+                </span>
+                <input
+                  type="number"
+                  min="0"
+                  max="500"
+                  step="1"
+                  value={deliveryFeeRupees}
+                  onChange={(e) => setDeliveryFeeRupees(Number(e.target.value))}
+                  className="w-full rounded-lg border border-gray-300 pl-8 pr-4 py-2.5 text-base focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                  placeholder="e.g., 20"
+                />
+              </div>
+              <p className="mt-1 text-xs text-gray-500">
+                Between ₹0 (free delivery) and ₹500.
+              </p>
+            </div>
+
+            <button
+              onClick={handleSaveDeliveryFee}
+              disabled={savingDeliveryFee || deliveryFeeRupees < 0 || deliveryFeeRupees > 500}
+              className="w-full rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {savingDeliveryFee ? "Saving..." : "Save Delivery Fee"}
+            </button>
+
+            <div className="rounded-lg border border-green-200 bg-green-50 p-4">
+              <p className="text-sm text-green-900">
+                {deliveryFeeRupees === 0
+                  ? "Customers enjoy free delivery from your store."
+                  : <>Customers are charged <strong>₹{deliveryFeeRupees}</strong> for home delivery. Set to ₹0 for free delivery.</>}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Shop Location & Delivery Zone Card */}
+        <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+          <div className="mb-4 flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-teal-600">
+              <MapPin className="h-5 w-5 text-white" />
+            </div>
+            <div>
+              <h2 className="text-lg font-semibold text-gray-900">Shop Location &amp; Delivery Zone</h2>
+              <p className="text-sm text-gray-600">Your physical address and service radius</p>
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <div>
+              <label className="mb-1 block text-sm font-medium text-gray-700">Address Line 1</label>
+              <input
+                type="text"
+                value={addressLine1}
+                onChange={(e) => setAddressLine1(e.target.value)}
+                className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-base focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                placeholder="Shop number, street name"
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-sm font-medium text-gray-700">Address Line 2</label>
+              <input
+                type="text"
+                value={addressLine2}
+                onChange={(e) => setAddressLine2(e.target.value)}
+                className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-base focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                placeholder="Floor, landmark, building (optional)"
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-sm font-medium text-gray-700">Service Radius (km)</label>
+              <input
+                type="number"
+                min="0.5"
+                max="25"
+                step="0.5"
+                value={serviceRadiusKm}
+                onChange={(e) => setServiceRadiusKm(e.target.value === "" ? "" : Number(e.target.value))}
+                className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-base focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                placeholder="e.g., 5 (leave blank for platform default)"
+              />
+              <p className="mt-1 text-xs text-gray-500">Leave blank to use platform default. Range: 0.5 – 25 km.</p>
+            </div>
+            <button
+              onClick={handleSaveLocation}
+              disabled={savingLocation}
+              className="w-full rounded-lg bg-teal-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-teal-700 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {savingLocation ? "Saving..." : "Save Location"}
+            </button>
+          </div>
+        </div>
+
+        {/* Order Rules Card */}
+        <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+          <div className="mb-4 flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-600">
+              <ShoppingCart className="h-5 w-5 text-white" />
+            </div>
+            <div>
+              <h2 className="text-lg font-semibold text-gray-900">Order Rules</h2>
+              <p className="text-sm text-gray-600">Minimum order and free delivery thresholds</p>
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <div>
+              <label className="mb-1 block text-sm font-medium text-gray-700">Minimum Order Amount (₹)</label>
+              <div className="relative">
+                <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-gray-500 font-medium">₹</span>
+                <input
+                  type="number"
+                  min="0"
+                  step="1"
+                  value={minimumOrderRupees}
+                  onChange={(e) => setMinimumOrderRupees(e.target.value === "" ? "" : Number(e.target.value))}
+                  className="w-full rounded-lg border border-gray-300 pl-8 pr-4 py-2.5 text-base focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                  placeholder="0 = no minimum"
+                />
+              </div>
+            </div>
+            <div>
+              <label className="mb-1 block text-sm font-medium text-gray-700">Free Delivery Above (₹)</label>
+              <div className="relative">
+                <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-gray-500 font-medium">₹</span>
+                <input
+                  type="number"
+                  min="0"
+                  step="1"
+                  value={freeDeliveryAboveRupees}
+                  onChange={(e) => setFreeDeliveryAboveRupees(e.target.value === "" ? "" : Number(e.target.value))}
+                  className="w-full rounded-lg border border-gray-300 pl-8 pr-4 py-2.5 text-base focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                  placeholder="0 = disabled"
+                />
+              </div>
+              <p className="mt-1 text-xs text-gray-500">Customers get free delivery when their order exceeds this amount. Set 0 to disable.</p>
+            </div>
+            <button
+              onClick={handleSaveOrderRules}
+              disabled={savingOrderRules}
+              className="w-full rounded-lg bg-amber-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-amber-700 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {savingOrderRules ? "Saving..." : "Save Order Rules"}
+            </button>
+          </div>
+        </div>
+
+        {/* Compliance & Licenses Card (collapsible) */}
+        <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
+          <button
+            onClick={() => setComplianceExpanded((v) => !v)}
+            className="flex w-full items-center gap-3 p-6 text-left"
+          >
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-600">
+              <Shield className="h-5 w-5 text-white" />
+            </div>
+            <div className="flex-1">
+              <h2 className="text-lg font-semibold text-gray-900">Compliance &amp; Licenses</h2>
+              <p className="text-sm text-gray-600">GST, FSSAI, and business license numbers</p>
+            </div>
+            {complianceExpanded ? (
+              <ChevronUp className="h-5 w-5 text-gray-400" />
+            ) : (
+              <ChevronDown className="h-5 w-5 text-gray-400" />
+            )}
+          </button>
+
+          {complianceExpanded && (
+            <div className="px-6 pb-6 space-y-4">
+              <div>
+                <label className="mb-1 block text-sm font-medium text-gray-700">GST Number</label>
+                <input
+                  type="text"
+                  value={gstNumber}
+                  onChange={(e) => setGstNumber(e.target.value.toUpperCase())}
+                  maxLength={15}
+                  className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-base font-mono focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                  placeholder="22AAAAA0000A1Z5"
+                />
+              </div>
+              <div>
+                <label className="mb-1 block text-sm font-medium text-gray-700">FSSAI License Number</label>
+                <input
+                  type="text"
+                  value={fssaiNumber}
+                  onChange={(e) => setFssaiNumber(e.target.value)}
+                  maxLength={14}
+                  className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-base font-mono focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                  placeholder="14-digit FSSAI number (food merchants)"
+                />
+              </div>
+              <div>
+                <label className="mb-1 block text-sm font-medium text-gray-700">Business License / Reg. Number</label>
+                <input
+                  type="text"
+                  value={businessLicense}
+                  onChange={(e) => setBusinessLicense(e.target.value)}
+                  className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-base focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                  placeholder="Generic business registration number"
+                />
+              </div>
+              <button
+                onClick={handleSaveCompliance}
+                disabled={savingCompliance}
+                className="w-full rounded-lg bg-slate-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {savingCompliance ? "Saving..." : "Save Compliance Details"}
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Weekly Schedule Card */}
+        <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+          <div className="mb-4 flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-rose-600">
+              <CalendarX className="h-5 w-5 text-white" />
+            </div>
+            <div>
+              <h2 className="text-lg font-semibold text-gray-900">Weekly Schedule</h2>
+              <p className="text-sm text-gray-600">Select days your shop is closed</p>
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <div className="grid grid-cols-7 gap-2">
+              {[
+                { label: "Sun", value: 0 },
+                { label: "Mon", value: 1 },
+                { label: "Tue", value: 2 },
+                { label: "Wed", value: 3 },
+                { label: "Thu", value: 4 },
+                { label: "Fri", value: 5 },
+                { label: "Sat", value: 6 },
+              ].map(({ label, value }) => {
+                const isClosed = closedWeekdays.includes(value);
+                return (
+                  <button
+                    key={value}
+                    type="button"
+                    onClick={() => toggleClosedWeekday(value)}
+                    className={`flex flex-col items-center rounded-lg border py-2 px-1 text-xs font-medium transition-colors ${
+                      isClosed
+                        ? "border-red-300 bg-red-50 text-red-700"
+                        : "border-gray-200 bg-white text-gray-700 hover:bg-gray-50"
+                    }`}
+                  >
+                    <span>{label}</span>
+                    <span className={`mt-1 text-[10px] ${isClosed ? "text-red-500" : "text-green-500"}`}>
+                      {isClosed ? "Closed" : "Open"}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+            {closedWeekdays.length > 0 && (
+              <p className="text-sm text-gray-600">
+                Closed on:{" "}
+                <span className="font-medium text-red-700">
+                  {closedWeekdays
+                    .sort()
+                    .map((d) => ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][d])
+                    .join(", ")}
+                </span>
+              </p>
+            )}
+            <button
+              onClick={handleSaveSchedule}
+              disabled={savingSchedule}
+              className="w-full rounded-lg bg-rose-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-rose-700 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {savingSchedule ? "Saving..." : "Save Schedule"}
+            </button>
+          </div>
+        </div>
+
+        {/* Payment Methods Card */}
+        <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+          <div className="mb-4 flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-cyan-600">
+              <CreditCard className="h-5 w-5 text-white" />
+            </div>
+            <div>
+              <h2 className="text-lg font-semibold text-gray-900">Payment Methods Accepted</h2>
+              <p className="text-sm text-gray-600">Choose which payment modes you support</p>
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <div className="flex flex-wrap gap-2">
+              {["cash", "upi", "card", "paytm", "googlepay", "phonepe", "netbanking"].map((method) => {
+                const labels: Record<string, string> = {
+                  cash: "Cash",
+                  upi: "UPI",
+                  card: "Card",
+                  paytm: "Paytm",
+                  googlepay: "Google Pay",
+                  phonepe: "PhonePe",
+                  netbanking: "Net Banking",
+                };
+                const isSelected = paymentMethods.includes(method);
+                return (
+                  <button
+                    key={method}
+                    type="button"
+                    onClick={() => togglePaymentMethod(method)}
+                    className={`rounded-full border px-4 py-1.5 text-sm font-medium transition-colors ${
+                      isSelected
+                        ? "border-cyan-600 bg-cyan-600 text-white"
+                        : "border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
+                    }`}
+                  >
+                    {labels[method]}
+                  </button>
+                );
+              })}
+            </div>
+            {paymentMethods.length === 0 && (
+              <p className="text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-4 py-2">
+                No payment methods selected. Customers will not see payment options.
+              </p>
+            )}
+            <button
+              onClick={handleSavePaymentMethods}
+              disabled={savingPayments}
+              className="w-full rounded-lg bg-cyan-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-cyan-700 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {savingPayments ? "Saving..." : "Save Payment Methods"}
+            </button>
+          </div>
+        </div>
+
         {/* Owner Information Card */}
         <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
           <div className="mb-4 flex items-center gap-3">
@@ -564,6 +1420,84 @@ export default function SettingsPage() {
                 <Phone size={16} className="text-gray-500" />
                 <p className="text-base text-gray-900">{merchant.owner.phone}</p>
               </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Notification Preferences Card */}
+        <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+          <div className="mb-4 flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-violet-600">
+              <Bell className="h-5 w-5 text-white" />
+            </div>
+            <div className="flex-1">
+              <h2 className="text-lg font-semibold text-gray-900">Notification Preferences</h2>
+              <p className="text-sm text-gray-600">Choose which push notifications you receive</p>
+            </div>
+            {notifSavedFlash && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-green-100 px-2.5 py-1 text-xs font-medium text-green-700 transition-opacity">
+                <CheckCircle className="h-3.5 w-3.5" />
+                Saved
+              </span>
+            )}
+          </div>
+
+          <div className="divide-y divide-gray-100">
+            {/* New Order Alerts */}
+            <div className="flex items-center justify-between py-4">
+              <div className="flex-1 pr-4">
+                <p className="text-sm font-medium text-gray-900">New Order Alerts</p>
+                <p className="text-xs text-gray-500 mt-0.5">
+                  Get notified immediately when a customer places a new order
+                </p>
+              </div>
+              <label className="relative inline-flex cursor-pointer items-center">
+                <input
+                  type="checkbox"
+                  checked={notifPrefs.newOrder}
+                  onChange={(e) => handleNotifToggle("newOrder", e.target.checked)}
+                  className="sr-only peer"
+                />
+                <div className="w-11 h-6 bg-gray-200 peer-focus:ring-4 peer-focus:ring-violet-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-violet-600"></div>
+              </label>
+            </div>
+
+            {/* Order Status Updates */}
+            <div className="flex items-center justify-between py-4">
+              <div className="flex-1 pr-4">
+                <p className="text-sm font-medium text-gray-900">Order Status Updates</p>
+                <p className="text-xs text-gray-500 mt-0.5">
+                  Receive updates when order statuses change (confirmed, ready, delivered)
+                </p>
+              </div>
+              <label className="relative inline-flex cursor-pointer items-center">
+                <input
+                  type="checkbox"
+                  checked={notifPrefs.orderUpdates}
+                  onChange={(e) => handleNotifToggle("orderUpdates", e.target.checked)}
+                  className="sr-only peer"
+                />
+                <div className="w-11 h-6 bg-gray-200 peer-focus:ring-4 peer-focus:ring-violet-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-violet-600"></div>
+              </label>
+            </div>
+
+            {/* Low Stock Warnings */}
+            <div className="flex items-center justify-between py-4">
+              <div className="flex-1 pr-4">
+                <p className="text-sm font-medium text-gray-900">Low Stock Warnings</p>
+                <p className="text-xs text-gray-500 mt-0.5">
+                  Be alerted when catalog items are running low on stock
+                </p>
+              </div>
+              <label className="relative inline-flex cursor-pointer items-center">
+                <input
+                  type="checkbox"
+                  checked={notifPrefs.lowStock}
+                  onChange={(e) => handleNotifToggle("lowStock", e.target.checked)}
+                  className="sr-only peer"
+                />
+                <div className="w-11 h-6 bg-gray-200 peer-focus:ring-4 peer-focus:ring-violet-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-violet-600"></div>
+              </label>
             </div>
           </div>
         </div>

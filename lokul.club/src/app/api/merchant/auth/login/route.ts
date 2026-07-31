@@ -13,9 +13,10 @@ const E2E = process.env.E2E_TEST === "1" || (process.env.DATABASE_URL ?? "").inc
  */
 export async function POST(req: NextRequest) {
   if (E2E) {
-    return NextResponse.json({ 
-      success: true, 
-      merchant: { id: "test_merchant", name: "Test Shop" } 
+    await setMerchantSessionCookie("e2e_user", "e2e_merchant", "+919999999999");
+    return NextResponse.json({
+      success: true,
+      merchant: { id: "e2e_merchant", name: "Test Shop" }
     });
   }
 
@@ -72,12 +73,23 @@ export async function POST(req: NextRequest) {
   }
 }
 
-/**
- * Verify OTP from database
- * TODO: Implement actual OTP verification against OTP table
- */
-async function verifyOtpFromDb(_phone: string, _otp: string): Promise<boolean> {
-  // In production, check against OTP table with expiry
-  // For MVP, we'll skip this and rely on frontend calling /api/web/otp/verify first
+async function verifyOtpFromDb(phone: string, otp: string): Promise<boolean> {
+  const record = await prisma.otpVerification.findFirst({
+    where: {
+      phone,
+      code: otp,
+      used: false,
+      expiresAt: { gt: new Date() },
+    },
+    orderBy: { createdAt: "desc" },
+  });
+
+  if (!record) return false;
+
+  await prisma.otpVerification.update({
+    where: { id: record.id },
+    data: { used: true },
+  });
+
   return true;
 }

@@ -23,6 +23,10 @@ export async function GET() {
       subscriptionTier: merchantData.merchant.subscriptionTier,
       ratingAvg: merchantData.merchant.ratingAvg,
       ratingCount: merchantData.merchant.ratingCount,
+      workflowProfile: (merchantData.merchant as any).workflowProfile ?? "retail",
+      acceptingOrders: merchantData.merchant.acceptingOrders,
+      addressLine1: (merchantData.merchant as any).addressLine1 ?? null,
+      serviceRadiusKm: (merchantData.merchant as any).serviceRadiusKm ?? null,
     },
     user: {
       id: merchantData.merchant.owner.id,

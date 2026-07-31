@@ -4,6 +4,7 @@
  */
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getProfileFromCategory } from "@/lib/merchant-profiles";
 
 export async function GET(req: NextRequest) {
   const { searchParams } = req.nextUrl;
@@ -29,7 +30,26 @@ export async function GET(req: NextRequest) {
       where,
       orderBy: [{ isEndorsed: "desc" }, { ratingAvg: "desc" }, { createdAt: "desc" }],
       take: limit,
-      include: {
+      select: {
+        id: true,
+        name: true,
+        category: true,
+        description: true,
+        avatarUrl: true,
+        pinCode: true,
+        city: true,
+        lat: true,
+        lng: true,
+        status: true,
+        isEndorsed: true,
+        ratingAvg: true,
+        ratingCount: true,
+        acceptingOrders: true,
+        workflowProfile: true,
+        serviceRadiusKm: true,
+        businessHoursStart: true,
+        businessHoursEnd: true,
+        createdAt: true,
         owner: { select: { id: true, name: true, avatarUrl: true, kycTier: true } },
       },
     });
@@ -52,9 +72,11 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const workflowProfile = getProfileFromCategory(category);
+
     const merchant = await prisma.merchant.upsert({
       where: { ownerId: userId },
-      update: { name: name.trim(), category, description, pinCode, city, lat, lng },
+      update: { name: name.trim(), category, description, pinCode, city, lat, lng, workflowProfile },
       create: {
         ownerId: userId,
         name:    name.trim(),
@@ -64,6 +86,7 @@ export async function POST(req: NextRequest) {
         city,
         lat: lat ?? null,
         lng: lng ?? null,
+        workflowProfile,
       },
     });
 

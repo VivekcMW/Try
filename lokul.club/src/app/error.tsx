@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react';
 import { AlertTriangle } from 'lucide-react';
+import { captureError } from '@/lib/sentry';
 
 /**
  * Error boundary for catching errors in the app
@@ -15,26 +16,8 @@ export default function Error({
   reset: () => void;
 }) {
   useEffect(() => {
-    // Log error to error reporting service
     console.error('[Error Boundary]', error);
-
-    // In production, send to error tracking service
-    if (process.env.NODE_ENV === 'production') {
-      // TODO: Send to Sentry or other error tracking
-      fetch('/api/errors/report', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: error.name,
-          message: error.message,
-          stack: error.stack,
-          digest: error.digest,
-          timestamp: new Date().toISOString(),
-        }),
-      }).catch(() => {
-        // Silently fail if error reporting fails
-      });
-    }
+    captureError(error, { digest: error.digest });
   }, [error]);
 
   return (

@@ -69,6 +69,8 @@ type Order = {
   rating?: {
     rating: number;
     review?: string;
+    merchantResponse?: string;
+    respondedAt?: string;
   };
 };
 
@@ -83,6 +85,10 @@ export default function OrderDetailPage() {
   const [merchantNotes, setMerchantNotes] = useState("");
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [rejectReason, setRejectReason] = useState("");
+  const [showResponseInput, setShowResponseInput] = useState(false);
+  const [responseText, setResponseText] = useState("");
+  const [editingResponse, setEditingResponse] = useState(false);
+  const [sendingResponse, setSendingResponse] = useState(false);
 
   const loadOrder = useCallback(async () => {
     try {
@@ -149,6 +155,33 @@ export default function OrderDetailPage() {
     } catch (error) {
       console.error("Failed to save notes:", error);
       alert("Failed to save notes");
+    }
+  };
+
+  const handleSendResponse = async () => {
+    if (!responseText.trim()) return;
+    setSendingResponse(true);
+    try {
+      const res = await fetch(`/api/merchant/orders/${orderId}/review-response`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ response: responseText.trim() }),
+      });
+      if (res.ok) {
+        alert("Response sent successfully");
+        setShowResponseInput(false);
+        setEditingResponse(false);
+        setResponseText("");
+        await loadOrder();
+      } else {
+        const data = await res.json();
+        alert(data.error || "Failed to send response");
+      }
+    } catch (error) {
+      console.error("Failed to send response:", error);
+      alert("Failed to send response");
+    } finally {
+      setSendingResponse(false);
     }
   };
 
@@ -479,6 +512,73 @@ export default function OrderDetailPage() {
               {order.rating.review && (
                 <p className="mt-3 text-sm text-gray-600">{order.rating.review}</p>
               )}
+
+              {/* Respond to Review */}
+              <div className="mt-4 border-t border-gray-100 pt-4">
+                {order.rating.merchantResponse && !editingResponse ? (
+                  <div>
+                    <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-gray-500">
+                      Your Response
+                    </p>
+                    <blockquote className="rounded-lg border-l-4 border-blue-400 bg-blue-50 px-4 py-3 text-sm text-gray-700 italic">
+                      {order.rating.merchantResponse}
+                    </blockquote>
+                    <button
+                      onClick={() => {
+                        setResponseText(order.rating!.merchantResponse ?? "");
+                        setEditingResponse(true);
+                        setShowResponseInput(true);
+                      }}
+                      className="mt-2 text-xs font-medium text-blue-600 underline hover:text-blue-800"
+                    >
+                      Edit
+                    </button>
+                  </div>
+                ) : showResponseInput ? (
+                  <div>
+                    <p className="mb-2 text-sm font-medium text-gray-700">
+                      {editingResponse ? "Edit your response" : "Reply to this review"}
+                    </p>
+                    <textarea
+                      value={responseText}
+                      onChange={(e) => setResponseText(e.target.value.slice(0, 500))}
+                      placeholder="Write a professional, helpful response..."
+                      rows={3}
+                      className="w-full rounded-lg border border-gray-300 p-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                    />
+                    <p className="mt-1 text-xs text-gray-400 text-right">
+                      {responseText.length}/500
+                    </p>
+                    <div className="mt-2 flex gap-2">
+                      <button
+                        onClick={() => {
+                          setShowResponseInput(false);
+                          setEditingResponse(false);
+                          setResponseText("");
+                        }}
+                        className="rounded-lg border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition hover:bg-gray-50"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        onClick={handleSendResponse}
+                        disabled={!responseText.trim() || sendingResponse}
+                        className="flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-blue-700 disabled:opacity-50"
+                      >
+                        {sendingResponse && <Loader2 className="h-3 w-3 animate-spin" />}
+                        Send Response
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => setShowResponseInput(true)}
+                    className="text-sm font-medium text-blue-600 underline hover:text-blue-800"
+                  >
+                    Reply to this review
+                  </button>
+                )}
+              </div>
             </div>
           )}
         </div>

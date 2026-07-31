@@ -60,6 +60,21 @@ export async function POST(
     // Verify merchant exists
     const merchant = await prisma.merchant.findUnique({
       where: { id: merchantId },
+      select: {
+        id: true,
+        name: true,
+        ownerId: true,
+        isBlacklisted: true,
+        acceptingOrders: true,
+        businessHoursStart: true,
+        businessHoursEnd: true,
+        closedReason: true,
+        closedUntil: true,
+        estimatedDeliveryMins: true,
+        minimumOrderPaise: true,
+        freeDeliveryAbovePaise: true,
+        owner: { select: { phone: true } },
+      },
     });
 
     if (!merchant || merchant.isBlacklisted) {
@@ -67,15 +82,32 @@ export async function POST(
     }
 
     // Check if merchant is accepting orders
-    if (!merchant.acceptingOrders) {
+    if (merchant.acceptingOrders === false) {
       return NextResponse.json(
         {
-          error: "Merchant is currently not accepting orders",
-          reason: merchant.closedReason || undefined,
-          reopensAt: merchant.closedUntil?.toISOString() || undefined,
+          error: "This merchant is not currently accepting orders",
+          code: "MERCHANT_CLOSED",
         },
-        { status: 422 }
+        { status: 400 }
       );
+    }
+
+    // Check business hours (IST = UTC+5:30)
+    if (merchant.businessHoursStart && merchant.businessHoursEnd) {
+      const now = new Date();
+      const istOffset = 5.5 * 60;
+      const istMinutes = (now.getUTCHours() * 60 + now.getUTCMinutes() + istOffset) % (24 * 60);
+      const istHHMM = `${String(Math.floor(istMinutes / 60)).padStart(2, "0")}:${String(istMinutes % 60).padStart(2, "0")}`;
+      const { businessHoursStart, businessHoursEnd } = merchant;
+      if (istHHMM < businessHoursStart || istHHMM >= businessHoursEnd) {
+        return NextResponse.json(
+          {
+            error: `This merchant is closed. Open from ${businessHoursStart} to ${businessHoursEnd}`,
+            code: "OUTSIDE_HOURS",
+          },
+          { status: 400 }
+        );
+      }
     }
 
     // Fetch catalog items with current prices
@@ -93,6 +125,17 @@ export async function POST(
         { error: "Some items are not available" },
         { status: 422 }
       );
+    }
+
+    // Check stock availability
+    for (const item of items) {
+      const catalogItem = catalogItems.find((ci) => ci.id === item.catalogItemId);
+      if (catalogItem && catalogItem.stockCount === 0) {
+        return NextResponse.json(
+          { error: "Item out of stock", itemName: catalogItem.name },
+          { status: 400 }
+        );
+      }
     }
 
     // Calculate totals
@@ -118,6 +161,14 @@ export async function POST(
       };
     });
 
+    // Minimum order check
+    if (merchant.minimumOrderPaise && subtotalPaise < merchant.minimumOrderPaise) {
+      return NextResponse.json(
+        { error: `Minimum order amount is ₹${(merchant.minimumOrderPaise / 100).toFixed(0)}` },
+        { status: 400 }
+      );
+    }
+
     // Apply discount if offer provided
     let discountPaise = 0;
     if (appliedOfferId) {
@@ -140,7 +191,11 @@ export async function POST(
     }
 
     // Calculate delivery fee (simple logic for now)
-    const deliveryFeePaise = deliveryMode === "home_delivery" ? 2000 : 0; // ₹20 delivery
+    const computedDeliveryFee = deliveryMode === "home_delivery" ? 2000 : 0; // ₹20 delivery
+    const deliveryFeePaise =
+      merchant.freeDeliveryAbovePaise && subtotalPaise >= merchant.freeDeliveryAbovePaise
+        ? 0
+        : computedDeliveryFee;
 
     // Calculate tax (0% for now, add GST logic later)
     const taxPaise = 0;
@@ -226,6 +281,17 @@ export async function POST(
         },
       });
 
+      // Decrement stock for items with finite stock
+      for (const orderItem of orderItems) {
+        const catalogItem = catalogItems.find((ci) => ci.id === orderItem.catalogItemId);
+        if (catalogItem && catalogItem.stockCount !== null) {
+          await tx.merchantCatalogItem.update({
+            where: { id: orderItem.catalogItemId },
+            data: { stockCount: { decrement: orderItem.quantity } },
+          });
+        }
+      }
+
       // Handle wallet payment
       if (paymentMethod === "wallet") {
         // Deduct from customer wallet
@@ -276,6 +342,20 @@ export async function POST(
         priority: "high",
       }
     );
+
+    // SMS fallback — optional, non-blocking
+    try {
+      const { sendSms } = await import("@/lib/sms");
+      const phone = merchant.owner?.phone;
+      if (phone && process.env.MSG91_AUTH_KEY) {
+        await sendSms(
+          phone,
+          `New order ${order.orderNumber} received on Lokul! Open the app to confirm.`
+        );
+      }
+    } catch {
+      // SMS is optional fallback — don't fail the request
+    }
 
     return NextResponse.json({ order }, { status: 201 });
   } catch (error: any) {

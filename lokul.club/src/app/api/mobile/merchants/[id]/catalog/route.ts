@@ -46,6 +46,7 @@ export async function POST(
     const {
       kind, name, description, pricePaise, unit, durationMins,
       imageUrl, isAvailable, sortOrder, attributes,
+      catalogCategory, stockCount,
     } = body;
 
     if (!kind || !VALID_KINDS.includes(kind)) {
@@ -71,6 +72,8 @@ export async function POST(
         isAvailable: isAvailable ?? true,
         sortOrder: sortOrder ?? 0,
         attributes: attributes ?? undefined,
+        catalogCategory: catalogCategory ?? null,
+        stockCount: stockCount ?? null,
       },
     });
 

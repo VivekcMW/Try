@@ -98,16 +98,20 @@ test2.describe("Catalog page", () => {
   });
 
   test2("renders the catalog heading", async ({ merchantPage: page }) => {
-    await expect(page.getByRole("heading", { name: /catalog/i })).toBeVisible({ timeout: 10_000 });
+    // scope to the page title (h1) — the empty-state h3 ("No catalog items
+    // yet") also matches /catalog/i and would otherwise trip strict mode.
+    await expect(page.getByRole("heading", { name: /catalog/i, level: 1 })).toBeVisible({ timeout: 10_000 });
   });
 
   test2("shows Add Item button", async ({ merchantPage: page }) => {
-    await expect(page.getByRole("button", { name: /add.*item|add product/i })).toBeVisible();
+    // the empty-state also renders its own "Add Product" CTA; .first() picks
+    // the header button.
+    await expect(page.getByRole("button", { name: /add.*item|add product/i }).first()).toBeVisible();
   });
 
   test2("Import CSV button opens modal", async ({ merchantPage: page }) => {
     await page.getByRole("button", { name: /import csv/i }).click();
-    await expect(page.getByText(/bulk import/i)).toBeVisible({ timeout: 5_000 });
+    await expect(page.getByRole("heading", { name: /import from csv/i })).toBeVisible({ timeout: 5_000 });
     // Template download link
     await expect(page.getByRole("button", { name: /download template/i })).toBeVisible();
   });
@@ -128,12 +132,16 @@ test2.describe("Orders page", () => {
 test2.describe("Offers page", () => {
   test2("renders offers heading", async ({ merchantPage: page }) => {
     await page.goto("/merchant/offers");
-    await expect(page.getByRole("heading", { name: /offers/i })).toBeVisible({ timeout: 10_000 });
+    // scope to the page title (h1) — the empty-state h3 ("No offers yet")
+    // also matches /offers/i and would otherwise trip strict mode.
+    await expect(page.getByRole("heading", { name: /offers/i, level: 1 })).toBeVisible({ timeout: 10_000 });
   });
 
   test2("shows Create Offer button", async ({ merchantPage: page }) => {
     await page.goto("/merchant/offers");
-    await expect(page.getByRole("button", { name: /create offer/i })).toBeVisible({ timeout: 10_000 });
+    // the empty-state also renders its own "Create Offer" CTA; .first()
+    // picks the header button.
+    await expect(page.getByRole("button", { name: /create offer/i }).first()).toBeVisible({ timeout: 10_000 });
   });
 });
 
@@ -146,7 +154,9 @@ test2.describe("Analytics page", () => {
     // Summary cards
     await expect(page.getByText(/total orders/i)).toBeVisible();
     await expect(page.getByText(/revenue/i).first()).toBeVisible();
-    await expect(page.getByText(/completion rate/i)).toBeVisible();
+    // "Completion Rate" appears in both the chart legend and a summary card;
+    // .first() avoids the strict-mode ambiguity.
+    await expect(page.getByText(/completion rate/i).first()).toBeVisible();
     // No JS error about toLocaleString
     const errors: string[] = [];
     page.on("pageerror", (e) => errors.push(e.message));
@@ -173,7 +183,9 @@ test2.describe("Settings page", () => {
 
   test2("shows business profile card", async ({ merchantPage: page }) => {
     await page.goto("/merchant/settings");
-    await expect(page.getByText(/business profile/i)).toBeVisible({ timeout: 10_000 });
+    // the page subtitle ("Manage your business profile...") also matches
+    // /business profile/i; target the card's own heading instead.
+    await expect(page.getByRole("heading", { name: /business profile/i })).toBeVisible({ timeout: 10_000 });
   });
 });
 

@@ -20,6 +20,16 @@ enum KycTier {
   gold
 }
 
+// Self-declared, optional — never asked at signup. Null = not shared.
+// Used for ad targeting only when the user has personalizedAds enabled.
+enum AgeBand {
+  age_18_24
+  age_25_34
+  age_35_44
+  age_45_54
+  age_55_plus
+}
+
 enum UserStatus {
   active
   warned
@@ -217,6 +227,7 @@ model User {
   trustScore     Int        @default(0) // 0–100 denormalised
   role           UserRole   @default(resident)
   status         UserStatus @default(active)
+  ageBand        AgeBand? // self-declared, optional — see AgeBand enum comment
   suspendedUntil DateTime?
   strikeCount    Float      @default(0) // sum of StrikeRecord weights
   lastSeenAt     DateTime?
@@ -2112,7 +2123,9 @@ model AdCampaign {
   spentPaise    Int              @default(0)
   startDate     DateTime
   endDate       DateTime
-  // { pincodes: string[], categories: string[], timeOfDay?: "morning"|"evening" }
+  // Audience targeting (Phase 2/3 — only applied for logged-in users who have
+  // opted into personalizedAds; see src/lib/ad-targeting.ts for the parsed shape).
+  // { interestCohorts?: CommunityType[], societyIds?: string[], newResidentsOnly?: boolean, ageBands?: AgeBand[] }
   targeting     Json?
   status        AdCampaignStatus @default(draft)
   reviewedById  String?
@@ -2138,6 +2151,7 @@ model AdCreative {
   mediaKey        String? // R2 storage key
   ctaLabel        String           @default("Learn more")
   ctaUrl          String?
+  categories      String[]         @default([]) // empty = matches any content category
   status          AdCreativeStatus @default(pending_review)
   rejectionReason String?
   reviewedById    String?
@@ -2160,6 +2174,8 @@ model AdBooking {
   pinCode      String
   startDate    DateTime
   endDate      DateTime
+  daysOfWeek   Int[]           @default([]) // 0=Sun..6=Sat; empty = every day
+  daypart      String? // "morning"|"afternoon"|"evening"|"night"; null = all day
   quotePaise   Int
   status       AdBookingStatus @default(requested)
   decisionNote String?

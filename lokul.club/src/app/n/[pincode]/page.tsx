@@ -14,9 +14,7 @@ import {
   Star,
   Tag,
 } from "lucide-react";
-import { AdBanner } from "@/components/ads/AdBanner";
-import { AdCard } from "@/components/ads/AdCard";
-import { AdNativePost } from "@/components/ads/AdNativePost";
+import { AdSlot } from "@/components/ads/AdSlot";
 
 /* ────────────────────────────────────────────────────────── */
 /* Types                                                      */
@@ -248,15 +246,7 @@ export default async function NeighborhoodPage(
             </div>
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {/* Slot 1 — Featured business ad (pinned first) */}
-              <AdCard
-                name="Domino’s Pizza"
-                unit="New branch open in your area"
-                badgeText="30% off this week — use code LOKUL30"
-                cta="Order now"
-                href="https://www.dominos.co.in"
-                advertiser="Domino’s"
-                accent="#006491"
-              />
+              <AdSlot placement="feed_post" pin={hood.pinCode} variant="card" />
               {hood.businesses.map((biz) => (
                 <Link
                   key={biz.id}
@@ -310,7 +300,7 @@ export default async function NeighborhoodPage(
                     {/* Slot 3 — Native feed ad after 3rd post (row 1 full), spans full width */}
                     {idx === 3 && (
                       <div className="sm:col-span-2 lg:col-span-3">
-                        <AdNativePost />
+                        <AdSlot placement="feed_post" pin={hood.pinCode} variant="native" />
                       </div>
                     )}
                     <div
@@ -360,14 +350,7 @@ export default async function NeighborhoodPage(
         )}
 
         {/* Slot 2 — Banner ad between feed and join CTA */}
-        <AdBanner
-          label="Zero-balance savings account in 2 minutes"
-          sub="HDFC Bank — instant KYC, UPI ready, no minimum balance"
-          cta="Open account"
-          href="https://www.hdfcbank.com"
-          advertiser="HDFC Bank"
-          accent="#004C8F"
-        />
+        <AdSlot placement="banner" pin={hood.pinCode} variant="banner" />
 
         <div
           className="rounded-md p-8 text-center"

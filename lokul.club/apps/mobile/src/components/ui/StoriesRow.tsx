@@ -56,19 +56,24 @@ export function StoriesRow({ onStoryPress }: Props) {
       hasLoaded.current = true;
     }
     // Fetch sponsored story ad (skip if ad-free)
-    if (!adFree) {
+    if (!adFree && pinCode && /^\d{6}$/.test(pinCode)) {
       try {
-        const adRes = await fetch(`${BASE}/api/mobile/ads?placement=stories&pinCode=${pinCode}`);
+        const adRes = await fetch(`${BASE}/api/mobile/ads/slot?placement=story&pin=${pinCode}`);
         if (adRes.ok) {
-          const adData = await adRes.json();
-          if (adData?.id) {
+          const adData: { item: { creativeId: string; advertiserName: string; ctaUrl: string } | null } = await adRes.json();
+          if (adData.item) {
             setSponsored({
               kind: 'sponsored',
-              id: adData.id,
-              advertiser: adData.sponsorName ?? adData.title ?? 'Sponsored',
-              ctaUrl: adData.ctaUrl ?? '',
-              initial: (adData.sponsorName ?? adData.title ?? 'S').charAt(0).toUpperCase(),
+              id: adData.item.creativeId,
+              advertiser: adData.item.advertiserName,
+              ctaUrl: adData.item.ctaUrl,
+              initial: adData.item.advertiserName.charAt(0).toUpperCase(),
             });
+            fetch(`${BASE}/api/mobile/ads/event`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ creativeId: adData.item.creativeId, event: 'impression' }),
+            }).catch(() => {});
           }
         }
       } catch { /* no-op */ }
@@ -140,7 +145,14 @@ export function StoriesRow({ onStoryPress }: Props) {
             {idx === 1 && sponsored ? (
               <Pressable
                 key="sponsored"
-                onPress={() => sponsored.ctaUrl ? Linking.openURL(sponsored.ctaUrl).catch(() => {}) : undefined}
+                onPress={() => {
+                  fetch(`${BASE}/api/mobile/ads/event`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ creativeId: sponsored.id, event: 'click' }),
+                  }).catch(() => {});
+                  if (sponsored.ctaUrl) Linking.openURL(sponsored.ctaUrl).catch(() => {});
+                }}
                 style={s.item}
                 accessibilityRole="button"
                 accessibilityLabel={`Sponsored story by ${sponsored.advertiser}`}

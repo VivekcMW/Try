@@ -18,6 +18,10 @@ export type ProfilePrivacy = {
   personalizedAds: boolean;
 };
 
+// Self-declared, optional — never asked at signup. Mirrors the AgeBand
+// Prisma enum. Only used for ad targeting when personalizedAds is on.
+export type AgeBand = 'age_18_24' | 'age_25_34' | 'age_35_44' | 'age_45_54' | 'age_55_plus';
+
 export type UserProfile = {
   name: string;
   photoUri: string | null;
@@ -29,6 +33,7 @@ export type UserProfile = {
   city: string | null;
   pin: string;
   interests: string[];
+  ageBand: AgeBand | null;
   privacy: ProfilePrivacy;
   updatedAt: number;
 };

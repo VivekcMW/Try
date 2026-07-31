@@ -3,7 +3,7 @@
 import { useState, useMemo, Fragment } from "react";
 import { Phone, Search, ShoppingBag, X } from "lucide-react";
 import Link from "next/link";
-import { AdCard } from "@/components/ads/AdCard";
+import { AdSlot } from "@/components/ads/AdSlot";
 
 export interface CatalogItem {
   id: string;
@@ -32,9 +32,11 @@ function fmt(paise: number): string {
 export function CatalogSection({
   items,
   phone,
+  pinCode,
 }: {
   readonly items: CatalogItem[];
   readonly phone: string | null;
+  readonly pinCode: string;
 }) {
   const [query, setQuery]       = useState("");
   const [activeCat, setActiveCat] = useState("all");
@@ -149,7 +151,7 @@ export function CatalogSection({
           {display.map((item, idx) => (
             <Fragment key={item.id}>
               {/* Native ad card injected after the 4th item */}
-              {idx === 4 && <AdCard />}
+              {idx === 4 && <AdSlot placement="feed_post" pin={pinCode} variant="card" />}
             <div
               className="flex flex-col gap-3 rounded-md border p-4"
               style={{

@@ -1,19 +1,14 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
-import { DEFAULT_PRIVACY, type ProfilePrivacy, type ProfileUpdateInput, type UserProfile } from '@/types/profile';
+import { DEFAULT_PRIVACY, type AgeBand, type ProfilePrivacy, type ProfileUpdateInput, type UserProfile } from '@/types/profile';
 import { useWalletStore } from '@/store/walletStore';
+import { apiFetch } from '@/services/apiClient';
 
-const BASE = process.env.EXPO_PUBLIC_API_BASE ?? '';
-
-async function syncPrivacyToServer(userId: string | null, privacy: ProfilePrivacy) {
+async function syncProfileToServer(userId: string | null, patch: { privacy?: ProfilePrivacy; ageBand?: AgeBand | null }) {
   if (!userId) return;
   try {
-    await fetch(`${BASE}/api/mobile/users/${userId}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ privacy }),
-    });
+    await apiFetch(`/api/mobile/users/${userId}`, { method: 'PATCH', body: patch });
   } catch {
     // fire-and-forget — local store is source of truth if offline
   }
@@ -38,6 +33,7 @@ type ProfileState = {
   syncFromOnboarding: (seed: OnboardingSeed) => void;
   updateProfile: (input: ProfileUpdateInput) => void;
   updatePrivacy: (input: Partial<ProfilePrivacy>) => void;
+  updateAgeBand: (ageBand: AgeBand | null) => void;
   resetProfile: () => void;
 };
 
@@ -52,6 +48,7 @@ const createInitialProfile = (): UserProfile => ({
   city: null,
   pin: '',
   interests: [],
+  ageBand: null,
   privacy: DEFAULT_PRIVACY,
   updatedAt: Date.now(),
 });
@@ -106,13 +103,21 @@ export const useProfileStore = create<ProfileState>()(
         set((state) => {
           const nextPrivacy = { ...state.profile.privacy, ...input };
           const userId = useWalletStore.getState().userId;
-          void syncPrivacyToServer(userId, nextPrivacy);
+          syncProfileToServer(userId, { privacy: nextPrivacy }).catch(() => {});
           return {
             profile: {
               ...state.profile,
               privacy: nextPrivacy,
               updatedAt: Date.now(),
             },
+          };
+        }),
+      updateAgeBand: (ageBand) =>
+        set((state) => {
+          const userId = useWalletStore.getState().userId;
+          syncProfileToServer(userId, { ageBand }).catch(() => {});
+          return {
+            profile: { ...state.profile, ageBand, updatedAt: Date.now() },
           };
         }),
       resetProfile: () => set({ profile: createInitialProfile() }),

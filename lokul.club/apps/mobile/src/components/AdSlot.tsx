@@ -1,23 +1,48 @@
 /**
- * AdSlot — fetches and renders a contextual native ad.
- * Respects Lokul Plus (ad-free) subscription.
+ * AdSlot — fetches and renders a real, approved ad from the ad-serving API.
+ * Respects Lokul Plus (ad-free) subscription. Renders nothing if there's no
+ * eligible ad, the ad was hidden on this device, or the request fails — ads
+ * must never break the feed.
  *
  * Usage:
  *   <AdSlot placement="feed" pinCode="411028" />
- *   <AdSlot placement="explore" size="banner" />
- *   <AdSlot placement="marketplace" pinCode={pin} />
+ *   <AdSlot placement="marketplace" size="card" pinCode={pin} />
+ *   <AdSlot placement="header" size="background" pinCode={pin} />
  */
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Linking, Pressable, StyleSheet, View } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ExternalLink, X } from 'lucide-react-native';
 import { HStack, Text, VStack } from '@/components/ui';
 import { colors, radius, spacing } from '@lokul/ui-tokens';
 import { useSubscriptionStore } from '@/store/subscriptionStore';
 
 const BASE = process.env.EXPO_PUBLIC_API_BASE ?? '';
+const HIDDEN_ADS_KEY = 'lokul_hidden_ad_creatives';
 
 export type AdPlacement = 'feed' | 'explore' | 'marketplace' | 'notifications' | 'stories' | 'header';
 export type AdSize      = 'banner' | 'card' | 'inline' | 'background';
+
+// Local placement names → backend AdCreative.placement enum.
+const PLACEMENT_MAP: Record<AdPlacement, 'feed_post' | 'search_slot' | 'story' | 'banner'> = {
+  feed:          'feed_post',
+  marketplace:   'search_slot',
+  explore:       'search_slot',
+  stories:       'story',
+  header:        'banner',
+  notifications: 'banner',
+};
+
+interface SlotItem {
+  creativeId: string;
+  headline: string;
+  body: string;
+  mediaUrl: string | null;
+  ctaLabel: string;
+  ctaUrl: string;
+  advertiserName: string;
+  label: string;
+}
 
 interface Ad {
   id: string;
@@ -27,52 +52,30 @@ interface Ad {
   ctaUrl: string;
   imageUrl: string | null;
   sponsorName: string;
-  placement: AdPlacement;
 }
 
-// Seed ads used when API is unavailable / in E2E
-const SEED_ADS: Ad[] = [
-  {
-    id: 'ad-001',
-    title: 'Get free pest control this month',
-    body: 'HyperClean Pest Services — 200+ societies served near Pune.',
-    ctaLabel: 'Book free visit',
-    ctaUrl: 'https://example.com/hyperclean',
-    imageUrl: null,
-    sponsorName: 'HyperClean',
-    placement: 'feed',
-  },
-  {
-    id: 'ad-002',
-    title: 'Solar rooftop — ₹0 down, save ₹3,000/mo',
-    body: 'SunSave Energy — Serving your PIN code. MNRE approved.',
-    ctaLabel: 'Get free estimate',
-    ctaUrl: 'https://example.com/sunsave',
-    imageUrl: null,
-    sponsorName: 'SunSave Energy',
-    placement: 'explore',
-  },
-  {
-    id: 'ad-003',
-    title: 'Open a savings account in 5 minutes',
-    body: 'Finova Bank — Zero-balance account. No branch visit needed.',
-    ctaLabel: 'Open account',
-    ctaUrl: 'https://example.com/finova',
-    imageUrl: null,
-    sponsorName: 'Finova Bank',
-    placement: 'marketplace',
-  },
-  {
-    id: 'ad-005',
-    title: 'Home essentials delivered same day',
-    body: 'GrocerEase — serving your locality. First order 20% off.',
-    ctaLabel: 'Order now',
-    ctaUrl: 'https://example.com/grocerease',
-    imageUrl: null,
-    sponsorName: 'GrocerEase',
-    placement: 'header',
-  },
-];
+async function readHidden(): Promise<Set<string>> {
+  try {
+    const raw = await AsyncStorage.getItem(HIDDEN_ADS_KEY);
+    return new Set<string>(raw ? JSON.parse(raw) : []);
+  } catch {
+    return new Set();
+  }
+}
+
+async function persistHidden(creativeId: string) {
+  const hidden = await readHidden();
+  hidden.add(creativeId);
+  await AsyncStorage.setItem(HIDDEN_ADS_KEY, JSON.stringify([...hidden]));
+}
+
+function trackEvent(creativeId: string, event: 'impression' | 'click' | 'hide') {
+  fetch(`${BASE}/api/mobile/ads/event`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ creativeId, event }),
+  }).catch(() => {});
+}
 
 interface AdSlotProps {
   placement: AdPlacement;
@@ -84,32 +87,54 @@ export function AdSlot({ placement, pinCode, size = 'inline' }: AdSlotProps) {
   const isAdFree = useSubscriptionStore((s) => s.canAccess('ad_free'));
   const [ad,        setAd]        = useState<Ad | null>(null);
   const [dismissed, setDismissed] = useState(false);
+  const impressed = useRef(false);
 
   const loadAd = useCallback(async () => {
+    if (!pinCode || !/^\d{6}$/.test(pinCode)) return;
     try {
-      const pin = pinCode ? `&pinCode=${pinCode}` : '';
-      const res  = await fetch(`${BASE}/api/mobile/ads?placement=${placement}${pin}`);
-      if (res.ok) {
-        const data = await res.json();
-        setAd(data.ad ?? null);
-      } else {
-        setAd(SEED_ADS.find((a) => a.placement === placement) ?? SEED_ADS[0]);
-      }
+      const backendPlacement = PLACEMENT_MAP[placement];
+      const res = await fetch(`${BASE}/api/mobile/ads/slot?placement=${backendPlacement}&pin=${pinCode}`);
+      if (!res.ok) return;
+      const data: { item: SlotItem | null } = await res.json();
+      if (!data.item) return;
+      const hidden = await readHidden();
+      if (hidden.has(data.item.creativeId)) return;
+      setAd({
+        id: data.item.creativeId,
+        title: data.item.headline,
+        body: data.item.body,
+        ctaLabel: data.item.ctaLabel,
+        ctaUrl: data.item.ctaUrl,
+        imageUrl: data.item.mediaUrl,
+        sponsorName: data.item.advertiserName,
+      });
     } catch {
-      setAd(SEED_ADS.find((a) => a.placement === placement) ?? SEED_ADS[0]);
+      // ads must never break the feed
     }
   }, [placement, pinCode]);
 
   useEffect(() => { loadAd(); }, [loadAd]);
+
+  useEffect(() => {
+    if (!ad || impressed.current) return;
+    impressed.current = true;
+    trackEvent(ad.id, 'impression');
+  }, [ad]);
 
   // Ad-free subscribers see nothing
   if (isAdFree) return null;
   if (dismissed || !ad) return null;
 
   const handlePress = () => {
-    if (!ad.ctaUrl || ad.ctaUrl.includes('example.com')) return;
-    Linking.openURL(ad.ctaUrl);
-    fetch(`${BASE}/api/mobile/ads/${ad.id}/click`, { method: 'POST' }).catch(() => {});
+    if (!ad.ctaUrl) return;
+    trackEvent(ad.id, 'click');
+    Linking.openURL(ad.ctaUrl).catch(() => {});
+  };
+
+  const handleDismiss = () => {
+    trackEvent(ad.id, 'hide');
+    persistHidden(ad.id).catch(() => {});
+    setDismissed(true);
   };
 
   if (size === 'background') {
@@ -121,7 +146,7 @@ export function AdSlot({ placement, pinCode, size = 'inline' }: AdSlotProps) {
             Sponsored by {ad.sponsorName}
           </Text>
         </HStack>
-        <Pressable onPress={() => setDismissed(true)} hitSlop={8} accessibilityRole="button" accessibilityLabel="Dismiss ad">
+        <Pressable onPress={handleDismiss} hitSlop={8} accessibilityRole="button" accessibilityLabel="Dismiss ad">
           <X size={12} color={colors.gray[400]} />
         </Pressable>
       </Pressable>
@@ -146,7 +171,7 @@ export function AdSlot({ placement, pinCode, size = 'inline' }: AdSlotProps) {
             </Text>
           </Pressable>
         </HStack>
-        <Pressable onPress={() => setDismissed(true)} hitSlop={8} accessibilityRole="button" accessibilityLabel="Dismiss ad">
+        <Pressable onPress={handleDismiss} hitSlop={8} accessibilityRole="button" accessibilityLabel="Dismiss ad">
           <X size={14} color={colors.gray[400]} />
         </Pressable>
       </View>
@@ -185,7 +210,7 @@ export function AdSlot({ placement, pinCode, size = 'inline' }: AdSlotProps) {
           </HStack>
         </VStack>
 
-        <Pressable onPress={() => setDismissed(true)} hitSlop={10} accessibilityRole="button" accessibilityLabel="Dismiss">
+        <Pressable onPress={handleDismiss} hitSlop={10} accessibilityRole="button" accessibilityLabel="Dismiss">
           <X size={16} color={colors.gray[400]} />
         </Pressable>
       </HStack>

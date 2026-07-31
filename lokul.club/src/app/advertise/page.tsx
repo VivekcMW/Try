@@ -1,9 +1,22 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, ArrowRight, BadgeCheck, Check, Loader2, Megaphone, ShieldCheck, Sparkles } from "lucide-react";
+import { ArrowLeft, ArrowRight, BadgeCheck, Check, ImagePlus, Loader2, Megaphone, ShieldCheck, Sparkles, X } from "lucide-react";
 import Footer from "@/components/Footer";
+import { PhonePreview } from "./PhonePreview";
+import { LocationTimingSection, AudienceSection, type LocationTimingValue, type AudienceValue } from "./TargetingFields";
+
+const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
+
+function readFileAsDataUrl(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = () => reject(new Error("Could not read file"));
+    reader.readAsDataURL(file);
+  });
+}
 
 /* ────────────────────────────────────────────────────────────── */
 
@@ -98,22 +111,66 @@ export default function AdvertisePage() {
   const [form, setForm] = useState({
     businessName: "", contactName: "", email: "", phone: "",
     campaignName: "", packageTier: "micro_local", budget: "500",
-    startDate: "", endDate: "", pinCode: "",
+    startDate: "", endDate: "",
     placement: "feed_post", headline: "", body: "", ctaLabel: "Order Now", ctaUrl: "",
+  });
+  const [locationTiming, setLocationTiming] = useState<LocationTimingValue>({
+    pinCodes: [], radiusKm: "", daysOfWeek: [], daypart: "",
+  });
+  const [audience, setAudience] = useState<AudienceValue>({
+    topics: [], topicsExclusive: false, newResidentsOnly: false, ageBands: [], societies: [],
   });
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState(false);
+  const [mediaDataUrl, setMediaDataUrl] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const set = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) =>
     setForm(f => ({ ...f, [k]: e.target.value }));
 
   const pkg = PACKAGES.find(p => p.value === form.packageTier) ?? PACKAGES[0];
 
+  async function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+      setError("Please choose a JPEG, PNG, or WEBP image.");
+      return;
+    }
+    if (file.size > MAX_IMAGE_BYTES) {
+      setError("Image must be under 5MB.");
+      return;
+    }
+    setError(null);
+    setMediaDataUrl(await readFileAsDataUrl(file));
+  }
+
+  function removeImage() {
+    setMediaDataUrl(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  }
+
   async function submit() {
     setError(null);
+    if (locationTiming.pinCodes.length === 0) {
+      setError("Add at least one target pincode.");
+      return;
+    }
     setSubmitting(true);
     try {
+      let mediaKey: string | undefined;
+      if (mediaDataUrl) {
+        const upload = await fetch("/api/web/ads/creative-media", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ data: mediaDataUrl }),
+        });
+        const uploadData = await upload.json();
+        if (!upload.ok) { setError(uploadData.error ?? "Image upload failed."); return; }
+        mediaKey = uploadData.key;
+      }
+
       const res = await fetch("/api/web/ads/bookings", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -124,8 +181,23 @@ export default function AdvertisePage() {
             budgetPaise: Math.round(Number(form.budget) * 100),
             startDate: form.startDate, endDate: form.endDate,
           },
-          creative: { placement: form.placement, headline: form.headline, body: form.body, ctaLabel: form.ctaLabel, ctaUrl: form.ctaUrl },
-          booking: { pinCode: form.pinCode },
+          creative: {
+            placement: form.placement, headline: form.headline, body: form.body,
+            ctaLabel: form.ctaLabel, ctaUrl: form.ctaUrl, mediaKey,
+            categories: audience.topics,
+          },
+          booking: {
+            pinCodes: locationTiming.pinCodes,
+            radiusKm: locationTiming.radiusKm ? Number(locationTiming.radiusKm) : undefined,
+            daysOfWeek: locationTiming.daysOfWeek,
+            daypart: locationTiming.daypart || undefined,
+          },
+          audience: {
+            interestCohorts: audience.topicsExclusive ? audience.topics : [],
+            societyIds: audience.societies.map((s) => s.id),
+            newResidentsOnly: audience.newResidentsOnly,
+            ageBands: audience.ageBands,
+          },
         }),
       });
       const data = await res.json();
@@ -249,7 +321,7 @@ export default function AdvertisePage() {
 
           {/* 3 · Campaign & area */}
           <SectionCard step="3" title="Campaign & area">
-            <div className="grid gap-4 sm:grid-cols-3">
+            <div className="grid gap-4 sm:grid-cols-2">
               <div><Label>Campaign name</Label><Field required value={form.campaignName} onChange={set("campaignName")} placeholder="Paneer Push July" /></div>
               <div>
                 <Label>Placement</Label>
@@ -257,12 +329,17 @@ export default function AdvertisePage() {
                   {PLACEMENTS.map(p => <option key={p.value} value={p.value}>{p.label}</option>)}
                 </select>
               </div>
-              <div><Label>Target pincode</Label><Field required inputMode="numeric" pattern="\d{6}" maxLength={6} value={form.pinCode} onChange={set("pinCode")} placeholder="560001" /></div>
             </div>
+            <LocationTimingSection value={locationTiming} onChange={setLocationTiming} />
+          </SectionCard>
+
+          {/* Audience — optional, only reaches consenting logged-in users */}
+          <SectionCard step="4" title="Audience (optional)">
+            <AudienceSection value={audience} onChange={setAudience} />
           </SectionCard>
 
           {/* 4 · Creative */}
-          <SectionCard step="4" title="Your ad">
+          <SectionCard step="5" title="Your ad">
             <div className="grid gap-4 sm:grid-cols-2">
               <div><Label>Headline</Label><Field required maxLength={80} value={form.headline} onChange={set("headline")} placeholder="Fresh paneer stock just arrived" /></div>
               <div><Label>CTA button</Label><Field value={form.ctaLabel} onChange={set("ctaLabel")} placeholder="Order Now" /></div>
@@ -277,45 +354,36 @@ export default function AdvertisePage() {
             </div>
             <div><Label>Link (optional)</Label><Field type="url" value={form.ctaUrl} onChange={set("ctaUrl")} placeholder="https://…" /></div>
 
-            {/* Live preview — feed card with mandatory Sponsored label */}
             <div>
-              <Label>Preview — how it appears in the feed</Label>
-              <div className="ds-surface p-4" style={{ background: "var(--color-surface-muted)" }}>
-                <div className="ds-card p-4">
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="flex items-center gap-2.5">
-                      <span
-                        className="flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold text-white"
-                        style={{ background: "linear-gradient(135deg, var(--color-accent-400), var(--color-accent-600))" }}
-                      >
-                        {(form.businessName || "B").charAt(0).toUpperCase()}
-                      </span>
-                      <div>
-                        <div className="text-sm font-semibold leading-tight" style={{ color: "var(--color-heading)" }}>
-                          {form.businessName || "Your business"}
-                        </div>
-                        <div className="text-[11px]" style={{ color: "var(--color-text-disabled)" }}>Sponsored</div>
-                      </div>
-                    </div>
-                    <span
-                      className="rounded-full border px-2 py-0.5 text-[10px] font-semibold"
-                      style={{ borderColor: "var(--color-accent-200)", background: "var(--color-accent-50)", color: "var(--color-accent-700)" }}
-                    >
-                      Ad
-                    </span>
-                  </div>
-                  <p className="mt-3 text-sm font-semibold" style={{ color: "var(--color-heading)" }}>
-                    {form.headline || "Your headline"}
-                  </p>
-                  <p className="mt-0.5 text-sm" style={{ color: "var(--color-text-secondary)" }}>
-                    {form.body || "Your ad text"}
-                  </p>
-                  <span className="ds-button mt-3 px-4 py-2 text-xs">
-                    {form.ctaLabel || "Learn more"}
-                  </span>
+              <Label>Image (optional)</Label>
+              {mediaDataUrl ? (
+                <div className="flex items-center gap-3">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={mediaDataUrl} alt="Creative preview" className="h-16 w-16 rounded-md object-cover" />
+                  <button
+                    type="button"
+                    onClick={removeImage}
+                    className="inline-flex items-center gap-1.5 text-sm font-medium"
+                    style={{ color: "var(--color-text-secondary)" }}
+                  >
+                    <X size={13} /> Remove
+                  </button>
                 </div>
-              </div>
+              ) : (
+                <label
+                  className="press flex cursor-pointer items-center justify-center gap-2 rounded-(--radius-md) border border-dashed p-4 text-sm font-medium"
+                  style={{ borderColor: "var(--color-border)", color: "var(--color-text-secondary)" }}
+                >
+                  <ImagePlus size={16} /> Upload a photo or banner
+                  <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={(e) => void handleImageChange(e)} />
+                </label>
+              )}
             </div>
+          </SectionCard>
+
+          {/* Live preview — mirrors the real feed rendering, updates as you type */}
+          <SectionCard step="6" title="See it in the app">
+            <PhonePreview form={form} mediaUrl={mediaDataUrl} />
           </SectionCard>
 
           {error && (

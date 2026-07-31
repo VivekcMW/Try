@@ -8,6 +8,7 @@ interface AdBannerProps {
   readonly href: string;         // destination URL
   readonly advertiser: string;   // brand name shown in "Sponsored by"
   readonly accent?: string;      // optional brand colour (CSS value)
+  readonly mediaUrl?: string | null;
 }
 
 const STUB: AdBannerProps = {
@@ -29,12 +30,21 @@ export function AdBanner(props?: Partial<AdBannerProps>) {
     >
       <div className="flex items-start gap-3 min-w-0">
         {/* Colour swatch as mini logo placeholder */}
-        <div
-          className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-xs font-bold text-white"
-          style={{ background: ad.accent ?? "var(--color-brand-600)" }}
-        >
-          {ad.advertiser.charAt(0)}
-        </div>
+        {ad.mediaUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={ad.mediaUrl}
+            alt=""
+            className="mt-0.5 h-9 w-9 shrink-0 rounded-md object-cover"
+          />
+        ) : (
+          <div
+            className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-xs font-bold text-white"
+            style={{ background: ad.accent ?? "var(--color-brand-600)" }}
+          >
+            {ad.advertiser.charAt(0)}
+          </div>
+        )}
         <div className="min-w-0">
           <p className="text-sm font-semibold leading-snug" style={{ color: "var(--color-heading)" }}>
             {ad.label}

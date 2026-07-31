@@ -1,9 +1,12 @@
 /**
  * GET   /api/mobile/users/[id]  — public user profile
- * PATCH /api/mobile/users/[id]  — update own profile
+ * PATCH /api/mobile/users/[id]  — update own profile (requires the caller's
+ *                                  bearer token to match the path id)
  */
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { requireMobileAuth } from "@/lib/mobile-auth";
+import { AgeBand } from "@/generated/prisma/enums";
 
 export async function GET(
   _req: NextRequest,
@@ -37,18 +40,28 @@ export async function GET(
   }
 }
 
+const AGE_BANDS = Object.values(AgeBand);
+
 export async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
 
+  const authedUserId = requireMobileAuth(req);
+  if (!authedUserId || authedUserId !== id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   try {
     const body = await req.json();
-    const { name, bio, avatarUrl, language, privacy } = body;
+    const { name, bio, avatarUrl, language, privacy, ageBand } = body;
 
     if (name !== undefined && name.trim().length < 2) {
       return NextResponse.json({ error: "Name must be at least 2 characters" }, { status: 400 });
+    }
+    if (ageBand !== undefined && ageBand !== null && !AGE_BANDS.includes(ageBand)) {
+      return NextResponse.json({ error: "Invalid ageBand" }, { status: 400 });
     }
 
     const data: Record<string, unknown> = {};
@@ -57,11 +70,12 @@ export async function PATCH(
     if (avatarUrl !== undefined) { data['avatarUrl']       = avatarUrl; }
     if (language  !== undefined) { data['language']        = language; }
     if (privacy   !== undefined) { data['privacySettings'] = privacy; }
+    if (ageBand   !== undefined) { data['ageBand']          = ageBand; } // self-declared, optional — never required
 
     const updated = await prisma.user.update({
       where: { id },
       data,
-      select: { id: true, name: true, avatarUrl: true, bio: true, kycTier: true, role: true, privacySettings: true },
+      select: { id: true, name: true, avatarUrl: true, bio: true, kycTier: true, role: true, privacySettings: true, ageBand: true },
     });
 
     return NextResponse.json(updated);

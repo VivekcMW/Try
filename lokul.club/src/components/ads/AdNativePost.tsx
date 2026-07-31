@@ -8,6 +8,7 @@ interface AdNativePostProps {
   readonly href: string;
   readonly advertiser: string;
   readonly accent?: string;
+  readonly mediaUrl?: string | null;
 }
 
 const STUB: AdNativePostProps = {
@@ -45,6 +46,15 @@ export function AdNativePost(props?: Partial<AdNativePostProps>) {
       <p className="mt-1 text-xs line-clamp-2" style={{ color: "var(--color-text-secondary)" }}>
         {ad.body}
       </p>
+
+      {ad.mediaUrl && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={ad.mediaUrl}
+          alt=""
+          className="mt-3 h-36 w-full rounded-md object-cover"
+        />
+      )}
 
       <Link
         href={ad.href}

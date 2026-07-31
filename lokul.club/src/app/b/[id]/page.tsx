@@ -15,7 +15,7 @@ import { CatalogSection } from "./CatalogSection";
 import type { CatalogItem } from "./CatalogSection";
 import { StorePhotoGallery } from "./StorePhotoGallery";
 import type { StorePhoto } from "./StorePhotoGallery";
-import { AdBanner } from "@/components/ads/AdBanner";
+import { AdSlot } from "@/components/ads/AdSlot";
 
 /* ────────────────────────────────────────────────────────── */
 /* Types                                                      */
@@ -339,18 +339,11 @@ export default async function BusinessStorefrontPage(
 
         {/* Catalog */}
         {(biz.catalog ?? []).length > 0 && (
-          <CatalogSection items={biz.catalog ?? []} phone={biz.phone ?? null} />
+          <CatalogSection items={biz.catalog ?? []} phone={biz.phone ?? null} pinCode={biz.pinCode} />
         )}
 
         {/* Ad slot — banner between catalog and hours */}
-        <AdBanner
-          label="Medicines &amp; health products delivered in 2 hrs"
-          sub="Apollo Pharmacy — 25% off your first online order"
-          cta="Order now"
-          href="https://www.apollopharmacy.in"
-          advertiser="Apollo Pharmacy"
-          accent="#0066CC"
-        />
+        <AdSlot placement="banner" pin={biz.pinCode} variant="banner" />
 
         {/* Hours */}
         <section>

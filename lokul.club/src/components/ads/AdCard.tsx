@@ -9,6 +9,7 @@ interface AdCardProps {
   readonly href: string;
   readonly advertiser: string;
   readonly accent?: string;
+  readonly mediaUrl?: string | null;
 }
 
 const STUB: AdCardProps = {
@@ -33,12 +34,21 @@ export function AdCard(props?: Partial<AdCardProps>) {
       aria-label="Sponsored content"
     >
       {/* Avatar — same size as organic cards */}
-      <div
-        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md font-bold text-white text-lg"
-        style={{ background: ad.accent ?? "var(--color-brand-600)" }}
-      >
-        {ad.name.charAt(0)}
-      </div>
+      {ad.mediaUrl ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={ad.mediaUrl}
+          alt=""
+          className="h-11 w-11 shrink-0 rounded-md object-cover"
+        />
+      ) : (
+        <div
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md font-bold text-white text-lg"
+          style={{ background: ad.accent ?? "var(--color-brand-600)" }}
+        >
+          {ad.name.charAt(0)}
+        </div>
+      )}
 
       {/* Info column */}
       <div className="min-w-0 flex-1">

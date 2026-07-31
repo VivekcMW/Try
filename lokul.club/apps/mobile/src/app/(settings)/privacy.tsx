@@ -4,8 +4,16 @@ import { useRouter } from 'expo-router';
 import { ArrowLeft } from 'lucide-react-native';
 import { HStack, Text, VStack } from '@/components/ui';
 import { useProfileStore } from '@/store/profileStore';
-import { type ProfilePrivacy } from '@/types/profile';
+import { type AgeBand, type ProfilePrivacy } from '@/types/profile';
 import { colors, radius, spacing } from '@lokul/ui-tokens';
+
+const AGE_BANDS: { value: AgeBand; label: string }[] = [
+  { value: 'age_18_24',   label: '18–24' },
+  { value: 'age_25_34',   label: '25–34' },
+  { value: 'age_35_44',   label: '35–44' },
+  { value: 'age_45_54',   label: '45–54' },
+  { value: 'age_55_plus', label: '55+' },
+];
 
 type SettingItem = {
   key: keyof ProfilePrivacy;
@@ -58,6 +66,8 @@ export default function PrivacyScreen() {
   const router = useRouter();
   const privacy = useProfileStore((s) => s.profile.privacy);
   const updatePrivacy = useProfileStore((s) => s.updatePrivacy);
+  const ageBand = useProfileStore((s) => s.profile.ageBand);
+  const updateAgeBand = useProfileStore((s) => s.updateAgeBand);
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
@@ -69,6 +79,41 @@ export default function PrivacyScreen() {
       </HStack>
 
       <ScrollView contentContainerStyle={styles.scroll}>
+        <View style={styles.section}>
+          <Text variant="caption" style={styles.sectionHeader}>ABOUT YOU (OPTIONAL)</Text>
+          <View style={styles.card}>
+            <View style={styles.row}>
+              <Text variant="body" style={{ fontWeight: '600', color: colors.surface.heading }}>
+                Age range
+              </Text>
+              <Text variant="caption" tone="secondary" style={{ marginTop: 2, marginBottom: spacing[3] }}>
+                Never shown to other residents. Only used to show more relevant ads, and only if
+                Personalised Ads is on below.
+              </Text>
+              <HStack gap={2} style={{ flexWrap: 'wrap' }}>
+                {AGE_BANDS.map((band) => {
+                  const selected = ageBand === band.value;
+                  return (
+                    <Pressable
+                      key={band.value}
+                      onPress={() => updateAgeBand(selected ? null : band.value)}
+                      accessibilityRole="button"
+                      style={[styles.ageChip, selected && styles.ageChipSelected]}
+                    >
+                      <Text
+                        variant="caption"
+                        style={{ fontWeight: '600', color: selected ? '#fff' : colors.surface.heading }}
+                      >
+                        {band.label}
+                      </Text>
+                    </Pressable>
+                  );
+                })}
+              </HStack>
+            </View>
+          </View>
+        </View>
+
         {SECTIONS.map((section) => (
           <View key={section.title} style={styles.section}>
             <Text variant="caption" style={styles.sectionHeader}>{section.title.toUpperCase()}</Text>
@@ -149,4 +194,16 @@ const styles = StyleSheet.create({
   rowBorder: { borderBottomWidth: 0.5, borderBottomColor: colors.surface.border },
   switchWrap: { transform: [{ scale: 0.78 }], marginRight: -4 },
   footer: { paddingHorizontal: spacing[5], paddingTop: spacing[3] },
+  ageChip: {
+    paddingHorizontal: spacing[3],
+    paddingVertical: spacing[1.5],
+    borderRadius: radius.full,
+    borderWidth: 1,
+    borderColor: colors.surface.border,
+    backgroundColor: colors.surface.background,
+  },
+  ageChipSelected: {
+    backgroundColor: colors.brand[600],
+    borderColor: colors.brand[600],
+  },
 });

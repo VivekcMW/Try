@@ -277,7 +277,7 @@ export default function MerchantDashboardPage() {
   if (loading) {
     return (
       <div className="flex h-full items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-mw-primary-600" />
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-brand-600" />
       </div>
     );
   }
@@ -331,7 +331,7 @@ export default function MerchantDashboardPage() {
               {card.href && (
                 <Link
                   href={card.href}
-                  className="mt-4 inline-flex text-sm font-medium text-mw-primary-600 hover:text-mw-primary-700"
+                  className="mt-4 inline-flex text-sm font-medium text-brand-600 hover:text-brand-700"
                 >
                   View all →
                 </Link>
@@ -352,7 +352,7 @@ export default function MerchantDashboardPage() {
               <Link
                 key={action.href}
                 href={action.href}
-                className="flex items-center gap-3 rounded-lg border border-gray-200 p-4 transition hover:border-mw-primary-300 hover:bg-mw-primary-50"
+                className="flex items-center gap-3 rounded-lg border border-gray-200 p-4 transition hover:border-brand-300 hover:bg-brand-50"
               >
                 <Icon className={`h-5 w-5 ${colorClass.split(" ")[1]}`} />
                 <div>

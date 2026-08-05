@@ -76,7 +76,7 @@ export default function CustomersPage() {
   if (loading) {
     return (
       <div className="flex h-full items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-mw-primary-600" />
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-brand-600" />
       </div>
     );
   }
@@ -155,7 +155,7 @@ export default function CustomersPage() {
                 className="flex items-center gap-4 rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition hover:shadow-md"
               >
                 {/* Avatar */}
-                <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-mw-primary-100 text-lg font-bold text-mw-primary-700">
+                <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-brand-100 text-lg font-bold text-brand-700">
                   {getInitial(customer.name)}
                 </div>
 

@@ -77,7 +77,7 @@ export default function AnalyticsPage() {
   if (loading) {
     return (
       <div className="flex h-full items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-mw-primary-600" />
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-brand-600" />
       </div>
     );
   }
@@ -146,7 +146,7 @@ export default function AnalyticsPage() {
             onClick={() => setPeriod("weekly")}
             className={`rounded-md px-4 py-1.5 text-sm font-medium transition ${
               period === "weekly"
-                ? "bg-mw-primary-600 text-white shadow-sm"
+                ? "bg-brand-600 text-white shadow-sm"
                 : "text-gray-600 hover:text-gray-900"
             }`}
           >
@@ -156,7 +156,7 @@ export default function AnalyticsPage() {
             onClick={() => setPeriod("monthly")}
             className={`rounded-md px-4 py-1.5 text-sm font-medium transition ${
               period === "monthly"
-                ? "bg-mw-primary-600 text-white shadow-sm"
+                ? "bg-brand-600 text-white shadow-sm"
                 : "text-gray-600 hover:text-gray-900"
             }`}
           >
@@ -209,7 +209,7 @@ export default function AnalyticsPage() {
                     {point.orders > 0 ? point.orders : ""}
                   </span>
                   <div
-                    className="w-full rounded-t-md bg-mw-primary-500 transition-all"
+                    className="w-full rounded-t-md bg-brand-500 transition-all"
                     style={{ height: `${heightPx}px` }}
                     title={`${point.label}: ${point.orders} orders`}
                   />

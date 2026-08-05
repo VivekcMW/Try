@@ -64,7 +64,7 @@ export default function EarningsPage() {
   if (loading) {
     return (
       <div className="flex h-full items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-mw-primary-600" />
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-brand-600" />
       </div>
     );
   }
@@ -208,7 +208,7 @@ export default function EarningsPage() {
                   >
                     <div
                       className={`w-full rounded-t-sm transition-all ${
-                        isZero ? "bg-gray-200" : "bg-mw-primary-500"
+                        isZero ? "bg-gray-200" : "bg-brand-500"
                       }`}
                       style={{ height: `${heightPx}px` }}
                     />
@@ -228,7 +228,7 @@ export default function EarningsPage() {
         {/* Chart legend */}
         <div className="mt-4 flex items-center gap-4 text-xs text-gray-500">
           <div className="flex items-center gap-1">
-            <div className="h-3 w-3 rounded-sm bg-mw-primary-500" />
+            <div className="h-3 w-3 rounded-sm bg-brand-500" />
             <span>Revenue</span>
           </div>
           <div className="flex items-center gap-1">

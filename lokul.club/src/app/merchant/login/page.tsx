@@ -117,7 +117,7 @@ export default function MerchantLoginPage() {
       <div className="w-full max-w-md space-y-8">
         {/* Header */}
         <div className="text-center">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-mw-primary-600">
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-brand-600">
             <Store className="h-8 w-8 text-white" />
           </div>
           <h1 className="text-3xl font-bold text-gray-900">Merchant Dashboard</h1>
@@ -155,7 +155,7 @@ export default function MerchantLoginPage() {
                     value={phone}
                     onChange={(e) => setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))}
                     onKeyDown={(e) => e.key === "Enter" && sendOtp()}
-                    className="flex-1 rounded-lg border border-gray-300 px-4 py-2.5 text-base outline-none transition focus:border-mw-primary-500 focus:ring-2 focus:ring-mw-primary-100"
+                    className="flex-1 rounded-lg border border-gray-300 px-4 py-2.5 text-base outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
                   />
                 </div>
                 {error && (
@@ -166,7 +166,7 @@ export default function MerchantLoginPage() {
               <button
                 onClick={sendOtp}
                 disabled={phone.length !== 10 || loading}
-                className="flex w-full items-center justify-center gap-2 rounded-lg bg-mw-primary-600 px-4 py-3 text-base font-semibold text-white transition hover:bg-mw-primary-700 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
+                className="flex w-full items-center justify-center gap-2 rounded-lg bg-brand-600 px-4 py-3 text-base font-semibold text-white transition hover:bg-brand-700 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {loading && <Loader2 size={18} className="animate-spin" />}
                 Send OTP
@@ -174,7 +174,7 @@ export default function MerchantLoginPage() {
 
               <div className="pt-4 text-center text-sm text-gray-600">
                 Don't have an account?{" "}
-                <Link href="/business" className="font-semibold text-mw-primary-600 hover:text-mw-primary-700">
+                <Link href="/business" className="font-semibold text-brand-600 hover:text-brand-700">
                   Register your business
                 </Link>
               </div>
@@ -212,7 +212,7 @@ export default function MerchantLoginPage() {
                       value={digit}
                       onChange={(e) => handleOtpChange(idx, e.target.value)}
                       onKeyDown={(e) => handleOtpKeyDown(idx, e)}
-                      className="h-14 w-full rounded-lg border-2 border-gray-300 text-center text-xl font-semibold outline-none transition focus:border-mw-primary-500 focus:ring-2 focus:ring-mw-primary-100"
+                      className="h-14 w-full rounded-lg border-2 border-gray-300 text-center text-xl font-semibold outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
                     />
                   ))}
                 </div>
@@ -224,7 +224,7 @@ export default function MerchantLoginPage() {
               <button
                 onClick={verifyOtp}
                 disabled={otp.some((d) => !d) || loading}
-                className="flex w-full items-center justify-center gap-2 rounded-lg bg-mw-primary-600 px-4 py-3 text-base font-semibold text-white transition hover:bg-mw-primary-700 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
+                className="flex w-full items-center justify-center gap-2 rounded-lg bg-brand-600 px-4 py-3 text-base font-semibold text-white transition hover:bg-brand-700 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {loading && <Loader2 size={18} className="animate-spin" />}
                 Verify & Login
@@ -236,7 +236,7 @@ export default function MerchantLoginPage() {
                 ) : (
                   <button
                     onClick={sendOtp}
-                    className="font-semibold text-mw-primary-600 hover:text-mw-primary-700"
+                    className="font-semibold text-brand-600 hover:text-brand-700"
                   >
                     Resend OTP
                   </button>

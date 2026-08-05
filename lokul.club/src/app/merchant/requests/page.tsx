@@ -174,7 +174,7 @@ export default function RequestsPage() {
       {/* Header */}
       <div className="mb-6">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-mw-primary-600">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-brand-600">
             <Briefcase className="h-5 w-5 text-white" />
           </div>
           <div>
@@ -194,7 +194,7 @@ export default function RequestsPage() {
             onClick={() => setFilter(f.value)}
             className={`flex-shrink-0 rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
               filter === f.value
-                ? "bg-mw-primary-600 text-white"
+                ? "bg-brand-600 text-white"
                 : "bg-gray-100 text-gray-700 hover:bg-gray-200"
             }`}
           >
@@ -206,7 +206,7 @@ export default function RequestsPage() {
       {/* Content */}
       {loading ? (
         <div className="flex h-40 items-center justify-center">
-          <Loader2 className="h-8 w-8 animate-spin text-mw-primary-600" />
+          <Loader2 className="h-8 w-8 animate-spin text-brand-600" />
         </div>
       ) : requests.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 py-16">
@@ -228,7 +228,7 @@ export default function RequestsPage() {
               {/* Card header */}
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-center gap-3 min-w-0">
-                  <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-mw-primary-100 text-base font-bold text-mw-primary-700">
+                  <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-brand-100 text-base font-bold text-brand-700">
                     {getInitial(req.user.name)}
                   </div>
                   <div className="min-w-0">
@@ -287,7 +287,7 @@ export default function RequestsPage() {
                         setQuoteNote("");
                         setQuoteError("");
                       }}
-                      className="flex items-center gap-1.5 rounded-lg bg-mw-primary-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-mw-primary-700 transition-colors"
+                      className="flex items-center gap-1.5 rounded-lg bg-brand-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-brand-700 transition-colors"
                     >
                       <IndianRupee className="h-4 w-4" />
                       Send Quote
@@ -389,7 +389,7 @@ export default function RequestsPage() {
                       <button
                         onClick={() => handleSendQuote(req.id)}
                         disabled={quoteSending}
-                        className="flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-mw-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-mw-primary-700 disabled:opacity-50 transition-colors"
+                        className="flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700 disabled:opacity-50 transition-colors"
                       >
                         {quoteSending ? (
                           <Loader2 className="h-4 w-4 animate-spin" />

@@ -61,7 +61,7 @@ export default function MerchantLayout({ children }: { children: React.ReactNode
     }
     return (
       <div className="flex h-screen items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-mw-primary-600" />
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-brand-600" />
       </div>
     );
   }
@@ -83,7 +83,7 @@ export default function MerchantLayout({ children }: { children: React.ReactNode
               onClick={() => setSidebarOpen(false)}
               className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition ${
                 isActive
-                  ? "bg-mw-primary-50 text-mw-primary-700"
+                  ? "bg-brand-50 text-brand-700"
                   : "text-gray-700 hover:bg-gray-100"
               }`}
             >
@@ -108,7 +108,7 @@ export default function MerchantLayout({ children }: { children: React.ReactNode
   const MerchantHeader = ({ showClose = false }: { showClose?: boolean }) => (
     <div className={`flex h-16 items-center border-b border-gray-200 px-6 ${showClose ? "justify-between" : ""}`}>
       <div className="flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-mw-primary-600">
+        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-brand-600">
           <Store className="h-5 w-5 text-white" />
         </div>
         <div className="flex-1 overflow-hidden">

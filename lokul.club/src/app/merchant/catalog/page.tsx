@@ -321,7 +321,7 @@ export default function CatalogPage() {
   if (loading) {
     return (
       <div className="flex h-full items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-mw-primary-600" />
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-brand-600" />
       </div>
     );
   }
@@ -351,7 +351,7 @@ export default function CatalogPage() {
           <h3 className="font-semibold text-gray-900">{item.name}</h3>
         </div>
         <div className="mt-1 flex flex-wrap items-center gap-2 text-sm text-gray-600">
-          <span className="font-semibold text-mw-primary-600">
+          <span className="font-semibold text-brand-600">
             ₹{(item.pricePaise / 100).toFixed(2)}
           </span>
           {item.unit && <span>· {item.unit}</span>}
@@ -477,7 +477,7 @@ export default function CatalogPage() {
           placeholder="30"
           value={form.durationMins}
           onChange={(e) => setForm({ ...form, durationMins: e.target.value })}
-          className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-base outline-none transition focus:border-mw-primary-500 focus:ring-2 focus:ring-mw-primary-100"
+          className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-base outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
         />
       </div>
     );
@@ -497,7 +497,7 @@ export default function CatalogPage() {
           placeholder="15"
           value={form.durationMins}
           onChange={(e) => setForm({ ...form, durationMins: e.target.value })}
-          className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-base outline-none transition focus:border-mw-primary-500 focus:ring-2 focus:ring-mw-primary-100"
+          className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-base outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
         />
       </div>
     );
@@ -595,7 +595,7 @@ export default function CatalogPage() {
                 <select
                   value={newItem.kind}
                   onChange={(e) => setNewItem({ ...newItem, kind: e.target.value })}
-                  className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-base outline-none transition focus:border-mw-primary-500 focus:ring-2 focus:ring-mw-primary-100"
+                  className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-base outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
                 >
                   {ITEM_KINDS.map((kind) => (
                     <option key={kind.value} value={kind.value}>
@@ -612,7 +612,7 @@ export default function CatalogPage() {
                   placeholder="e.g., Basmati Rice, Haircut, GP Consultation"
                   value={newItem.name}
                   onChange={(e) => setNewItem({ ...newItem, name: e.target.value })}
-                  className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-base outline-none transition focus:border-mw-primary-500 focus:ring-2 focus:ring-mw-primary-100"
+                  className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-base outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
                 />
               </div>
 
@@ -628,7 +628,7 @@ export default function CatalogPage() {
                     placeholder="250"
                     value={newItem.price}
                     onChange={(e) => setNewItem({ ...newItem, price: e.target.value })}
-                    className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-base outline-none transition focus:border-mw-primary-500 focus:ring-2 focus:ring-mw-primary-100"
+                    className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-base outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
                   />
                 </div>
                 <div>
@@ -638,7 +638,7 @@ export default function CatalogPage() {
                     placeholder="5kg, 1pc, 30min"
                     value={newItem.unit}
                     onChange={(e) => setNewItem({ ...newItem, unit: e.target.value })}
-                    className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-base outline-none transition focus:border-mw-primary-500 focus:ring-2 focus:ring-mw-primary-100"
+                    className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-base outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
                   />
                 </div>
               </div>
@@ -654,7 +654,7 @@ export default function CatalogPage() {
                   placeholder="Optional details about this item"
                   value={newItem.description}
                   onChange={(e) => setNewItem({ ...newItem, description: e.target.value })}
-                  className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-base outline-none transition focus:border-mw-primary-500 focus:ring-2 focus:ring-mw-primary-100"
+                  className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-base outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
                 />
               </div>
 
@@ -665,7 +665,7 @@ export default function CatalogPage() {
                   placeholder="https://..."
                   value={newItem.imageUrl}
                   onChange={(e) => setNewItem({ ...newItem, imageUrl: e.target.value })}
-                  className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-base outline-none transition focus:border-mw-primary-500 focus:ring-2 focus:ring-mw-primary-100"
+                  className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-base outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
                 />
               </div>
 
@@ -677,7 +677,7 @@ export default function CatalogPage() {
                     placeholder="e.g. Starters, Mains, Beverages"
                     value={newItem.catalogCategory}
                     onChange={(e) => setNewItem({ ...newItem, catalogCategory: e.target.value })}
-                    className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-base outline-none transition focus:border-mw-primary-500 focus:ring-2 focus:ring-mw-primary-100"
+                    className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-base outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
                   />
                 </div>
                 <div>
@@ -688,7 +688,7 @@ export default function CatalogPage() {
                     placeholder="Leave blank for unlimited"
                     value={newItem.stockCount}
                     onChange={(e) => setNewItem({ ...newItem, stockCount: e.target.value })}
-                    className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-base outline-none transition focus:border-mw-primary-500 focus:ring-2 focus:ring-mw-primary-100"
+                    className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-base outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
                   />
                 </div>
               </div>
@@ -751,7 +751,7 @@ export default function CatalogPage() {
                   placeholder="e.g., Basmati Rice, Haircut, GP Consultation"
                   value={editForm.name}
                   onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
-                  className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-base outline-none transition focus:border-mw-primary-500 focus:ring-2 focus:ring-mw-primary-100"
+                  className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-base outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
                 />
               </div>
 
@@ -767,7 +767,7 @@ export default function CatalogPage() {
                     placeholder="250"
                     value={editForm.price}
                     onChange={(e) => setEditForm({ ...editForm, price: e.target.value })}
-                    className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-base outline-none transition focus:border-mw-primary-500 focus:ring-2 focus:ring-mw-primary-100"
+                    className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-base outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
                   />
                 </div>
                 <div>
@@ -777,7 +777,7 @@ export default function CatalogPage() {
                     placeholder="5kg, 1pc, 30min"
                     value={editForm.unit}
                     onChange={(e) => setEditForm({ ...editForm, unit: e.target.value })}
-                    className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-base outline-none transition focus:border-mw-primary-500 focus:ring-2 focus:ring-mw-primary-100"
+                    className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-base outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
                   />
                 </div>
               </div>
@@ -793,7 +793,7 @@ export default function CatalogPage() {
                   placeholder="Optional details about this item"
                   value={editForm.description}
                   onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
-                  className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-base outline-none transition focus:border-mw-primary-500 focus:ring-2 focus:ring-mw-primary-100"
+                  className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-base outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
                 />
               </div>
 
@@ -804,7 +804,7 @@ export default function CatalogPage() {
                   placeholder="https://..."
                   value={editForm.imageUrl}
                   onChange={(e) => setEditForm({ ...editForm, imageUrl: e.target.value })}
-                  className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-base outline-none transition focus:border-mw-primary-500 focus:ring-2 focus:ring-mw-primary-100"
+                  className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-base outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
                 />
               </div>
 
@@ -816,7 +816,7 @@ export default function CatalogPage() {
                     placeholder="e.g. Starters, Mains, Beverages"
                     value={editForm.catalogCategory}
                     onChange={(e) => setEditForm({ ...editForm, catalogCategory: e.target.value })}
-                    className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-base outline-none transition focus:border-mw-primary-500 focus:ring-2 focus:ring-mw-primary-100"
+                    className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-base outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
                   />
                 </div>
                 <div>
@@ -827,7 +827,7 @@ export default function CatalogPage() {
                     placeholder="Leave blank for unlimited"
                     value={editForm.stockCount}
                     onChange={(e) => setEditForm({ ...editForm, stockCount: e.target.value })}
-                    className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-base outline-none transition focus:border-mw-primary-500 focus:ring-2 focus:ring-mw-primary-100"
+                    className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-base outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
                   />
                 </div>
               </div>

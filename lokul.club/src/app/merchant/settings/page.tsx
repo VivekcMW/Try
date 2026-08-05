@@ -591,7 +591,7 @@ export default function SettingsPage() {
   if (loading) {
     return (
       <div className="flex h-full items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-mw-primary-600" />
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-brand-600" />
       </div>
     );
   }
@@ -621,7 +621,7 @@ export default function SettingsPage() {
         {/* Business Profile Card */}
         <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
           <div className="mb-4 flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-mw-primary-600">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-brand-600">
               <Store className="h-5 w-5 text-white" />
             </div>
             <div className="flex-1">
@@ -751,7 +751,7 @@ export default function SettingsPage() {
               <button
                 onClick={handleSaveProfile}
                 disabled={updating}
-                className="flex-1 rounded-lg bg-mw-primary-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-mw-primary-700 disabled:cursor-not-allowed disabled:opacity-50 transition-colors"
+                className="flex-1 rounded-lg bg-brand-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-50 transition-colors"
               >
                 {updating ? "Saving..." : "Save Profile"}
               </button>

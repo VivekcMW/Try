@@ -14,7 +14,7 @@ function exportCSV(rows: AdminMedicalProfile[]) {
       m.conditions.join("; "),
       m.medications.join("; "),
       m.doctorPhone ?? "",
-      new Date(m.updatedAt).toLocaleDateString(),
+      new Date(m.updatedAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }),
     ]),
   ];
   const csv = data.map(r => r.map(v => `"${v}"`).join(",")).join("\n");
@@ -78,7 +78,7 @@ export default function MedicalProfilesTable({
                 <td className="px-4 py-3 text-gray-600 max-w-[140px] truncate" title={m.conditions.join(", ")}>{m.conditions.join(", ") || "—"}</td>
                 <td className="px-4 py-3 text-gray-600 max-w-[140px] truncate" title={m.medications.join(", ")}>{m.medications.join(", ") || "—"}</td>
                 <td className="px-4 py-3 text-gray-500">{m.doctorPhone ?? "—"}</td>
-                <td className="px-4 py-3 text-xs text-gray-400 whitespace-nowrap">{new Date(m.updatedAt).toLocaleDateString()}</td>
+                <td className="px-4 py-3 text-xs text-gray-400 whitespace-nowrap">{new Date(m.updatedAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</td>
               </tr>
             ))}
           </tbody>

@@ -7,7 +7,7 @@ import type { AdminSafetyContact } from "@/lib/admin-platform";
 function exportCSV(rows: AdminSafetyContact[]) {
   const data = [
     ["ID", "Contact Name", "Phone", "Relation", "User", "User Phone", "Created"],
-    ...rows.map(c => [c.id, c.name, c.phone, c.relation ?? "", c.user.name, c.user.phone, new Date(c.createdAt).toLocaleDateString()]),
+    ...rows.map(c => [c.id, c.name, c.phone, c.relation ?? "", c.user.name, c.user.phone, new Date(c.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })]),
   ];
   const csv = data.map(r => r.map(v => `"${v}"`).join(",")).join("\n");
   const a = document.createElement("a");
@@ -63,7 +63,7 @@ export default function SafetyContactsTable({
                 <td className="px-4 py-3 capitalize text-gray-500">{c.relation ?? "—"}</td>
                 <td className="px-4 py-3 text-gray-700">{c.user.name}</td>
                 <td className="px-4 py-3 text-gray-500">{c.user.phone}</td>
-                <td className="px-4 py-3 text-xs text-gray-400 whitespace-nowrap">{new Date(c.createdAt).toLocaleDateString()}</td>
+                <td className="px-4 py-3 text-xs text-gray-400 whitespace-nowrap">{new Date(c.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</td>
               </tr>
             ))}
           </tbody>

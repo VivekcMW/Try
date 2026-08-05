@@ -55,7 +55,7 @@ export default function LostFoundTable({ items, tag }: { items: Item[]; tag: str
                   <Badge tone={i.postTag === "lost" ? "danger" : "success"} variant="soft" className="capitalize text-xs">{i.postTag}</Badge>
                 </td>
                 <td className="px-4 py-3 font-mono text-xs text-gray-400">{i.pinCode}</td>
-                <td className="px-4 py-3 text-xs text-gray-400">{new Date(i.createdAt).toLocaleDateString()}</td>
+                <td className="px-4 py-3 text-xs text-gray-400">{new Date(i.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</td>
                 <td className="px-4 py-3">
                   <Button size="sm" variant="destructive" onClick={() => run(i.id, removeLostFoundPost)}
                     disabled={loadingId === i.id} className="text-xs">Remove</Button>

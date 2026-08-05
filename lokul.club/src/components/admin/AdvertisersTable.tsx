@@ -75,7 +75,7 @@ export default function AdvertisersTable({
                 <td className="px-4 py-3">
                   <Badge tone={STATUS_TONES[a.status] ?? "neutral"} variant="soft" className="capitalize text-xs">{a.status}</Badge>
                 </td>
-                <td className="px-4 py-3 text-xs text-gray-400 whitespace-nowrap">{new Date(a.createdAt).toLocaleDateString()}</td>
+                <td className="px-4 py-3 text-xs text-gray-400 whitespace-nowrap">{new Date(a.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</td>
                 <td className="px-4 py-3">
                   <div className="flex gap-2">
                     {a.status !== "approved" && (

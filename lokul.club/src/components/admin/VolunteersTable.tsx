@@ -8,7 +8,7 @@ import type { AdminVolunteer } from "@/lib/admin-platform";
 function exportCSV(rows: AdminVolunteer[]) {
   const data = [
     ["ID", "User", "Phone", "Pin Code", "Skills", "Active", "Updated"],
-    ...rows.map(v => [v.id, v.user.name, v.user.phone, v.pinCode, v.skills.join("; "), v.active ? "Yes" : "No", new Date(v.updatedAt).toLocaleDateString()]),
+    ...rows.map(v => [v.id, v.user.name, v.user.phone, v.pinCode, v.skills.join("; "), v.active ? "Yes" : "No", new Date(v.updatedAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })]),
   ];
   const csv = data.map(r => r.map(v => `"${v}"`).join(",")).join("\n");
   const a = document.createElement("a");
@@ -78,7 +78,7 @@ export default function VolunteersTable({
                 <td className="px-4 py-3">
                   <Badge tone={v.active ? "success" : "neutral"} variant="soft">{v.active ? "Active" : "Inactive"}</Badge>
                 </td>
-                <td className="px-4 py-3 text-xs text-gray-400 whitespace-nowrap">{new Date(v.updatedAt).toLocaleDateString()}</td>
+                <td className="px-4 py-3 text-xs text-gray-400 whitespace-nowrap">{new Date(v.updatedAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</td>
               </tr>
             ))}
           </tbody>

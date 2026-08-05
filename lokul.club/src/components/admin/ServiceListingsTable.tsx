@@ -11,7 +11,7 @@ function fmt(paise: number) { return `₹${(paise / 100).toLocaleString("en-IN")
 function exportCSV(listings: AdminServiceListing[]) {
   const rows = [
     ["ID","Title","Category","Price","Active","Provider","City","Pin","Created"],
-    ...listings.map(l => [l.id, l.title, l.category, fmt(l.pricePaise), l.isActive ? "Yes" : "No", l.providerName, l.city, l.pinCode, l.createdAt.toLocaleDateString()]),
+    ...listings.map(l => [l.id, l.title, l.category, fmt(l.pricePaise), l.isActive ? "Yes" : "No", l.providerName, l.city, l.pinCode, l.createdAt.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })]),
   ];
   const csv = rows.map(r => r.map(v => `"${v}"`).join(",")).join("\n");
   const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
@@ -77,7 +77,7 @@ export default function ServiceListingsTable({
                 </td>
                 <td className="px-4 py-3 text-gray-600">{l.providerName}</td>
                 <td className="px-4 py-3 text-gray-500">{l.city}</td>
-                <td className="px-4 py-3 text-xs text-gray-400 whitespace-nowrap">{new Date(l.createdAt).toLocaleDateString()}</td>
+                <td className="px-4 py-3 text-xs text-gray-400 whitespace-nowrap">{new Date(l.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</td>
                 <td className="px-4 py-3">
                   {l.isActive
                     ? <Button size="sm" variant="destructive" onClick={() => run(l.id, deactivateServiceListing)}

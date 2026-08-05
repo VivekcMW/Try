@@ -24,7 +24,7 @@ const CATEGORIES = ["noise", "theft", "vandalism", "assault", "fire", "flood", "
 function exportCSV(rows: AdminIncidentReport[]) {
   const data = [
     ["ID", "Title", "Category", "Severity", "Status", "Pin Code", "Author", "Resolved At", "Created"],
-    ...rows.map(r => [r.id, r.title, r.category, r.severity, r.status, r.pinCode, r.author.name, r.resolvedAt ? new Date(r.resolvedAt).toISOString() : "", new Date(r.createdAt).toLocaleDateString()]),
+    ...rows.map(r => [r.id, r.title, r.category, r.severity, r.status, r.pinCode, r.author.name, r.resolvedAt ? new Date(r.resolvedAt).toISOString() : "", new Date(r.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })]),
   ];
   const csv = data.map(r => r.map(v => `"${v}"`).join(",")).join("\n");
   const a = document.createElement("a");
@@ -104,7 +104,7 @@ export default function IncidentReportsTable({
                   <Badge tone={STATUS_TONE[r.status] ?? "neutral"} variant="soft" className="capitalize">{r.status}</Badge>
                 </td>
                 <td className="px-4 py-3 text-gray-600">{r.author.name}</td>
-                <td className="px-4 py-3 text-xs text-gray-400 whitespace-nowrap">{new Date(r.createdAt).toLocaleDateString()}</td>
+                <td className="px-4 py-3 text-xs text-gray-400 whitespace-nowrap">{new Date(r.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</td>
                 <td className="px-4 py-3">
                   {r.status === "pending" && (
                     <div className="flex gap-1">

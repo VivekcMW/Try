@@ -19,7 +19,7 @@ function exportCSV(rows: AdminSafetyJourney[]) {
       new Date(j.expectedArrival).toISOString(),
       j.lastCheckInAt ? new Date(j.lastCheckInAt).toISOString() : "",
       String(j.checkInIntervalMin),
-      new Date(j.createdAt).toLocaleDateString(),
+      new Date(j.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }),
     ]),
   ];
   const csv = data.map(r => r.map(v => `"${v}"`).join(",")).join("\n");
@@ -89,7 +89,7 @@ export default function SafetyJourneysTable({
                 <td className="px-4 py-3 text-xs text-gray-500 whitespace-nowrap">{new Date(j.expectedArrival).toLocaleString()}</td>
                 <td className="px-4 py-3 text-xs text-gray-500 whitespace-nowrap">{j.lastCheckInAt ? new Date(j.lastCheckInAt).toLocaleString() : "—"}</td>
                 <td className="px-4 py-3 text-gray-600">{j.checkInIntervalMin} min</td>
-                <td className="px-4 py-3 text-xs text-gray-400 whitespace-nowrap">{new Date(j.createdAt).toLocaleDateString()}</td>
+                <td className="px-4 py-3 text-xs text-gray-400 whitespace-nowrap">{new Date(j.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</td>
               </tr>
             ))}
           </tbody>

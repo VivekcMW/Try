@@ -9,7 +9,7 @@ import { revokeVouch } from "@/app/admin/vouches/actions";
 function exportCSV(vouches: AdminVouch[]) {
   const rows = [
     ["ID","Voucher","Subject","Note","Revoked","Date"],
-    ...vouches.map(v => [v.id, v.voucherName, v.subjectName, v.note ?? "", v.isRevoked ? "Yes" : "No", v.createdAt.toLocaleDateString()]),
+    ...vouches.map(v => [v.id, v.voucherName, v.subjectName, v.note ?? "", v.isRevoked ? "Yes" : "No", v.createdAt.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })]),
   ];
   const csv = rows.map(r => r.map(v => `"${v}"`).join(",")).join("\n");
   const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
@@ -68,7 +68,7 @@ export default function VouchesTable({
                 <td className="px-4 py-3">
                   <Badge tone={v.isRevoked ? "danger" : "success"} variant="soft">{v.isRevoked ? "Revoked" : "Active"}</Badge>
                 </td>
-                <td className="px-4 py-3 text-xs text-gray-400">{new Date(v.createdAt).toLocaleDateString()}</td>
+                <td className="px-4 py-3 text-xs text-gray-400">{new Date(v.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</td>
                 <td className="px-4 py-3">
                   {!v.isRevoked && (
                     <Button size="sm" variant="destructive" onClick={() => run(v.id, revokeVouch)}

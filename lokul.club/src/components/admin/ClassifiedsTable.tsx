@@ -18,7 +18,7 @@ function fmt(p: number | null) {
 function exportCSV(classifieds: AdminClassified[]) {
   const rows = [
     ["ID", "Title", "Category", "Price", "Status", "Seller", "City", "Pin", "Created"],
-    ...classifieds.map(c => [c.id, c.title, c.category, fmt(c.price), c.status, c.sellerName, c.city, c.pinCode, c.createdAt.toLocaleDateString()]),
+    ...classifieds.map(c => [c.id, c.title, c.category, fmt(c.price), c.status, c.sellerName, c.city, c.pinCode, c.createdAt.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })]),
   ];
   const csv = rows.map(r => r.map(v => `"${v}"`).join(",")).join("\n");
   const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
@@ -88,7 +88,7 @@ export default function ClassifiedsTable({
                 </td>
                 <td className="px-4 py-3 text-gray-600">{c.sellerName}</td>
                 <td className="px-4 py-3 text-gray-500">{c.city}</td>
-                <td className="px-4 py-3 text-gray-400 text-xs whitespace-nowrap">{new Date(c.createdAt).toLocaleDateString()}</td>
+                <td className="px-4 py-3 text-gray-400 text-xs whitespace-nowrap">{new Date(c.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</td>
                 <td className="px-4 py-3">
                   <div className="flex gap-2">
                     {c.status === "flagged" && (

@@ -24,7 +24,7 @@ export default function UserActivityView({ userId, activity }: { userId: string;
             <span className="font-mono text-xs text-gray-400">{o.id}</span>
             <Badge tone={STATUS_TONES[o.status] ?? "neutral"} variant="soft" className="capitalize text-xs">{o.status}</Badge>
             <span className="ml-auto font-mono text-xs text-gray-700">₹{(o.pricePaise/100).toLocaleString("en-IN")}</span>
-            <span className="text-xs text-gray-400">{new Date(o.createdAt).toLocaleDateString()}</span>
+            <span className="text-xs text-gray-400">{new Date(o.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</span>
           </Row>
         ))}
       </Section>
@@ -38,7 +38,7 @@ export default function UserActivityView({ userId, activity }: { userId: string;
             <span className={`ml-auto font-mono text-xs font-semibold ${e.amountPaise < 0 ? "text-red-600" : "text-green-600"}`}>
               {fmt(e.amountPaise)}
             </span>
-            <span className="text-xs text-gray-400">{new Date(e.createdAt).toLocaleDateString()}</span>
+            <span className="text-xs text-gray-400">{new Date(e.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</span>
           </Row>
         ))}
       </Section>
@@ -48,7 +48,7 @@ export default function UserActivityView({ userId, activity }: { userId: string;
         {posts.length === 0 ? <Empty /> : posts.map(p => (
           <Row key={p.id}>
             <span className="max-w-[220px] truncate text-xs text-gray-700">{p.body}</span>
-            <span className="ml-auto text-xs text-gray-400">{new Date(p.createdAt).toLocaleDateString()}</span>
+            <span className="ml-auto text-xs text-gray-400">{new Date(p.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</span>
           </Row>
         ))}
       </Section>
@@ -59,7 +59,7 @@ export default function UserActivityView({ userId, activity }: { userId: string;
           <Row key={d.id}>
             <span className="capitalize text-xs text-gray-700">{d.docType.replace(/_/g, " ")}</span>
             <Badge tone={STATUS_TONES[d.status] ?? "neutral"} variant="soft" className="capitalize text-xs">{d.status}</Badge>
-            <span className="ml-auto text-xs text-gray-400">{new Date(d.createdAt).toLocaleDateString()}</span>
+            <span className="ml-auto text-xs text-gray-400">{new Date(d.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</span>
           </Row>
         ))}
       </Section>

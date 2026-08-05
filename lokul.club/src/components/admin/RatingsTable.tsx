@@ -11,7 +11,7 @@ const STARS = ["★★★★★","★★★★☆","★★★☆☆","★★☆�
 function exportCSV(ratings: AdminRating[]) {
   const rows = [
     ["ID","Score","Review","Reviewer","Subject","Flagged","Date"],
-    ...ratings.map(r => [r.id, String(r.score), r.review ?? "", r.reviewerName, r.subjectName, r.isFlagged ? "Yes" : "No", r.createdAt.toLocaleDateString()]),
+    ...ratings.map(r => [r.id, String(r.score), r.review ?? "", r.reviewerName, r.subjectName, r.isFlagged ? "Yes" : "No", r.createdAt.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })]),
   ];
   const csv = rows.map(r => r.map(v => `"${v}"`).join(",")).join("\n");
   const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
@@ -78,7 +78,7 @@ export default function RatingsTable({
                     ? <Badge tone="danger" variant="soft" className="text-xs">Flagged</Badge>
                     : <Badge tone="success" variant="soft" className="text-xs">OK</Badge>}
                 </td>
-                <td className="px-4 py-3 text-xs text-gray-400">{new Date(r.createdAt).toLocaleDateString()}</td>
+                <td className="px-4 py-3 text-xs text-gray-400">{new Date(r.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</td>
                 <td className="px-4 py-3">
                   <div className="flex gap-2">
                     {!r.isFlagged && (

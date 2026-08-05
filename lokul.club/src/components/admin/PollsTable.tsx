@@ -34,7 +34,7 @@ export default function PollsTable({ polls }: { polls: Poll[] }) {
               <td className="px-4 py-3 text-gray-600">{p.authorName}</td>
               <td className="px-4 py-3 text-gray-500">{p.societyName}</td>
               <td className="px-4 py-3 text-gray-600 font-mono">{p.votes}</td>
-              <td className="px-4 py-3 text-xs text-gray-400">{new Date(p.createdAt).toLocaleDateString()}</td>
+              <td className="px-4 py-3 text-xs text-gray-400">{new Date(p.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</td>
               <td className="px-4 py-3">
                 <Button size="sm" variant="destructive" onClick={() => run(p.id, closePoll)}
                   disabled={loadingId === p.id} className="text-xs">Close</Button>

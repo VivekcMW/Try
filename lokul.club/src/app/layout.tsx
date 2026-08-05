@@ -41,6 +41,23 @@ export const metadata: Metadata = {
   creator: "Lokul",
   publisher: "Lokul Technologies Pvt. Ltd.",
   category: "Community",
+  icons: {
+    icon: [
+      { url: "/favicon.svg", type: "image/svg+xml" },
+      { url: "/favicon.svg", sizes: "any" },
+    ],
+    apple: [
+      { url: "/apple-touch-icon.svg", sizes: "180x180", type: "image/svg+xml" },
+    ],
+    other: [
+      {
+        rel: "mask-icon",
+        url: "/favicon.svg",
+        color: "#4f46e5",
+      },
+    ],
+  },
+  manifest: "/manifest.json",
   alternates: {
     canonical: "/",
   },

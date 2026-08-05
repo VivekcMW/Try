@@ -1,0 +1,23 @@
+{
+  "name": "Lokul.club — Your Neighborhood, Connected",
+  "short_name": "Lokul",
+  "description": "The trusted operating system for Indian neighborhoods. Safety alerts, RWA notices, verified local businesses, and community — all in one place.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#4f46e5",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/apple-touch-icon.svg",
+      "sizes": "180x180",
+      "type": "image/svg+xml"
+    }
+  ]
+}

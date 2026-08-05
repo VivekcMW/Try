@@ -101,7 +101,7 @@ export default function DeliveriesPage() {
       <div className="mb-6 flex items-center justify-between gap-4">
         <button
           onClick={() => navigate(-1)}
-          className="rounded-[6px] border border-gray-300 p-2 text-gray-600 transition hover:bg-gray-50"
+          className="rounded-md border border-gray-300 p-2 text-gray-600 transition hover:bg-gray-50"
         >
           <ChevronLeft size={20} />
         </button>
@@ -113,14 +113,14 @@ export default function DeliveriesPage() {
         </div>
         <button
           onClick={() => navigate(1)}
-          className="rounded-[6px] border border-gray-300 p-2 text-gray-600 transition hover:bg-gray-50"
+          className="rounded-md border border-gray-300 p-2 text-gray-600 transition hover:bg-gray-50"
         >
           <ChevronRight size={20} />
         </button>
       </div>
 
       {total > 0 && (
-        <div className="mb-6 rounded-[6px] border border-gray-200 bg-white p-4 shadow-sm">
+        <div className="mb-6 rounded-md border border-gray-200 bg-white p-4 shadow-sm">
           <div className="mb-3 flex items-center justify-between text-sm">
             <span className="font-semibold text-gray-700">
               {delivered} of {total} delivered
@@ -155,7 +155,7 @@ export default function DeliveriesPage() {
           <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-blue-600" />
         </div>
       ) : deliveries.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-[6px] border-2 border-dashed border-gray-300 bg-gray-50 py-16">
+        <div className="flex flex-col items-center justify-center rounded-md border-2 border-dashed border-gray-300 bg-gray-50 py-16">
           <Truck className="h-12 w-12 text-gray-400" />
           <h3 className="mt-4 text-lg font-semibold text-gray-900">No deliveries scheduled</h3>
           <p className="mt-2 max-w-sm text-center text-sm text-gray-600">
@@ -173,7 +173,7 @@ export default function DeliveriesPage() {
             return (
               <div
                 key={delivery.id}
-                className={`flex items-center gap-4 rounded-[6px] border bg-white p-4 shadow-sm transition ${
+                className={`flex items-center gap-4 rounded-md border bg-white p-4 shadow-sm transition ${
                   isDelivered
                     ? "border-green-200 bg-green-50/30"
                     : isMissed
@@ -181,7 +181,7 @@ export default function DeliveriesPage() {
                     : "border-gray-200 hover:shadow-md"
                 }`}
               >
-                <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-blue-100 text-sm font-bold text-blue-700">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-100 text-sm font-bold text-blue-700">
                   {sub.customer.name.charAt(0).toUpperCase()}
                 </div>
 
@@ -218,11 +218,11 @@ export default function DeliveriesPage() {
                 </div>
 
                 {isPending && (
-                  <div className="flex flex-shrink-0 items-center gap-2">
+                  <div className="flex shrink-0 items-center gap-2">
                     <button
                       onClick={() => handleMark(delivery.id, "delivered")}
                       disabled={marking === delivery.id}
-                      className="flex items-center gap-1.5 rounded-[6px] bg-green-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-green-700 disabled:opacity-50"
+                      className="flex items-center gap-1.5 rounded-md bg-green-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-green-700 disabled:opacity-50"
                     >
                       <CheckCircle2 size={12} />
                       Delivered
@@ -230,7 +230,7 @@ export default function DeliveriesPage() {
                     <button
                       onClick={() => handleMark(delivery.id, "missed")}
                       disabled={marking === delivery.id}
-                      className="flex items-center gap-1.5 rounded-[6px] border border-red-300 bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-600 transition hover:bg-red-100 disabled:opacity-50"
+                      className="flex items-center gap-1.5 rounded-md border border-red-300 bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-600 transition hover:bg-red-100 disabled:opacity-50"
                     >
                       <XCircle size={12} />
                       Missed

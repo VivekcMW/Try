@@ -141,7 +141,7 @@ export default function AnalyticsPage() {
           <h1 className="text-2xl font-bold text-gray-900">Analytics</h1>
           <p className="mt-1 text-sm text-gray-600">Track your business performance over time</p>
         </div>
-        <div className="flex rounded-[6px] border border-gray-200 bg-white p-1 shadow-sm">
+        <div className="flex rounded-md border border-gray-200 bg-white p-1 shadow-sm">
           <button
             onClick={() => setPeriod("weekly")}
             className={`rounded-md px-4 py-1.5 text-sm font-medium transition ${
@@ -172,14 +172,14 @@ export default function AnalyticsPage() {
           return (
             <div
               key={card.label}
-              className="rounded-[6px] border border-gray-200 bg-white p-6 shadow-sm transition hover:shadow-md"
+              className="rounded-md border border-gray-200 bg-white p-6 shadow-sm transition hover:shadow-md"
             >
               <div className="flex items-start justify-between">
                 <div className="flex-1">
                   <p className="text-sm font-medium text-gray-600">{card.label}</p>
                   <p className="mt-2 text-3xl font-bold text-gray-900">{card.value}</p>
                 </div>
-                <div className={`rounded-[6px] p-3 ${card.color}`}>
+                <div className={`rounded-md p-3 ${card.color}`}>
                   <Icon size={24} />
                 </div>
               </div>
@@ -189,7 +189,7 @@ export default function AnalyticsPage() {
       </div>
 
       {/* Bar Chart */}
-      <div className="mb-8 rounded-[6px] border border-gray-200 bg-white p-6 shadow-sm">
+      <div className="mb-8 rounded-md border border-gray-200 bg-white p-6 shadow-sm">
         <h2 className="mb-6 text-lg font-semibold text-gray-900">Orders Over Time</h2>
 
         {chartPoints.length === 0 ? (
@@ -222,7 +222,7 @@ export default function AnalyticsPage() {
       </div>
 
       {/* Conversion Funnel */}
-      <div className="rounded-[6px] border border-gray-200 bg-white p-6 shadow-sm">
+      <div className="rounded-md border border-gray-200 bg-white p-6 shadow-sm">
         <h2 className="mb-6 text-lg font-semibold text-gray-900">Conversion Funnel</h2>
 
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:gap-4">
@@ -242,7 +242,7 @@ export default function AnalyticsPage() {
                   </div>
                 )}
                 <div
-                  className={`${step.color} flex flex-col items-center justify-center rounded-[6px] p-4 text-white`}
+                  className={`${step.color} flex flex-col items-center justify-center rounded-md p-4 text-white`}
                   style={{
                     width: `${widthPct}%`,
                     minWidth: "80px",
@@ -263,7 +263,7 @@ export default function AnalyticsPage() {
         </div>
 
         {/* Funnel conversion summary */}
-        <div className="mt-6 grid grid-cols-3 gap-4 rounded-[6px] bg-gray-50 p-4">
+        <div className="mt-6 grid grid-cols-3 gap-4 rounded-md bg-gray-50 p-4">
           <div className="text-center">
             <p className="text-xs text-gray-500">Click Rate</p>
             <p className="mt-1 text-sm font-semibold text-gray-900">

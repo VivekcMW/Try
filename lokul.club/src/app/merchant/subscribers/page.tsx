@@ -113,7 +113,7 @@ export default function SubscribersPage() {
         </p>
       </div>
 
-      <div className="mb-6 flex gap-1 rounded-[6px] border border-gray-200 bg-gray-100 p-1">
+      <div className="mb-6 flex gap-1 rounded-md border border-gray-200 bg-gray-100 p-1">
         {STATUS_TABS.map((tab) => (
           <button
             key={tab}
@@ -134,7 +134,7 @@ export default function SubscribersPage() {
           <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-blue-600" />
         </div>
       ) : subscriptions.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-[6px] border-2 border-dashed border-gray-300 bg-gray-50 py-16">
+        <div className="flex flex-col items-center justify-center rounded-md border-2 border-dashed border-gray-300 bg-gray-50 py-16">
           <Users className="h-12 w-12 text-gray-400" />
           <h3 className="mt-4 text-lg font-semibold text-gray-900">
             No {activeTab === "all" ? "" : activeTab} subscribers
@@ -150,10 +150,10 @@ export default function SubscribersPage() {
           {subscriptions.map((sub) => (
             <div
               key={sub.id}
-              className="rounded-[6px] border border-gray-200 bg-white p-4 shadow-sm transition hover:shadow-md"
+              className="rounded-md border border-gray-200 bg-white p-4 shadow-sm transition hover:shadow-md"
             >
               <div className="flex items-start gap-4">
-                <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-blue-100 text-sm font-bold text-blue-700">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-100 text-sm font-bold text-blue-700">
                   {sub.customer.name.charAt(0).toUpperCase()}
                 </div>
 
@@ -197,7 +197,7 @@ export default function SubscribersPage() {
                   )}
                 </div>
 
-                <div className="flex flex-shrink-0 items-center gap-2">
+                <div className="flex shrink-0 items-center gap-2">
                   {acting === sub.id ? (
                     <Loader2 size={18} className="animate-spin text-gray-400" />
                   ) : (
@@ -206,14 +206,14 @@ export default function SubscribersPage() {
                         <>
                           <button
                             onClick={() => setPauseModal({ id: sub.id })}
-                            className="flex items-center gap-1.5 rounded-[6px] border border-yellow-300 bg-yellow-50 px-3 py-1.5 text-xs font-semibold text-yellow-700 transition hover:bg-yellow-100"
+                            className="flex items-center gap-1.5 rounded-md border border-yellow-300 bg-yellow-50 px-3 py-1.5 text-xs font-semibold text-yellow-700 transition hover:bg-yellow-100"
                           >
                             <Pause size={12} />
                             Pause
                           </button>
                           <button
                             onClick={() => handleAction(sub.id, "cancel")}
-                            className="flex items-center gap-1.5 rounded-[6px] border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-600 transition hover:bg-red-100"
+                            className="flex items-center gap-1.5 rounded-md border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-600 transition hover:bg-red-100"
                           >
                             <XCircle size={12} />
                             Cancel
@@ -224,14 +224,14 @@ export default function SubscribersPage() {
                         <>
                           <button
                             onClick={() => handleAction(sub.id, "resume")}
-                            className="flex items-center gap-1.5 rounded-[6px] border border-green-300 bg-green-50 px-3 py-1.5 text-xs font-semibold text-green-700 transition hover:bg-green-100"
+                            className="flex items-center gap-1.5 rounded-md border border-green-300 bg-green-50 px-3 py-1.5 text-xs font-semibold text-green-700 transition hover:bg-green-100"
                           >
                             <Play size={12} />
                             Resume
                           </button>
                           <button
                             onClick={() => handleAction(sub.id, "cancel")}
-                            className="flex items-center gap-1.5 rounded-[6px] border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-600 transition hover:bg-red-100"
+                            className="flex items-center gap-1.5 rounded-md border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-600 transition hover:bg-red-100"
                           >
                             <XCircle size={12} />
                             Cancel
@@ -249,12 +249,12 @@ export default function SubscribersPage() {
 
       {pauseModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-sm rounded-[6px] bg-white p-6 shadow-xl">
+          <div className="w-full max-w-sm rounded-md bg-white p-6 shadow-xl">
             <div className="mb-4 flex items-center justify-between">
               <h2 className="text-lg font-bold text-gray-900">Pause Subscription</h2>
               <button
                 onClick={() => setPauseModal(null)}
-                className="rounded-[6px] p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-900"
+                className="rounded-md p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-900"
               >
                 <X size={20} />
               </button>
@@ -269,7 +269,7 @@ export default function SubscribersPage() {
                 value={pauseUntil}
                 min={new Date().toISOString().split("T")[0]}
                 onChange={(e) => setPauseUntil(e.target.value)}
-                className="w-full rounded-[6px] border border-gray-300 px-4 py-2.5 text-base outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                className="w-full rounded-md border border-gray-300 px-4 py-2.5 text-base outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
               />
               <p className="mt-1 text-xs text-gray-400">Leave blank to pause indefinitely</p>
             </div>
@@ -277,13 +277,13 @@ export default function SubscribersPage() {
             <div className="mt-6 flex gap-3">
               <button
                 onClick={() => setPauseModal(null)}
-                className="flex-1 rounded-[6px] border border-gray-300 px-4 py-2.5 text-sm font-semibold text-gray-700 transition hover:bg-gray-50"
+                className="flex-1 rounded-md border border-gray-300 px-4 py-2.5 text-sm font-semibold text-gray-700 transition hover:bg-gray-50"
               >
                 Cancel
               </button>
               <button
                 onClick={handlePauseSubmit}
-                className="flex-1 rounded-[6px] bg-yellow-500 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-yellow-600"
+                className="flex-1 rounded-md bg-yellow-500 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-yellow-600"
               >
                 Pause
               </button>

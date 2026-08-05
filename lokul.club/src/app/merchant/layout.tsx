@@ -16,7 +16,7 @@ type MerchantData = {
   workflowProfile?: WorkflowProfile;
 };
 
-export default function MerchantLayout({ children }: { children: React.ReactNode }) {
+export default function MerchantLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   const router = useRouter();
   const pathname = usePathname();
   const [merchant, setMerchant] = useState<MerchantData | null>(null);
@@ -82,7 +82,7 @@ export default function MerchantLayout({ children }: { children: React.ReactNode
               key={item.href}
               href={item.href}
               onClick={() => setSidebarOpen(false)}
-              className={`flex items-center rounded-[6px] px-3 py-2.5 text-sm font-medium transition ${
+              className={`flex items-center rounded-md px-3 py-2.5 text-sm font-medium transition ${
                 collapsed ? "justify-center" : "gap-3"
               }`}
               style={{
@@ -100,7 +100,7 @@ export default function MerchantLayout({ children }: { children: React.ReactNode
       <div className="p-4" style={{ borderTop: "1px solid var(--color-border)" }}>
         <button
           onClick={handleLogout}
-          className={`flex w-full items-center rounded-[6px] px-3 py-2.5 text-sm font-medium transition ${
+          className={`flex w-full items-center rounded-md px-3 py-2.5 text-sm font-medium transition ${
             collapsed ? "justify-center" : "gap-3"
           }`}
           style={{ color: "var(--color-danger)" }}
@@ -120,7 +120,7 @@ export default function MerchantLayout({ children }: { children: React.ReactNode
     >
       {collapsed ? (
         <div
-          className="flex h-10 w-10 items-center justify-center rounded-[6px] text-white mx-auto"
+          className="flex h-10 w-10 items-center justify-center rounded-md text-white mx-auto"
           style={{ background: "var(--color-brand-600)" }}
           title={merchant.name}
         >
@@ -130,7 +130,7 @@ export default function MerchantLayout({ children }: { children: React.ReactNode
         <>
           <div className="flex items-center gap-3">
             <div
-              className="flex h-10 w-10 items-center justify-center rounded-[6px] text-white"
+              className="flex h-10 w-10 items-center justify-center rounded-md text-white"
               style={{ background: "var(--color-brand-600)" }}
             >
               <Store className="h-5 w-5" />
@@ -178,7 +178,7 @@ export default function MerchantLayout({ children }: { children: React.ReactNode
           <div className="p-2" style={{ borderTop: "1px solid var(--color-border)" }}>
             <button
               onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-              className="flex w-full items-center justify-center rounded-[6px] px-3 py-2 text-sm font-medium transition"
+              className="flex w-full items-center justify-center rounded-md px-3 py-2 text-sm font-medium transition"
               style={{ color: "var(--color-text-secondary)" }}
               title={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
             >
@@ -189,9 +189,16 @@ export default function MerchantLayout({ children }: { children: React.ReactNode
 
         {/* Mobile overlay */}
         {sidebarOpen && (
-          <div
+          <button
+            type="button"
             className="fixed inset-0 z-40 bg-black/50 lg:hidden"
             onClick={() => setSidebarOpen(false)}
+            onKeyDown={(e) => {
+              if (e.key === "Escape") {
+                setSidebarOpen(false);
+              }
+            }}
+            aria-label="Close sidebar"
           />
         )}
 

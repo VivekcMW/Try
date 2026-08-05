@@ -188,7 +188,7 @@ export default function OffersPage() {
         </div>
         <button
           onClick={() => setShowAddModal(true)}
-          className="flex flex-shrink-0 items-center gap-2 rounded-[6px] bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 hover:shadow-md active:scale-95"
+          className="flex shrink-0 items-center gap-2 rounded-md bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 hover:shadow-md active:scale-95"
         >
           <Plus size={18} />
           Create Offer
@@ -197,7 +197,7 @@ export default function OffersPage() {
 
       {/* Offers List */}
       {offers.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-[6px] border-2 border-dashed border-gray-300 bg-gray-50 py-16">
+        <div className="flex flex-col items-center justify-center rounded-md border-2 border-dashed border-gray-300 bg-gray-50 py-16">
           <Tag className="h-12 w-12 text-gray-400" />
           <h3 className="mt-4 text-lg font-semibold text-gray-900">No offers yet</h3>
           <p className="mt-2 text-sm text-gray-600">
@@ -205,7 +205,7 @@ export default function OffersPage() {
           </p>
           <button
             onClick={() => setShowAddModal(true)}
-            className="mt-6 flex items-center gap-2 rounded-[6px] bg-green-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-green-700"
+            className="mt-6 flex items-center gap-2 rounded-md bg-green-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-green-700"
           >
             <Plus size={18} />
             Create Offer
@@ -220,11 +220,11 @@ export default function OffersPage() {
             return (
               <div
                 key={offer.id}
-                className={`flex items-center gap-4 rounded-[6px] border bg-white p-4 shadow-sm transition hover:shadow-md ${
+                className={`flex items-center gap-4 rounded-md border bg-white p-4 shadow-sm transition hover:shadow-md ${
                   expired ? "border-red-200 bg-red-50/50" : "border-gray-200"
                 }`}
               >
-                <div className="flex h-12 w-12 items-center justify-center rounded-[6px] bg-green-100">
+                <div className="flex h-12 w-12 items-center justify-center rounded-md bg-green-100">
                   <Tag className="h-6 w-6 text-green-600" />
                 </div>
                 <div className="flex-1">
@@ -261,7 +261,7 @@ export default function OffersPage() {
                   </label>
                   <button
                     onClick={() => handleDelete(offer.id)}
-                    className="rounded-[6px] p-2 text-gray-400 transition hover:bg-red-50 hover:text-red-600"
+                    className="rounded-md p-2 text-gray-400 transition hover:bg-red-50 hover:text-red-600"
                   >
                     <Trash2 size={18} />
                   </button>
@@ -275,12 +275,12 @@ export default function OffersPage() {
 
       {showAddModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-lg rounded-[6px] bg-white p-6 shadow-xl">
+          <div className="w-full max-w-lg rounded-md bg-white p-6 shadow-xl">
             <div className="mb-6 flex items-center justify-between">
               <h2 className="text-xl font-bold text-gray-900">Create New Offer</h2>
               <button
                 onClick={() => setShowAddModal(false)}
-                className="rounded-[6px] p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-900"
+                className="rounded-md p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-900"
               >
                 <X size={20} />
               </button>
@@ -292,7 +292,7 @@ export default function OffersPage() {
                 <select
                   value={newOffer.type}
                   onChange={(e) => setNewOffer({ ...newOffer, type: e.target.value })}
-                  className="w-full rounded-[6px] border border-gray-300 px-4 py-2.5 text-base outline-none transition focus:border-green-500 focus:ring-2 focus:ring-green-100"
+                  className="w-full rounded-md border border-gray-300 px-4 py-2.5 text-base outline-none transition focus:border-green-500 focus:ring-2 focus:ring-green-100"
                 >
                   {OFFER_TYPES.map((type) => (
                     <option key={type.value} value={type.value}>
@@ -309,7 +309,7 @@ export default function OffersPage() {
                   placeholder="e.g., Weekend Special 20% Off"
                   value={newOffer.title}
                   onChange={(e) => setNewOffer({ ...newOffer, title: e.target.value })}
-                  className="w-full rounded-[6px] border border-gray-300 px-4 py-2.5 text-base outline-none transition focus:border-green-500 focus:ring-2 focus:ring-green-100"
+                  className="w-full rounded-md border border-gray-300 px-4 py-2.5 text-base outline-none transition focus:border-green-500 focus:ring-2 focus:ring-green-100"
                 />
               </div>
 
@@ -328,7 +328,7 @@ export default function OffersPage() {
                     placeholder={newOffer.type === "percent_off" ? "20" : "100"}
                     value={newOffer.value}
                     onChange={(e) => setNewOffer({ ...newOffer, value: e.target.value })}
-                    className="w-full rounded-[6px] border border-gray-300 px-4 py-2.5 text-base outline-none transition focus:border-green-500 focus:ring-2 focus:ring-green-100"
+                    className="w-full rounded-md border border-gray-300 px-4 py-2.5 text-base outline-none transition focus:border-green-500 focus:ring-2 focus:ring-green-100"
                   />
                 </div>
                 <div>
@@ -339,7 +339,7 @@ export default function OffersPage() {
                     placeholder="7"
                     value={newOffer.days}
                     onChange={(e) => setNewOffer({ ...newOffer, days: e.target.value })}
-                    className="w-full rounded-[6px] border border-gray-300 px-4 py-2.5 text-base outline-none transition focus:border-green-500 focus:ring-2 focus:ring-green-100"
+                    className="w-full rounded-md border border-gray-300 px-4 py-2.5 text-base outline-none transition focus:border-green-500 focus:ring-2 focus:ring-green-100"
                   />
                 </div>
               </div>
@@ -349,12 +349,12 @@ export default function OffersPage() {
                 <label className="mb-2 block text-sm font-medium text-gray-700">
                   Apply to Specific Items (Optional)
                 </label>
-                <div className="max-h-48 space-y-2 overflow-y-auto rounded-[6px] border border-gray-300 p-3">
+                <div className="max-h-48 space-y-2 overflow-y-auto rounded-md border border-gray-300 p-3">
                   {catalogItems.length === 0 ? (
                     <p className="text-sm text-gray-500">No catalog items available</p>
                   ) : (
                     <>
-                      <label className="flex cursor-pointer items-center gap-3 rounded-[6px] p-2 hover:bg-gray-50">
+                      <label className="flex cursor-pointer items-center gap-3 rounded-md p-2 hover:bg-gray-50">
                         <input
                           type="checkbox"
                           checked={newOffer.selectedItemIds.length === catalogItems.length}
@@ -373,7 +373,7 @@ export default function OffersPage() {
                         {catalogItems.map((item) => (
                           <label
                             key={item.id}
-                            className="flex cursor-pointer items-center gap-3 rounded-[6px] p-2 hover:bg-gray-50"
+                            className="flex cursor-pointer items-center gap-3 rounded-md p-2 hover:bg-gray-50"
                           >
                             <input
                               type="checkbox"
@@ -418,14 +418,14 @@ export default function OffersPage() {
             <div className="mt-6 flex gap-3">
               <button
                 onClick={() => setShowAddModal(false)}
-                className="flex-1 rounded-[6px] border border-gray-300 px-4 py-2.5 text-sm font-semibold text-gray-700 transition hover:bg-gray-50"
+                className="flex-1 rounded-md border border-gray-300 px-4 py-2.5 text-sm font-semibold text-gray-700 transition hover:bg-gray-50"
               >
                 Cancel
               </button>
               <button
                 onClick={handleAddOffer}
                 disabled={!newOffer.title.trim() || !newOffer.value || saving}
-                className="flex flex-1 items-center justify-center gap-2 rounded-[6px] bg-green-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50"
+                className="flex flex-1 items-center justify-center gap-2 rounded-md bg-green-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {saving && <Loader2 size={16} className="animate-spin" />}
                 Create Offer

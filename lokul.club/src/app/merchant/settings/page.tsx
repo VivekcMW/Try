@@ -619,9 +619,9 @@ export default function SettingsPage() {
 
       <div className="max-w-3xl space-y-6">
         {/* Business Profile Card */}
-        <div className="rounded-[6px] border border-gray-200 bg-white p-6 shadow-sm">
+        <div className="rounded-md border border-gray-200 bg-white p-6 shadow-sm">
           <div className="mb-4 flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-[6px] bg-brand-600">
+            <div className="flex h-10 w-10 items-center justify-center rounded-md bg-brand-600">
               <Store className="h-5 w-5 text-white" />
             </div>
             <div className="flex-1">
@@ -631,7 +631,7 @@ export default function SettingsPage() {
             {!isEditingProfile && (
               <button
                 onClick={() => setIsEditingProfile(true)}
-                className="flex items-center gap-1.5 rounded-[6px] border border-gray-200 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                className="flex items-center gap-1.5 rounded-md border border-gray-200 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
               >
                 <Pencil size={14} />
                 Edit
@@ -649,18 +649,18 @@ export default function SettingsPage() {
                     value={profileForm.name}
                     onChange={(e) => setProfileForm((f) => ({ ...f, name: e.target.value }))}
                     maxLength={100}
-                    className="w-full rounded-[6px] border border-gray-300 px-4 py-2.5 text-base focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                    className="w-full rounded-md border border-gray-300 px-4 py-2.5 text-base focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                     placeholder="Your business name"
                   />
                 ) : (
-                  <p className="rounded-[6px] border border-gray-200 bg-gray-50 px-4 py-2.5 text-base text-gray-900">
+                  <p className="rounded-md border border-gray-200 bg-gray-50 px-4 py-2.5 text-base text-gray-900">
                     {merchant.name}
                   </p>
                 )}
               </div>
               <div>
                 <label className="mb-1 block text-sm font-medium text-gray-700">Category</label>
-                <p className="rounded-[6px] border border-gray-200 bg-gray-50 px-4 py-2.5 text-base text-gray-900">
+                <p className="rounded-md border border-gray-200 bg-gray-50 px-4 py-2.5 text-base text-gray-900">
                   {merchant.category}
                 </p>
               </div>
@@ -673,11 +673,11 @@ export default function SettingsPage() {
                   value={profileForm.description}
                   onChange={(e) => setProfileForm((f) => ({ ...f, description: e.target.value }))}
                   rows={3}
-                  className="w-full rounded-[6px] border border-gray-300 px-4 py-2.5 text-base focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 resize-none"
+                  className="w-full rounded-md border border-gray-300 px-4 py-2.5 text-base focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 resize-none"
                   placeholder="Describe your business (optional)"
                 />
               ) : (
-                <p className="rounded-[6px] border border-gray-200 bg-gray-50 px-4 py-2.5 text-base text-gray-900">
+                <p className="rounded-md border border-gray-200 bg-gray-50 px-4 py-2.5 text-base text-gray-900">
                   {merchant.description || "No description added"}
                 </p>
               )}
@@ -690,7 +690,7 @@ export default function SettingsPage() {
                   type="url"
                   value={profileForm.avatarUrl}
                   onChange={(e) => setProfileForm((f) => ({ ...f, avatarUrl: e.target.value }))}
-                  className="w-full rounded-[6px] border border-gray-300 px-4 py-2.5 text-base focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                  className="w-full rounded-md border border-gray-300 px-4 py-2.5 text-base focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                   placeholder="https://… (optional)"
                 />
               </div>
@@ -699,7 +699,7 @@ export default function SettingsPage() {
             {merchant.address && (
               <div>
                 <label className="mb-1 block text-sm font-medium text-gray-700">Address</label>
-                <div className="flex items-start gap-2 rounded-[6px] border border-gray-200 bg-gray-50 px-4 py-2.5">
+                <div className="flex items-start gap-2 rounded-md border border-gray-200 bg-gray-50 px-4 py-2.5">
                   <MapPin size={18} className="mt-0.5 text-gray-500" />
                   <p className="flex-1 text-base text-gray-900">{merchant.address}</p>
                 </div>
@@ -710,7 +710,7 @@ export default function SettingsPage() {
               {merchant.phone && (
                 <div>
                   <label className="mb-1 block text-sm font-medium text-gray-700">Business Phone</label>
-                  <div className="flex items-center gap-2 rounded-[6px] border border-gray-200 bg-gray-50 px-4 py-2.5">
+                  <div className="flex items-center gap-2 rounded-md border border-gray-200 bg-gray-50 px-4 py-2.5">
                     <Phone size={16} className="text-gray-500" />
                     <p className="text-base text-gray-900">{merchant.phone}</p>
                   </div>
@@ -719,7 +719,7 @@ export default function SettingsPage() {
               {merchant.whatsapp && (
                 <div>
                   <label className="mb-1 block text-sm font-medium text-gray-700">WhatsApp</label>
-                  <div className="flex items-center gap-2 rounded-[6px] border border-gray-200 bg-gray-50 px-4 py-2.5">
+                  <div className="flex items-center gap-2 rounded-md border border-gray-200 bg-gray-50 px-4 py-2.5">
                     <Phone size={16} className="text-gray-500" />
                     <p className="text-base text-gray-900">{merchant.whatsapp}</p>
                   </div>
@@ -735,7 +735,7 @@ export default function SettingsPage() {
             </div>
 
             {merchant.ratingAvg != null && merchant.ratingAvg > 0 && (
-              <div className="rounded-[6px] border border-gray-200 bg-gray-50 p-4">
+              <div className="rounded-md border border-gray-200 bg-gray-50 p-4">
                 <div className="flex items-center gap-2">
                   <div className="text-2xl font-bold text-gray-900">{merchant.ratingAvg.toFixed(1)} ★</div>
                   <div className="text-sm text-gray-600">
@@ -751,14 +751,14 @@ export default function SettingsPage() {
               <button
                 onClick={handleSaveProfile}
                 disabled={updating}
-                className="flex-1 rounded-[6px] bg-brand-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-50 transition-colors"
+                className="flex-1 rounded-md bg-brand-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-50 transition-colors"
               >
                 {updating ? "Saving..." : "Save Profile"}
               </button>
               <button
                 onClick={handleCancelEditProfile}
                 disabled={updating}
-                className="flex-1 rounded-[6px] border border-gray-200 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 transition-colors"
+                className="flex-1 rounded-md border border-gray-200 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 transition-colors"
               >
                 Cancel
               </button>
@@ -767,9 +767,9 @@ export default function SettingsPage() {
         </div>
 
         {/* Business Operations Card */}
-        <div className="rounded-[6px] border border-gray-200 bg-white p-6 shadow-sm">
+        <div className="rounded-md border border-gray-200 bg-white p-6 shadow-sm">
           <div className="mb-4 flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-[6px] bg-blue-600">
+            <div className="flex h-10 w-10 items-center justify-center rounded-md bg-blue-600">
               <Store className="h-5 w-5 text-white" />
             </div>
             <div>
@@ -811,7 +811,7 @@ export default function SettingsPage() {
                   value={closedReason}
                   onChange={(e) => setClosedReason(e.target.value)}
                   disabled={updating}
-                  className="w-full border border-gray-300 rounded-[6px] px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 >
                   <option value="">No reason specified</option>
                   <option value="On vacation">On vacation</option>
@@ -842,7 +842,7 @@ export default function SettingsPage() {
                     value={closedUntil}
                     onChange={(e) => setClosedUntil(e.target.value)}
                     disabled={updating}
-                    className="w-full border border-gray-300 rounded-[6px] px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     min={new Date().toISOString().slice(0, 16)}
                   />
                 )}
@@ -851,7 +851,7 @@ export default function SettingsPage() {
               <button 
                 onClick={handleSaveClosedSettings}
                 disabled={updating}
-                className="w-full bg-blue-600 text-white px-4 py-2 rounded-[6px] hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+                className="w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
               >
                 {updating ? "Saving..." : "Save Changes"}
               </button>
@@ -860,8 +860,8 @@ export default function SettingsPage() {
           
           {/* Warning message when orders are disabled */}
           {!acceptingOrders && (
-            <div className="mt-4 bg-yellow-50 border border-yellow-200 rounded-[6px] p-4 flex gap-3">
-              <AlertTriangle className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
+            <div className="mt-4 bg-yellow-50 border border-yellow-200 rounded-md p-4 flex gap-3">
+              <AlertTriangle className="w-5 h-5 text-yellow-600 shrink-0 mt-0.5" />
               <div className="flex-1">
                 <p className="text-sm font-medium text-yellow-900 mb-1">Orders Paused</p>
                 <p className="text-sm text-yellow-800">
@@ -873,8 +873,8 @@ export default function SettingsPage() {
           
           {/* Success message when orders are enabled */}
           {acceptingOrders && (
-            <div className="bg-green-50 border border-green-200 rounded-[6px] p-4 flex gap-3">
-              <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+            <div className="bg-green-50 border border-green-200 rounded-md p-4 flex gap-3">
+              <CheckCircle className="w-5 h-5 text-green-600 shrink-0 mt-0.5" />
               <div className="flex-1">
                 <p className="text-sm font-medium text-green-900 mb-1">Accepting Orders</p>
                 <p className="text-sm text-green-800">
@@ -886,9 +886,9 @@ export default function SettingsPage() {
         </div>
 
         {/* Business Hours Card */}
-        <div className="rounded-[6px] border border-gray-200 bg-white p-6 shadow-sm">
+        <div className="rounded-md border border-gray-200 bg-white p-6 shadow-sm">
           <div className="mb-4 flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-[6px] bg-indigo-600">
+            <div className="flex h-10 w-10 items-center justify-center rounded-md bg-indigo-600">
               <Clock className="h-5 w-5 text-white" />
             </div>
             <div>
@@ -905,7 +905,7 @@ export default function SettingsPage() {
                   type="time"
                   value={businessHoursStart}
                   onChange={(e) => setBusinessHoursStart(e.target.value)}
-                  className="w-full rounded-[6px] border border-gray-300 px-4 py-2.5 text-base focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                  className="w-full rounded-md border border-gray-300 px-4 py-2.5 text-base focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                 />
               </div>
               <div>
@@ -914,7 +914,7 @@ export default function SettingsPage() {
                   type="time"
                   value={businessHoursEnd}
                   onChange={(e) => setBusinessHoursEnd(e.target.value)}
-                  className="w-full rounded-[6px] border border-gray-300 px-4 py-2.5 text-base focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                  className="w-full rounded-md border border-gray-300 px-4 py-2.5 text-base focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                 />
               </div>
             </div>
@@ -922,13 +922,13 @@ export default function SettingsPage() {
             <button
               onClick={handleSaveBusinessHours}
               disabled={updating || !businessHoursStart || !businessHoursEnd}
-              className="w-full rounded-[6px] bg-blue-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+              className="w-full rounded-md bg-blue-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {updating ? "Saving..." : "Save Business Hours"}
             </button>
 
             {businessHoursStart && businessHoursEnd && (
-              <div className="bg-blue-50 border border-blue-200 rounded-[6px] p-4">
+              <div className="bg-blue-50 border border-blue-200 rounded-md p-4">
                 <p className="text-sm text-blue-900">
                   Your business hours are set from <strong>{businessHoursStart}</strong> to <strong>{businessHoursEnd}</strong>. This will be visible to customers on your profile.
                 </p>
@@ -938,9 +938,9 @@ export default function SettingsPage() {
         </div>
 
         {/* Estimated Delivery Time Card */}
-        <div className="rounded-[6px] border border-gray-200 bg-white p-6 shadow-sm">
+        <div className="rounded-md border border-gray-200 bg-white p-6 shadow-sm">
           <div className="mb-4 flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-[6px] bg-orange-600">
+            <div className="flex h-10 w-10 items-center justify-center rounded-md bg-orange-600">
               <Clock className="h-5 w-5 text-white" />
             </div>
             <div>
@@ -961,7 +961,7 @@ export default function SettingsPage() {
                 step="5"
                 value={estimatedDeliveryMins}
                 onChange={(e) => setEstimatedDeliveryMins(Number(e.target.value))}
-                className="w-full rounded-[6px] border border-gray-300 px-4 py-2.5 text-base focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                className="w-full rounded-md border border-gray-300 px-4 py-2.5 text-base focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                 placeholder="e.g., 30"
               />
               <p className="mt-1 text-xs text-gray-500">
@@ -972,13 +972,13 @@ export default function SettingsPage() {
             <button
               onClick={handleSaveDeliveryTime}
               disabled={updating || !estimatedDeliveryMins || estimatedDeliveryMins < 5 || estimatedDeliveryMins > 180}
-              className="w-full rounded-[6px] bg-blue-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+              className="w-full rounded-md bg-blue-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {updating ? "Saving..." : "Save Delivery Time"}
             </button>
 
             {estimatedDeliveryMins && estimatedDeliveryMins >= 5 && estimatedDeliveryMins <= 180 && (
-              <div className="bg-orange-50 border border-orange-200 rounded-[6px] p-4">
+              <div className="bg-orange-50 border border-orange-200 rounded-md p-4">
                 <p className="text-sm text-orange-900">
                   Orders will show <strong>Ready in ~{estimatedDeliveryMins} mins</strong> to customers when they view your profile.
                 </p>
@@ -989,9 +989,9 @@ export default function SettingsPage() {
 
         {/* Visit / Inspection Charge Card — Home Services only */}
         {profile === "home_services" && (
-          <div className="rounded-[6px] border border-gray-200 bg-white p-6 shadow-sm">
+          <div className="rounded-md border border-gray-200 bg-white p-6 shadow-sm">
             <div className="mb-4 flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-[6px] bg-purple-600">
+              <div className="flex h-10 w-10 items-center justify-center rounded-md bg-purple-600">
                 <Wrench className="h-5 w-5 text-white" />
               </div>
               <div>
@@ -1016,7 +1016,7 @@ export default function SettingsPage() {
                     step="10"
                     value={visitChargeRupees}
                     onChange={(e) => setVisitChargeRupees(Number(e.target.value))}
-                    className="w-full rounded-[6px] border border-gray-300 pl-8 pr-4 py-2.5 text-base focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                    className="w-full rounded-md border border-gray-300 pl-8 pr-4 py-2.5 text-base focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                     placeholder="e.g., 200"
                   />
                 </div>
@@ -1028,12 +1028,12 @@ export default function SettingsPage() {
               <button
                 onClick={handleSaveVisitCharge}
                 disabled={savingVisitCharge || visitChargeRupees < 0 || visitChargeRupees > 10000}
-                className="w-full rounded-[6px] bg-purple-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-purple-700 disabled:cursor-not-allowed disabled:opacity-50"
+                className="w-full rounded-md bg-purple-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-purple-700 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {savingVisitCharge ? "Saving..." : "Save Visit Charge"}
               </button>
 
-              <div className="rounded-[6px] border border-purple-200 bg-purple-50 p-4">
+              <div className="rounded-md border border-purple-200 bg-purple-50 p-4">
                 <p className="text-sm text-purple-900">
                   {visitChargeRupees === 0
                     ? "You offer free site visits to customers."
@@ -1045,9 +1045,9 @@ export default function SettingsPage() {
         )}
 
         {/* Delivery Fee Card */}
-        <div className="rounded-[6px] border border-gray-200 bg-white p-6 shadow-sm">
+        <div className="rounded-md border border-gray-200 bg-white p-6 shadow-sm">
           <div className="mb-4 flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-[6px] bg-green-600">
+            <div className="flex h-10 w-10 items-center justify-center rounded-md bg-green-600">
               <Store className="h-5 w-5 text-white" />
             </div>
             <div>
@@ -1072,7 +1072,7 @@ export default function SettingsPage() {
                   step="1"
                   value={deliveryFeeRupees}
                   onChange={(e) => setDeliveryFeeRupees(Number(e.target.value))}
-                  className="w-full rounded-[6px] border border-gray-300 pl-8 pr-4 py-2.5 text-base focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                  className="w-full rounded-md border border-gray-300 pl-8 pr-4 py-2.5 text-base focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                   placeholder="e.g., 20"
                 />
               </div>
@@ -1084,12 +1084,12 @@ export default function SettingsPage() {
             <button
               onClick={handleSaveDeliveryFee}
               disabled={savingDeliveryFee || deliveryFeeRupees < 0 || deliveryFeeRupees > 500}
-              className="w-full rounded-[6px] bg-blue-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+              className="w-full rounded-md bg-blue-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {savingDeliveryFee ? "Saving..." : "Save Delivery Fee"}
             </button>
 
-            <div className="rounded-[6px] border border-green-200 bg-green-50 p-4">
+            <div className="rounded-md border border-green-200 bg-green-50 p-4">
               <p className="text-sm text-green-900">
                 {deliveryFeeRupees === 0
                   ? "Customers enjoy free delivery from your store."
@@ -1100,9 +1100,9 @@ export default function SettingsPage() {
         </div>
 
         {/* Shop Location & Delivery Zone Card */}
-        <div className="rounded-[6px] border border-gray-200 bg-white p-6 shadow-sm">
+        <div className="rounded-md border border-gray-200 bg-white p-6 shadow-sm">
           <div className="mb-4 flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-[6px] bg-teal-600">
+            <div className="flex h-10 w-10 items-center justify-center rounded-md bg-teal-600">
               <MapPin className="h-5 w-5 text-white" />
             </div>
             <div>
@@ -1118,7 +1118,7 @@ export default function SettingsPage() {
                 type="text"
                 value={addressLine1}
                 onChange={(e) => setAddressLine1(e.target.value)}
-                className="w-full rounded-[6px] border border-gray-300 px-4 py-2.5 text-base focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                className="w-full rounded-md border border-gray-300 px-4 py-2.5 text-base focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                 placeholder="Shop number, street name"
               />
             </div>
@@ -1128,7 +1128,7 @@ export default function SettingsPage() {
                 type="text"
                 value={addressLine2}
                 onChange={(e) => setAddressLine2(e.target.value)}
-                className="w-full rounded-[6px] border border-gray-300 px-4 py-2.5 text-base focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                className="w-full rounded-md border border-gray-300 px-4 py-2.5 text-base focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                 placeholder="Floor, landmark, building (optional)"
               />
             </div>
@@ -1141,7 +1141,7 @@ export default function SettingsPage() {
                 step="0.5"
                 value={serviceRadiusKm}
                 onChange={(e) => setServiceRadiusKm(e.target.value === "" ? "" : Number(e.target.value))}
-                className="w-full rounded-[6px] border border-gray-300 px-4 py-2.5 text-base focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                className="w-full rounded-md border border-gray-300 px-4 py-2.5 text-base focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                 placeholder="e.g., 5 (leave blank for platform default)"
               />
               <p className="mt-1 text-xs text-gray-500">Leave blank to use platform default. Range: 0.5 – 25 km.</p>
@@ -1149,7 +1149,7 @@ export default function SettingsPage() {
             <button
               onClick={handleSaveLocation}
               disabled={savingLocation}
-              className="w-full rounded-[6px] bg-teal-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-teal-700 disabled:cursor-not-allowed disabled:opacity-50"
+              className="w-full rounded-md bg-teal-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-teal-700 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {savingLocation ? "Saving..." : "Save Location"}
             </button>
@@ -1157,9 +1157,9 @@ export default function SettingsPage() {
         </div>
 
         {/* Order Rules Card */}
-        <div className="rounded-[6px] border border-gray-200 bg-white p-6 shadow-sm">
+        <div className="rounded-md border border-gray-200 bg-white p-6 shadow-sm">
           <div className="mb-4 flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-[6px] bg-amber-600">
+            <div className="flex h-10 w-10 items-center justify-center rounded-md bg-amber-600">
               <ShoppingCart className="h-5 w-5 text-white" />
             </div>
             <div>
@@ -1179,7 +1179,7 @@ export default function SettingsPage() {
                   step="1"
                   value={minimumOrderRupees}
                   onChange={(e) => setMinimumOrderRupees(e.target.value === "" ? "" : Number(e.target.value))}
-                  className="w-full rounded-[6px] border border-gray-300 pl-8 pr-4 py-2.5 text-base focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                  className="w-full rounded-md border border-gray-300 pl-8 pr-4 py-2.5 text-base focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                   placeholder="0 = no minimum"
                 />
               </div>
@@ -1194,7 +1194,7 @@ export default function SettingsPage() {
                   step="1"
                   value={freeDeliveryAboveRupees}
                   onChange={(e) => setFreeDeliveryAboveRupees(e.target.value === "" ? "" : Number(e.target.value))}
-                  className="w-full rounded-[6px] border border-gray-300 pl-8 pr-4 py-2.5 text-base focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                  className="w-full rounded-md border border-gray-300 pl-8 pr-4 py-2.5 text-base focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                   placeholder="0 = disabled"
                 />
               </div>
@@ -1203,7 +1203,7 @@ export default function SettingsPage() {
             <button
               onClick={handleSaveOrderRules}
               disabled={savingOrderRules}
-              className="w-full rounded-[6px] bg-amber-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-amber-700 disabled:cursor-not-allowed disabled:opacity-50"
+              className="w-full rounded-md bg-amber-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-amber-700 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {savingOrderRules ? "Saving..." : "Save Order Rules"}
             </button>
@@ -1211,12 +1211,12 @@ export default function SettingsPage() {
         </div>
 
         {/* Compliance & Licenses Card (collapsible) */}
-        <div className="rounded-[6px] border border-gray-200 bg-white shadow-sm">
+        <div className="rounded-md border border-gray-200 bg-white shadow-sm">
           <button
             onClick={() => setComplianceExpanded((v) => !v)}
             className="flex w-full items-center gap-3 p-6 text-left"
           >
-            <div className="flex h-10 w-10 items-center justify-center rounded-[6px] bg-slate-600">
+            <div className="flex h-10 w-10 items-center justify-center rounded-md bg-slate-600">
               <Shield className="h-5 w-5 text-white" />
             </div>
             <div className="flex-1">
@@ -1239,7 +1239,7 @@ export default function SettingsPage() {
                   value={gstNumber}
                   onChange={(e) => setGstNumber(e.target.value.toUpperCase())}
                   maxLength={15}
-                  className="w-full rounded-[6px] border border-gray-300 px-4 py-2.5 text-base font-mono focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                  className="w-full rounded-md border border-gray-300 px-4 py-2.5 text-base font-mono focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                   placeholder="22AAAAA0000A1Z5"
                 />
               </div>
@@ -1250,7 +1250,7 @@ export default function SettingsPage() {
                   value={fssaiNumber}
                   onChange={(e) => setFssaiNumber(e.target.value)}
                   maxLength={14}
-                  className="w-full rounded-[6px] border border-gray-300 px-4 py-2.5 text-base font-mono focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                  className="w-full rounded-md border border-gray-300 px-4 py-2.5 text-base font-mono focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                   placeholder="14-digit FSSAI number (food merchants)"
                 />
               </div>
@@ -1260,14 +1260,14 @@ export default function SettingsPage() {
                   type="text"
                   value={businessLicense}
                   onChange={(e) => setBusinessLicense(e.target.value)}
-                  className="w-full rounded-[6px] border border-gray-300 px-4 py-2.5 text-base focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                  className="w-full rounded-md border border-gray-300 px-4 py-2.5 text-base focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                   placeholder="Generic business registration number"
                 />
               </div>
               <button
                 onClick={handleSaveCompliance}
                 disabled={savingCompliance}
-                className="w-full rounded-[6px] bg-slate-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-50"
+                className="w-full rounded-md bg-slate-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {savingCompliance ? "Saving..." : "Save Compliance Details"}
               </button>
@@ -1276,9 +1276,9 @@ export default function SettingsPage() {
         </div>
 
         {/* Weekly Schedule Card */}
-        <div className="rounded-[6px] border border-gray-200 bg-white p-6 shadow-sm">
+        <div className="rounded-md border border-gray-200 bg-white p-6 shadow-sm">
           <div className="mb-4 flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-[6px] bg-rose-600">
+            <div className="flex h-10 w-10 items-center justify-center rounded-md bg-rose-600">
               <CalendarX className="h-5 w-5 text-white" />
             </div>
             <div>
@@ -1304,7 +1304,7 @@ export default function SettingsPage() {
                     key={value}
                     type="button"
                     onClick={() => toggleClosedWeekday(value)}
-                    className={`flex flex-col items-center rounded-[6px] border py-2 px-1 text-xs font-medium transition-colors ${
+                    className={`flex flex-col items-center rounded-md border py-2 px-1 text-xs font-medium transition-colors ${
                       isClosed
                         ? "border-red-300 bg-red-50 text-red-700"
                         : "border-gray-200 bg-white text-gray-700 hover:bg-gray-50"
@@ -1332,7 +1332,7 @@ export default function SettingsPage() {
             <button
               onClick={handleSaveSchedule}
               disabled={savingSchedule}
-              className="w-full rounded-[6px] bg-rose-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-rose-700 disabled:cursor-not-allowed disabled:opacity-50"
+              className="w-full rounded-md bg-rose-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-rose-700 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {savingSchedule ? "Saving..." : "Save Schedule"}
             </button>
@@ -1340,9 +1340,9 @@ export default function SettingsPage() {
         </div>
 
         {/* Payment Methods Card */}
-        <div className="rounded-[6px] border border-gray-200 bg-white p-6 shadow-sm">
+        <div className="rounded-md border border-gray-200 bg-white p-6 shadow-sm">
           <div className="mb-4 flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-[6px] bg-cyan-600">
+            <div className="flex h-10 w-10 items-center justify-center rounded-md bg-cyan-600">
               <CreditCard className="h-5 w-5 text-white" />
             </div>
             <div>
@@ -1381,14 +1381,14 @@ export default function SettingsPage() {
               })}
             </div>
             {paymentMethods.length === 0 && (
-              <p className="text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-[6px] px-4 py-2">
+              <p className="text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-md px-4 py-2">
                 No payment methods selected. Customers will not see payment options.
               </p>
             )}
             <button
               onClick={handleSavePaymentMethods}
               disabled={savingPayments}
-              className="w-full rounded-[6px] bg-cyan-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-cyan-700 disabled:cursor-not-allowed disabled:opacity-50"
+              className="w-full rounded-md bg-cyan-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-cyan-700 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {savingPayments ? "Saving..." : "Save Payment Methods"}
             </button>
@@ -1396,9 +1396,9 @@ export default function SettingsPage() {
         </div>
 
         {/* Owner Information Card */}
-        <div className="rounded-[6px] border border-gray-200 bg-white p-6 shadow-sm">
+        <div className="rounded-md border border-gray-200 bg-white p-6 shadow-sm">
           <div className="mb-4 flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-[6px] bg-gray-600">
+            <div className="flex h-10 w-10 items-center justify-center rounded-md bg-gray-600">
               <User className="h-5 w-5 text-white" />
             </div>
             <div>
@@ -1410,13 +1410,13 @@ export default function SettingsPage() {
           <div className="space-y-4">
             <div>
               <label className="mb-1 block text-sm font-medium text-gray-700">Owner Name</label>
-              <p className="rounded-[6px] border border-gray-200 bg-gray-50 px-4 py-2.5 text-base text-gray-900">
+              <p className="rounded-md border border-gray-200 bg-gray-50 px-4 py-2.5 text-base text-gray-900">
                 {merchant.owner.name}
               </p>
             </div>
             <div>
               <label className="mb-1 block text-sm font-medium text-gray-700">Owner Phone</label>
-              <div className="flex items-center gap-2 rounded-[6px] border border-gray-200 bg-gray-50 px-4 py-2.5">
+              <div className="flex items-center gap-2 rounded-md border border-gray-200 bg-gray-50 px-4 py-2.5">
                 <Phone size={16} className="text-gray-500" />
                 <p className="text-base text-gray-900">{merchant.owner.phone}</p>
               </div>
@@ -1425,9 +1425,9 @@ export default function SettingsPage() {
         </div>
 
         {/* Notification Preferences Card */}
-        <div className="rounded-[6px] border border-gray-200 bg-white p-6 shadow-sm">
+        <div className="rounded-md border border-gray-200 bg-white p-6 shadow-sm">
           <div className="mb-4 flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-[6px] bg-violet-600">
+            <div className="flex h-10 w-10 items-center justify-center rounded-md bg-violet-600">
               <Bell className="h-5 w-5 text-white" />
             </div>
             <div className="flex-1">
@@ -1503,9 +1503,9 @@ export default function SettingsPage() {
         </div>
 
         {/* Security Card */}
-        <div className="rounded-[6px] border border-gray-200 bg-white p-6 shadow-sm">
+        <div className="rounded-md border border-gray-200 bg-white p-6 shadow-sm">
           <div className="mb-4 flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-[6px] bg-red-600">
+            <div className="flex h-10 w-10 items-center justify-center rounded-md bg-red-600">
               <SettingsIcon className="h-5 w-5 text-white" />
             </div>
             <div>
@@ -1518,7 +1518,7 @@ export default function SettingsPage() {
             Your account is secured with OTP-based authentication. Every login requires verification via OTP sent to your registered mobile number.
           </p>
 
-          <div className="mt-4 rounded-[6px] border border-yellow-200 bg-yellow-50 p-4">
+          <div className="mt-4 rounded-md border border-yellow-200 bg-yellow-50 p-4">
             <p className="text-sm text-yellow-900">
               <strong>Keep your account safe:</strong> Never share your OTP with anyone. Lokul will never ask for your OTP over phone or email.
             </p>

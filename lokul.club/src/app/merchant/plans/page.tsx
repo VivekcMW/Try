@@ -204,7 +204,7 @@ export default function PlansPage() {
         </div>
         <button
           onClick={openCreate}
-          className="flex flex-shrink-0 items-center gap-2 rounded-[6px] bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 hover:shadow-md active:scale-95"
+          className="flex shrink-0 items-center gap-2 rounded-md bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 hover:shadow-md active:scale-95"
         >
           <Plus size={18} />
           Add Plan
@@ -212,7 +212,7 @@ export default function PlansPage() {
       </div>
 
       {plans.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-[6px] border-2 border-dashed border-gray-300 bg-gray-50 py-16">
+        <div className="flex flex-col items-center justify-center rounded-md border-2 border-dashed border-gray-300 bg-gray-50 py-16">
           <Package className="h-12 w-12 text-gray-400" />
           <h3 className="mt-4 text-lg font-semibold text-gray-900">No plans yet</h3>
           <p className="mt-2 max-w-sm text-center text-sm text-gray-600">
@@ -220,7 +220,7 @@ export default function PlansPage() {
           </p>
           <button
             onClick={openCreate}
-            className="mt-6 flex items-center gap-2 rounded-[6px] bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700"
+            className="mt-6 flex items-center gap-2 rounded-md bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700"
           >
             <Plus size={18} />
             Add Plan
@@ -231,9 +231,9 @@ export default function PlansPage() {
           {plans.map((plan) => (
             <div
               key={plan.id}
-              className="flex items-center gap-4 rounded-[6px] border border-gray-200 bg-white p-4 shadow-sm transition hover:shadow-md"
+              className="flex items-center gap-4 rounded-md border border-gray-200 bg-white p-4 shadow-sm transition hover:shadow-md"
             >
-              <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-[6px] bg-blue-50">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-md bg-blue-50">
                 <Package className="h-6 w-6 text-blue-600" />
               </div>
 
@@ -259,7 +259,7 @@ export default function PlansPage() {
                 </p>
               </div>
 
-              <div className="flex flex-shrink-0 items-center gap-3">
+              <div className="flex shrink-0 items-center gap-3">
                 <label className="relative inline-flex cursor-pointer items-center">
                   <input
                     type="checkbox"
@@ -271,14 +271,14 @@ export default function PlansPage() {
                 </label>
                 <button
                   onClick={() => openEdit(plan)}
-                  className="rounded-[6px] p-2 text-gray-400 transition hover:bg-blue-50 hover:text-blue-600"
+                  className="rounded-md p-2 text-gray-400 transition hover:bg-blue-50 hover:text-blue-600"
                   title="Edit plan"
                 >
                   <Edit2 size={18} />
                 </button>
                 <button
                   onClick={() => handleDelete(plan)}
-                  className="rounded-[6px] p-2 text-gray-400 transition hover:bg-red-50 hover:text-red-600"
+                  className="rounded-md p-2 text-gray-400 transition hover:bg-red-50 hover:text-red-600"
                   title="Delete plan"
                 >
                   <Trash2 size={18} />
@@ -291,14 +291,14 @@ export default function PlansPage() {
 
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-lg rounded-[6px] bg-white p-6 shadow-xl">
+          <div className="w-full max-w-lg rounded-md bg-white p-6 shadow-xl">
             <div className="mb-6 flex items-center justify-between">
               <h2 className="text-xl font-bold text-gray-900">
                 {editingPlan ? "Edit Plan" : "Add Plan"}
               </h2>
               <button
                 onClick={() => setShowModal(false)}
-                className="rounded-[6px] p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-900"
+                className="rounded-md p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-900"
               >
                 <X size={20} />
               </button>
@@ -314,7 +314,7 @@ export default function PlansPage() {
                   placeholder="e.g. Daily Milk"
                   value={form.name}
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  className="w-full rounded-[6px] border border-gray-300 px-4 py-2.5 text-base outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                  className="w-full rounded-md border border-gray-300 px-4 py-2.5 text-base outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                 />
               </div>
 
@@ -327,7 +327,7 @@ export default function PlansPage() {
                   placeholder="e.g. Fresh full-cream milk delivered every morning"
                   value={form.description}
                   onChange={(e) => setForm({ ...form, description: e.target.value })}
-                  className="w-full rounded-[6px] border border-gray-300 px-4 py-2.5 text-base outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                  className="w-full rounded-md border border-gray-300 px-4 py-2.5 text-base outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                 />
               </div>
 
@@ -343,7 +343,7 @@ export default function PlansPage() {
                     placeholder="e.g. 30"
                     value={form.priceRupees}
                     onChange={(e) => setForm({ ...form, priceRupees: e.target.value })}
-                    className="w-full rounded-[6px] border border-gray-300 px-4 py-2.5 text-base outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                    className="w-full rounded-md border border-gray-300 px-4 py-2.5 text-base outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                   />
                 </div>
                 <div>
@@ -355,7 +355,7 @@ export default function PlansPage() {
                     placeholder="e.g. 500ml, 1kg"
                     value={form.unit}
                     onChange={(e) => setForm({ ...form, unit: e.target.value })}
-                    className="w-full rounded-[6px] border border-gray-300 px-4 py-2.5 text-base outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                    className="w-full rounded-md border border-gray-300 px-4 py-2.5 text-base outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                   />
                 </div>
               </div>
@@ -370,7 +370,7 @@ export default function PlansPage() {
                       key={value}
                       type="button"
                       onClick={() => setForm({ ...form, frequency: value })}
-                      className={`rounded-[6px] border px-3 py-2.5 text-sm font-semibold transition ${
+                      className={`rounded-md border px-3 py-2.5 text-sm font-semibold transition ${
                         form.frequency === value
                           ? "border-blue-600 bg-blue-600 text-white"
                           : "border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
@@ -383,21 +383,21 @@ export default function PlansPage() {
               </div>
 
               {formError && (
-                <p className="rounded-[6px] bg-red-50 px-4 py-2.5 text-sm text-red-600">{formError}</p>
+                <p className="rounded-md bg-red-50 px-4 py-2.5 text-sm text-red-600">{formError}</p>
               )}
             </div>
 
             <div className="mt-6 flex gap-3">
               <button
                 onClick={() => setShowModal(false)}
-                className="flex-1 rounded-[6px] border border-gray-300 px-4 py-2.5 text-sm font-semibold text-gray-700 transition hover:bg-gray-50"
+                className="flex-1 rounded-md border border-gray-300 px-4 py-2.5 text-sm font-semibold text-gray-700 transition hover:bg-gray-50"
               >
                 Cancel
               </button>
               <button
                 onClick={handleSave}
                 disabled={saving}
-                className="flex flex-1 items-center justify-center gap-2 rounded-[6px] bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+                className="flex flex-1 items-center justify-center gap-2 rounded-md bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {saving && <Loader2 size={16} className="animate-spin" />}
                 {editingPlan ? "Save Changes" : "Add Plan"}

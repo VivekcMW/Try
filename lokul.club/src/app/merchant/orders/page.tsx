@@ -250,7 +250,7 @@ export default function OrdersPage() {
           {isFood && (
             <button
               onClick={() => setKitchenView((v) => !v)}
-              className={`inline-flex items-center gap-2 rounded-[6px] border px-4 py-2 text-sm font-medium transition ${
+              className={`inline-flex items-center gap-2 rounded-md border px-4 py-2 text-sm font-medium transition ${
                 kitchenView
                   ? "border-orange-500 bg-orange-500 text-white hover:bg-orange-600"
                   : "border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
@@ -263,7 +263,7 @@ export default function OrdersPage() {
           <button
             onClick={handleExportCSV}
             disabled={orders.length === 0}
-            className="inline-flex items-center gap-2 rounded-[6px] border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+            className="inline-flex items-center gap-2 rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
           >
             <Download className="h-4 w-4" />
             Export CSV
@@ -273,8 +273,8 @@ export default function OrdersPage() {
 
       {/* Alert Banner - Orders Paused */}
       {!acceptingOrders && (
-        <div className="mb-6 bg-red-50 border border-red-200 rounded-[6px] p-4 flex gap-3">
-          <AlertTriangle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+        <div className="mb-6 bg-red-50 border border-red-200 rounded-md p-4 flex gap-3">
+          <AlertTriangle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
           <div className="flex-1">
             <p className="text-sm font-medium text-red-900 mb-1">Orders Are Currently Paused</p>
             <p className="text-sm text-red-800 mb-3">
@@ -282,7 +282,7 @@ export default function OrdersPage() {
             </p>
             <Link
               href="/merchant/settings"
-              className="inline-flex items-center gap-2 bg-red-600 text-white text-sm px-4 py-2 rounded-[6px] hover:bg-red-700 transition-colors"
+              className="inline-flex items-center gap-2 bg-red-600 text-white text-sm px-4 py-2 rounded-md hover:bg-red-700 transition-colors"
             >
               Go to Settings to Resume Orders
               <ChevronRight className="w-4 h-4" />
@@ -294,9 +294,9 @@ export default function OrdersPage() {
       {/* Stats Dashboard */}
       {stats && (
         <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="rounded-[6px] border border-gray-200 bg-white p-4">
+          <div className="rounded-md border border-gray-200 bg-white p-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-[6px] bg-blue-100">
+              <div className="flex h-10 w-10 items-center justify-center rounded-md bg-blue-100">
                 <ShoppingCart className="h-5 w-5 text-blue-600" />
               </div>
               <div>
@@ -306,9 +306,9 @@ export default function OrdersPage() {
             </div>
           </div>
 
-          <div className="rounded-[6px] border border-gray-200 bg-white p-4">
+          <div className="rounded-md border border-gray-200 bg-white p-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-[6px] bg-yellow-100">
+              <div className="flex h-10 w-10 items-center justify-center rounded-md bg-yellow-100">
                 <AlertCircle className="h-5 w-5 text-yellow-600" />
               </div>
               <div>
@@ -318,9 +318,9 @@ export default function OrdersPage() {
             </div>
           </div>
 
-          <div className="rounded-[6px] border border-gray-200 bg-white p-4">
+          <div className="rounded-md border border-gray-200 bg-white p-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-[6px] bg-purple-100">
+              <div className="flex h-10 w-10 items-center justify-center rounded-md bg-purple-100">
                 <Clock className="h-5 w-5 text-purple-600" />
               </div>
               <div>
@@ -330,9 +330,9 @@ export default function OrdersPage() {
             </div>
           </div>
 
-          <div className="rounded-[6px] border border-gray-200 bg-white p-4">
+          <div className="rounded-md border border-gray-200 bg-white p-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-[6px] bg-green-100">
+              <div className="flex h-10 w-10 items-center justify-center rounded-md bg-green-100">
                 <Package className="h-5 w-5 text-green-600" />
               </div>
               <div>
@@ -371,7 +371,7 @@ export default function OrdersPage() {
                 <button
                   key={filter.value}
                   onClick={() => setStatusFilter(filter.value)}
-                  className={`rounded-[6px] px-4 py-2 text-sm font-medium transition ${
+                  className={`rounded-md px-4 py-2 text-sm font-medium transition ${
                     statusFilter === filter.value
                       ? "bg-blue-600 text-white"
                       : "border border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
@@ -391,7 +391,7 @@ export default function OrdersPage() {
               placeholder="Search by order # or customer..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full rounded-[6px] border border-gray-300 py-2 pl-10 pr-4 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+              className="w-full rounded-md border border-gray-300 py-2 pl-10 pr-4 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
             />
           </div>
         </div>
@@ -407,7 +407,7 @@ export default function OrdersPage() {
               type="date"
               value={fromDate}
               onChange={(e) => setFromDate(e.target.value)}
-              className="rounded-[6px] border border-gray-300 py-2 pl-10 pr-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+              className="rounded-md border border-gray-300 py-2 pl-10 pr-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
               aria-label="From date"
             />
             <span className="pointer-events-none absolute -top-2 left-3 bg-white px-1 text-xs text-gray-500">From</span>
@@ -422,7 +422,7 @@ export default function OrdersPage() {
               type="date"
               value={toDate}
               onChange={(e) => setToDate(e.target.value)}
-              className="rounded-[6px] border border-gray-300 py-2 pl-10 pr-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+              className="rounded-md border border-gray-300 py-2 pl-10 pr-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
               aria-label="To date"
             />
             <span className="pointer-events-none absolute -top-2 left-3 bg-white px-1 text-xs text-gray-500">To</span>
@@ -432,7 +432,7 @@ export default function OrdersPage() {
           {(fromDate || toDate) && (
             <button
               onClick={() => { setFromDate(""); setToDate(""); }}
-              className="rounded-[6px] border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
+              className="rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
             >
               Clear
             </button>
@@ -442,14 +442,14 @@ export default function OrdersPage() {
 
       {/* Bulk Action Bar */}
       {selectedIds.size > 0 && (
-        <div className="mb-4 flex items-center gap-4 rounded-[6px] border border-blue-200 bg-blue-50 px-4 py-3">
+        <div className="mb-4 flex items-center gap-4 rounded-md border border-blue-200 bg-blue-50 px-4 py-3">
           <span className="flex-1 text-sm font-medium text-blue-900">
             {selectedIds.size} order{selectedIds.size !== 1 ? "s" : ""} selected
           </span>
           <button
             onClick={() => handleBulkAction("confirm")}
             disabled={bulkLoading}
-            className="inline-flex items-center gap-2 rounded-[6px] bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+            className="inline-flex items-center gap-2 rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {bulkLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle className="h-4 w-4" />}
             Confirm All
@@ -457,7 +457,7 @@ export default function OrdersPage() {
           <button
             onClick={() => handleBulkAction("cancel")}
             disabled={bulkLoading}
-            className="inline-flex items-center gap-2 rounded-[6px] bg-red-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
+            className="inline-flex items-center gap-2 rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {bulkLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <XCircle className="h-4 w-4" />}
             Cancel All
@@ -471,7 +471,7 @@ export default function OrdersPage() {
           <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
         </div>
       ) : orders.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-[6px] border-2 border-dashed border-gray-300 bg-gray-50 py-16">
+        <div className="flex flex-col items-center justify-center rounded-md border-2 border-dashed border-gray-300 bg-gray-50 py-16">
           <Package className="h-12 w-12 text-gray-400" />
           <h3 className="mt-4 text-lg font-semibold text-gray-900">No orders yet</h3>
           <p className="mt-2 text-sm text-gray-600">
@@ -505,7 +505,7 @@ export default function OrdersPage() {
                   });
                 }}
                 disabled={bulkLoading}
-                className="inline-flex items-center gap-2 rounded-[6px] bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700 disabled:opacity-50"
+                className="inline-flex items-center gap-2 rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700 disabled:opacity-50"
               >
                 {bulkLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle className="h-4 w-4" />}
                 Confirm All Pending
@@ -519,7 +519,7 @@ export default function OrdersPage() {
               return (
                 <div
                   key={order.id}
-                  className="rounded-[6px] border border-gray-200 bg-white p-3 shadow-sm"
+                  className="rounded-md border border-gray-200 bg-white p-3 shadow-sm"
                 >
                   <div className="mb-2 flex items-center justify-between gap-2">
                     <span className="text-sm font-bold text-gray-900 truncate">{order.orderNumber}</span>
@@ -542,7 +542,7 @@ export default function OrdersPage() {
                           body: JSON.stringify({ action: "ready" }),
                         }).then(() => loadOrders())
                       }
-                      className="mt-2 w-full rounded-[6px] bg-green-600 py-1.5 text-xs font-medium text-white transition hover:bg-green-700"
+                      className="mt-2 w-full rounded-md bg-green-600 py-1.5 text-xs font-medium text-white transition hover:bg-green-700"
                     >
                       Mark Ready
                     </button>
@@ -569,7 +569,7 @@ export default function OrdersPage() {
 
               <Link
                 href={`/merchant/orders/${order.id}`}
-                className="block flex-1 rounded-[6px] border border-gray-200 bg-white p-4 transition hover:border-blue-300 hover:shadow-md"
+                className="block flex-1 rounded-md border border-gray-200 bg-white p-4 transition hover:border-blue-300 hover:shadow-md"
               >
                 <div className="flex items-center justify-between">
                   {/* Left: Order Info */}

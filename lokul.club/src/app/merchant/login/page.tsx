@@ -2,7 +2,7 @@
 
 import { useState, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { Loader2, ArrowLeft, Store, Check } from "lucide-react";
+import { Loader2, ArrowLeft, Store } from "lucide-react";
 import Link from "next/link";
 
 type Step = "phone" | "otp";
@@ -97,7 +97,7 @@ export default function MerchantLoginPage() {
     if (e.key === "Backspace" && !otp[idx] && idx > 0) {
       otpRefs.current[idx - 1]?.focus();
     }
-    if (e.key === "Enter" && otp.every((d) => d)) {
+    if (e.key === "Enter" && otp.every(Boolean)) {
       verifyOtp();
     }
   };
@@ -121,7 +121,7 @@ export default function MerchantLoginPage() {
         {/* Header */}
         <div className="text-center">
           <div
-            className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-[6px] text-white shadow-sm"
+            className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-md text-white shadow-sm"
             style={{ background: "linear-gradient(135deg, var(--color-brand-600), var(--color-brand-900))" }}
           >
             <Store className="h-8 w-8" />
@@ -134,7 +134,7 @@ export default function MerchantLoginPage() {
 
         {/* Card */}
         <div
-          className="rounded-[6px] p-8"
+          className="rounded-md p-8"
           style={{
             background: "var(--color-surface)",
             border: "1px solid var(--color-border)",
@@ -153,12 +153,12 @@ export default function MerchantLoginPage() {
               </div>
 
               <div>
-                <label className="mb-2 block text-sm font-medium" style={{ color: "var(--color-foreground)" }}>
+                <label htmlFor="merchant-phone" className="mb-2 block text-sm font-medium" style={{ color: "var(--color-foreground)" }}>
                   Mobile number
                 </label>
                 <div className="flex gap-2">
                   <div
-                    className="flex items-center rounded-[6px] px-3 py-2.5 text-sm font-semibold"
+                    className="flex items-center rounded-md px-3 py-2.5 text-sm font-semibold"
                     style={{
                       background: "var(--color-surface-muted)",
                       border: "1px solid var(--color-border)",
@@ -175,7 +175,7 @@ export default function MerchantLoginPage() {
                     value={phone}
                     onChange={(e) => setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))}
                     onKeyDown={(e) => e.key === "Enter" && sendOtp()}
-                    className="flex-1 rounded-[6px] px-4 py-2.5 text-base outline-none transition"
+                    className="flex-1 rounded-md px-4 py-2.5 text-base outline-none transition"
                     style={{
                       border: "1px solid var(--color-border)",
                       background: "var(--color-surface)",
@@ -190,7 +190,7 @@ export default function MerchantLoginPage() {
               <button
                 onClick={sendOtp}
                 disabled={phone.length !== 10 || loading}
-                className="flex w-full items-center justify-center gap-2 rounded-[6px] px-4 py-3 text-base font-semibold text-white transition active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
+                className="flex w-full items-center justify-center gap-2 rounded-md px-4 py-3 text-base font-semibold text-white transition active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
                 style={{
                   background: "var(--color-brand-600)",
                 }}
@@ -232,7 +232,7 @@ export default function MerchantLoginPage() {
                 <div className="flex gap-2" onPaste={handleOtpPaste}>
                   {otp.map((digit, idx) => (
                     <input
-                      key={idx}
+                      key={`otp-digit-${idx}`}
                       ref={(el) => {
                         otpRefs.current[idx] = el;
                       }}
@@ -242,7 +242,7 @@ export default function MerchantLoginPage() {
                       value={digit}
                       onChange={(e) => handleOtpChange(idx, e.target.value)}
                       onKeyDown={(e) => handleOtpKeyDown(idx, e)}
-                      className="h-14 w-full rounded-[6px] text-center text-xl font-semibold outline-none transition"
+                      className="h-14 w-full rounded-md text-center text-xl font-semibold outline-none transition"
                       style={{
                         border: "2px solid var(--color-border)",
                       }}
@@ -257,7 +257,7 @@ export default function MerchantLoginPage() {
               <button
                 onClick={verifyOtp}
                 disabled={otp.some((d) => !d) || loading}
-                className="flex w-full items-center justify-center gap-2 rounded-[6px] px-4 py-3 text-base font-semibold text-white transition active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
+                className="flex w-full items-center justify-center gap-2 rounded-md px-4 py-3 text-base font-semibold text-white transition active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
                 style={{
                   background: "var(--color-brand-600)",
                 }}

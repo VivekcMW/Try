@@ -186,7 +186,7 @@ export default function JobDetailPage({ params }: { params: Promise<{ id: string
 
       <div className="max-w-2xl space-y-5">
         {/* Status banner */}
-        <div className={`flex items-center justify-between rounded-[6px] p-4 ${statusColor}`}>
+        <div className={`flex items-center justify-between rounded-md p-4 ${statusColor}`}>
           <div>
             <p className="text-xs font-medium opacity-70">Job Status</p>
             <p className="text-lg font-bold">{statusLabel}</p>
@@ -196,7 +196,7 @@ export default function JobDetailPage({ params }: { params: Promise<{ id: string
               <button
                 onClick={handleOnMyWay}
                 disabled={actionLoading === "onway"}
-                className="flex items-center gap-1.5 rounded-[6px] bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50 transition-colors"
+                className="flex items-center gap-1.5 rounded-md bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50 transition-colors"
               >
                 {actionLoading === "onway" ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -210,7 +210,7 @@ export default function JobDetailPage({ params }: { params: Promise<{ id: string
               <button
                 onClick={handleMarkComplete}
                 disabled={actionLoading === "complete"}
-                className="flex items-center gap-1.5 rounded-[6px] bg-green-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-green-700 disabled:opacity-50 transition-colors"
+                className="flex items-center gap-1.5 rounded-md bg-green-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-green-700 disabled:opacity-50 transition-colors"
               >
                 {actionLoading === "complete" ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -230,7 +230,7 @@ export default function JobDetailPage({ params }: { params: Promise<{ id: string
         </div>
 
         {/* Customer Info */}
-        <div className="rounded-[6px] border border-gray-200 bg-white p-5 shadow-sm">
+        <div className="rounded-md border border-gray-200 bg-white p-5 shadow-sm">
           <div className="mb-3 flex items-center gap-2">
             <User className="h-4 w-4 text-gray-500" />
             <h2 className="text-sm font-semibold text-gray-900">Customer</h2>
@@ -249,13 +249,13 @@ export default function JobDetailPage({ params }: { params: Promise<{ id: string
         </div>
 
         {/* Service Details */}
-        <div className="rounded-[6px] border border-gray-200 bg-white p-5 shadow-sm">
+        <div className="rounded-md border border-gray-200 bg-white p-5 shadow-sm">
           <h2 className="mb-3 text-sm font-semibold text-gray-900">Service Description</h2>
           <p className="text-sm text-gray-800 whitespace-pre-wrap">{job.serviceDescription}</p>
         </div>
 
         {/* Pricing */}
-        <div className="rounded-[6px] border border-gray-200 bg-white p-5 shadow-sm">
+        <div className="rounded-md border border-gray-200 bg-white p-5 shadow-sm">
           <h2 className="mb-3 text-sm font-semibold text-gray-900">Pricing</h2>
           <div className="space-y-2">
             {job.quotedPaise != null && (
@@ -281,7 +281,7 @@ export default function JobDetailPage({ params }: { params: Promise<{ id: string
 
         {/* Notes */}
         {note && (
-          <div className="rounded-[6px] border border-gray-200 bg-white p-5 shadow-sm">
+          <div className="rounded-md border border-gray-200 bg-white p-5 shadow-sm">
             <div className="mb-3 flex items-center gap-2">
               <MessageSquare className="h-4 w-4 text-gray-500" />
               <h2 className="text-sm font-semibold text-gray-900">Notes</h2>
@@ -291,7 +291,7 @@ export default function JobDetailPage({ params }: { params: Promise<{ id: string
         )}
 
         {/* Timeline */}
-        <div className="rounded-[6px] border border-gray-200 bg-white p-5 shadow-sm">
+        <div className="rounded-md border border-gray-200 bg-white p-5 shadow-sm">
           <div className="mb-3 flex items-center gap-2">
             <Clock className="h-4 w-4 text-gray-500" />
             <h2 className="text-sm font-semibold text-gray-900">Timeline</h2>

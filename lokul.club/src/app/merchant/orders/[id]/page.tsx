@@ -224,7 +224,7 @@ export default function OrderDetailPage() {
         <div className="flex items-center gap-4">
           <Link
             href="/merchant/orders"
-            className="flex h-10 w-10 items-center justify-center rounded-[6px] border border-gray-300 transition hover:bg-gray-50"
+            className="flex h-10 w-10 items-center justify-center rounded-md border border-gray-300 transition hover:bg-gray-50"
           >
             <ArrowLeft className="h-5 w-5" />
           </Link>
@@ -248,7 +248,7 @@ export default function OrderDetailPage() {
         {/* Left Column: Customer & Items */}
         <div className="lg:col-span-2 space-y-6">
           {/* Customer Info */}
-          <div className="rounded-[6px] border border-gray-200 bg-white p-6">
+          <div className="rounded-md border border-gray-200 bg-white p-6">
             <h2 className="mb-4 text-lg font-bold text-gray-900">Customer Information</h2>
             <div className="flex items-start gap-4">
               <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gray-200 text-lg font-medium text-gray-600">
@@ -264,7 +264,7 @@ export default function OrderDetailPage() {
               <div className="flex gap-2">
                 <a
                   href={`tel:${order.customer.phone}`}
-                  className="flex h-10 w-10 items-center justify-center rounded-[6px] border border-gray-300 transition hover:bg-gray-50"
+                  className="flex h-10 w-10 items-center justify-center rounded-md border border-gray-300 transition hover:bg-gray-50"
                 >
                   <Phone className="h-4 w-4" />
                 </a>
@@ -272,7 +272,7 @@ export default function OrderDetailPage() {
                   href={`https://wa.me/${order.customer.phone.replace("+", "")}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex h-10 w-10 items-center justify-center rounded-[6px] border border-gray-300 transition hover:bg-gray-50"
+                  className="flex h-10 w-10 items-center justify-center rounded-md border border-gray-300 transition hover:bg-gray-50"
                 >
                   <MessageCircle className="h-4 w-4" />
                 </a>
@@ -281,7 +281,7 @@ export default function OrderDetailPage() {
 
             {/* Delivery Details */}
             {order.deliveryMode && (
-              <div className="mt-4 rounded-[6px] border border-gray-200 bg-gray-50 p-4">
+              <div className="mt-4 rounded-md border border-gray-200 bg-gray-50 p-4">
                 <div className="flex items-start gap-3">
                   <MapPin className="h-5 w-5 text-gray-600" />
                   <div>
@@ -298,7 +298,7 @@ export default function OrderDetailPage() {
 
             {/* Customer Notes */}
             {order.customerNotes && (
-              <div className="mt-4 rounded-[6px] border border-yellow-200 bg-yellow-50 p-4">
+              <div className="mt-4 rounded-md border border-yellow-200 bg-yellow-50 p-4">
                 <p className="text-sm font-medium text-yellow-900">Customer Notes:</p>
                 <p className="mt-1 text-sm text-yellow-800">{order.customerNotes}</p>
               </div>
@@ -306,13 +306,13 @@ export default function OrderDetailPage() {
           </div>
 
           {/* Order Items */}
-          <div className="rounded-[6px] border border-gray-200 bg-white p-6">
+          <div className="rounded-md border border-gray-200 bg-white p-6">
             <h2 className="mb-4 text-lg font-bold text-gray-900">Order Items</h2>
             <div className="space-y-3">
               {order.orderItems.map((item) => (
                 <div key={item.id} className="flex items-center justify-between border-b border-gray-100 pb-3 last:border-0 last:pb-0">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-[6px] bg-gray-100">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-md bg-gray-100">
                       <Package className="h-5 w-5 text-gray-600" />
                     </div>
                     <div>
@@ -355,7 +355,7 @@ export default function OrderDetailPage() {
             </div>
 
             {/* Payment Method */}
-            <div className="mt-4 rounded-[6px] border border-gray-200 bg-gray-50 p-3">
+            <div className="mt-4 rounded-md border border-gray-200 bg-gray-50 p-3">
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-600">Payment Method:</span>
                 <span className="text-sm font-medium text-gray-900">{order.paymentMethod.toUpperCase()}</span>
@@ -370,18 +370,18 @@ export default function OrderDetailPage() {
           </div>
 
           {/* Merchant Notes */}
-          <div className="rounded-[6px] border border-gray-200 bg-white p-6">
+          <div className="rounded-md border border-gray-200 bg-white p-6">
             <h2 className="mb-4 text-lg font-bold text-gray-900">Internal Notes</h2>
             <textarea
               value={merchantNotes}
               onChange={(e) => setMerchantNotes(e.target.value)}
               placeholder="Add notes about this order (visible only to you)"
               rows={4}
-              className="w-full rounded-[6px] border border-gray-300 p-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+              className="w-full rounded-md border border-gray-300 p-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
             />
             <button
               onClick={saveMerchantNotes}
-              className="mt-3 rounded-[6px] bg-gray-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-gray-800"
+              className="mt-3 rounded-md bg-gray-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-gray-800"
             >
               Save Notes
             </button>
@@ -391,7 +391,7 @@ export default function OrderDetailPage() {
         {/* Right Column: Status Timeline & Actions */}
         <div className="space-y-6">
           {/* Status Timeline */}
-          <div className="rounded-[6px] border border-gray-200 bg-white p-6">
+          <div className="rounded-md border border-gray-200 bg-white p-6">
             <h2 className="mb-4 text-lg font-bold text-gray-900">Status Timeline</h2>
             <div className="space-y-4">
               {order.statusHistory.map((history, index) => (
@@ -440,7 +440,7 @@ export default function OrderDetailPage() {
           </div>
 
           {/* Actions */}
-          <div className="rounded-[6px] border border-gray-200 bg-white p-6">
+          <div className="rounded-md border border-gray-200 bg-white p-6">
             <h2 className="mb-4 text-lg font-bold text-gray-900">Actions</h2>
             <div className="space-y-3">
               {order.status === "pending" && (
@@ -448,7 +448,7 @@ export default function OrderDetailPage() {
                   <button
                     onClick={() => updateStatus("confirm")}
                     disabled={updating}
-                    className="flex w-full items-center justify-center gap-2 rounded-[6px] bg-green-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-green-700 disabled:opacity-50"
+                    className="flex w-full items-center justify-center gap-2 rounded-md bg-green-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-green-700 disabled:opacity-50"
                   >
                     {updating ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle className="h-4 w-4" />}
                     Accept Order
@@ -456,7 +456,7 @@ export default function OrderDetailPage() {
                   <button
                     onClick={() => setShowRejectModal(true)}
                     disabled={updating}
-                    className="flex w-full items-center justify-center gap-2 rounded-[6px] border border-red-600 bg-white px-4 py-2.5 text-sm font-semibold text-red-600 transition hover:bg-red-50 disabled:opacity-50"
+                    className="flex w-full items-center justify-center gap-2 rounded-md border border-red-600 bg-white px-4 py-2.5 text-sm font-semibold text-red-600 transition hover:bg-red-50 disabled:opacity-50"
                   >
                     <XCircle className="h-4 w-4" />
                     Reject Order
@@ -468,7 +468,7 @@ export default function OrderDetailPage() {
                 <button
                   onClick={() => updateStatus("start")}
                   disabled={updating}
-                  className="flex w-full items-center justify-center gap-2 rounded-[6px] bg-purple-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-purple-700 disabled:opacity-50"
+                  className="flex w-full items-center justify-center gap-2 rounded-md bg-purple-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-purple-700 disabled:opacity-50"
                 >
                   {updating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Clock className="h-4 w-4" />}
                   Start Preparation
@@ -479,7 +479,7 @@ export default function OrderDetailPage() {
                 <button
                   onClick={() => updateStatus("complete")}
                   disabled={updating}
-                  className="flex w-full items-center justify-center gap-2 rounded-[6px] bg-green-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-green-700 disabled:opacity-50"
+                  className="flex w-full items-center justify-center gap-2 rounded-md bg-green-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-green-700 disabled:opacity-50"
                 >
                   {updating ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle className="h-4 w-4" />}
                   Mark as Ready/Complete
@@ -490,7 +490,7 @@ export default function OrderDetailPage() {
                 <button
                   onClick={() => updateStatus("cancel", "Cancelled by merchant")}
                   disabled={updating}
-                  className="flex w-full items-center justify-center gap-2 rounded-[6px] border border-gray-300 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 disabled:opacity-50"
+                  className="flex w-full items-center justify-center gap-2 rounded-md border border-gray-300 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 disabled:opacity-50"
                 >
                   <XCircle className="h-4 w-4" />
                   Cancel Order
@@ -501,7 +501,7 @@ export default function OrderDetailPage() {
 
           {/* Rating */}
           {order.rating && (
-            <div className="rounded-[6px] border border-gray-200 bg-white p-6">
+            <div className="rounded-md border border-gray-200 bg-white p-6">
               <h2 className="mb-4 text-lg font-bold text-gray-900">Customer Rating</h2>
               <div className="flex items-center gap-2">
                 <span className="text-2xl font-bold text-yellow-500">
@@ -520,7 +520,7 @@ export default function OrderDetailPage() {
                     <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-gray-500">
                       Your Response
                     </p>
-                    <blockquote className="rounded-[6px] border-l-4 border-blue-400 bg-blue-50 px-4 py-3 text-sm text-gray-700 italic">
+                    <blockquote className="rounded-md border-l-4 border-blue-400 bg-blue-50 px-4 py-3 text-sm text-gray-700 italic">
                       {order.rating.merchantResponse}
                     </blockquote>
                     <button
@@ -544,7 +544,7 @@ export default function OrderDetailPage() {
                       onChange={(e) => setResponseText(e.target.value.slice(0, 500))}
                       placeholder="Write a professional, helpful response..."
                       rows={3}
-                      className="w-full rounded-[6px] border border-gray-300 p-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                      className="w-full rounded-md border border-gray-300 p-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                     />
                     <p className="mt-1 text-xs text-gray-400 text-right">
                       {responseText.length}/500
@@ -556,14 +556,14 @@ export default function OrderDetailPage() {
                           setEditingResponse(false);
                           setResponseText("");
                         }}
-                        className="rounded-[6px] border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition hover:bg-gray-50"
+                        className="rounded-md border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition hover:bg-gray-50"
                       >
                         Cancel
                       </button>
                       <button
                         onClick={handleSendResponse}
                         disabled={!responseText.trim() || sendingResponse}
-                        className="flex items-center gap-1.5 rounded-[6px] bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-blue-700 disabled:opacity-50"
+                        className="flex items-center gap-1.5 rounded-md bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-blue-700 disabled:opacity-50"
                       >
                         {sendingResponse && <Loader2 className="h-3 w-3 animate-spin" />}
                         Send Response
@@ -587,7 +587,7 @@ export default function OrderDetailPage() {
       {/* Reject Modal */}
       {showRejectModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-md rounded-[6px] bg-white p-6 shadow-xl">
+          <div className="w-full max-w-md rounded-md bg-white p-6 shadow-xl">
             <div className="mb-4 flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-full bg-red-100">
                 <AlertTriangle className="h-5 w-5 text-red-600" />
@@ -602,19 +602,19 @@ export default function OrderDetailPage() {
               onChange={(e) => setRejectReason(e.target.value)}
               placeholder="e.g., Out of stock, Too busy, Closing early..."
               rows={4}
-              className="w-full rounded-[6px] border border-gray-300 p-3 text-sm outline-none transition focus:border-red-500 focus:ring-2 focus:ring-red-100"
+              className="w-full rounded-md border border-gray-300 p-3 text-sm outline-none transition focus:border-red-500 focus:ring-2 focus:ring-red-100"
             />
             <div className="mt-6 flex gap-3">
               <button
                 onClick={() => setShowRejectModal(false)}
-                className="flex-1 rounded-[6px] border border-gray-300 px-4 py-2.5 text-sm font-semibold text-gray-700 transition hover:bg-gray-50"
+                className="flex-1 rounded-md border border-gray-300 px-4 py-2.5 text-sm font-semibold text-gray-700 transition hover:bg-gray-50"
               >
                 Cancel
               </button>
               <button
                 onClick={() => updateStatus("reject", rejectReason)}
                 disabled={!rejectReason.trim() || updating}
-                className="flex flex-1 items-center justify-center gap-2 rounded-[6px] bg-red-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-red-700 disabled:opacity-50"
+                className="flex flex-1 items-center justify-center gap-2 rounded-md bg-red-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-red-700 disabled:opacity-50"
               >
                 {updating && <Loader2 className="h-4 w-4 animate-spin" />}
                 Reject Order

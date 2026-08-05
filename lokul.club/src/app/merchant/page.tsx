@@ -3,8 +3,8 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
-  TrendingUp, Package, Tag, ShoppingCart, Star, Eye,
-  CalendarDays, Clock, Users, BookOpen, Briefcase,
+  Package, Tag, ShoppingCart, Star, Eye,
+  CalendarDays, Users, BookOpen, Briefcase,
   AlertTriangle, CheckCircle, BookMarked, X, ChevronRight,
 } from "lucide-react";
 import { useMerchantProfile, useProfileLabels } from "@/lib/merchant-profile-context";
@@ -171,7 +171,7 @@ function OnboardingChecklist() {
   const incompleteItems = data.checks.filter((c) => !c.done);
 
   return (
-    <div className="mb-6 rounded-[6px] border border-amber-200 bg-amber-50 p-5">
+    <div className="mb-6 rounded-md border p-5" style={{ borderColor: "var(--color-warning-200)", background: "var(--color-warning-50)" }}>
       <div className="mb-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <CheckCircle className="h-5 w-5 text-amber-600" />
@@ -197,14 +197,15 @@ function OnboardingChecklist() {
           <Link
             key={item.id}
             href={item.href}
-            className="flex items-start gap-3 rounded-[6px] bg-white p-3 hover:bg-amber-50"
+            className="flex items-start gap-3 rounded-md p-3 transition"
+            style={{ background: "var(--color-surface)", ":hover": { background: "var(--color-warning-50)" } }}
           >
-            <div className="mt-0.5 h-4 w-4 flex-shrink-0 rounded-full border-2 border-amber-400" />
+            <div className="mt-0.5 h-4 w-4 shrink-0 rounded-full border-2" style={{ borderColor: "var(--color-warning-400)" }} />
             <div>
               <p className="text-sm font-medium text-gray-900">{item.label}</p>
               <p className="text-xs text-gray-500">{item.description}</p>
             </div>
-            <ChevronRight size={16} className="ml-auto flex-shrink-0 text-amber-400" />
+            <ChevronRight size={16} className="ml-auto shrink-0" style={{ color: "var(--color-warning-400)" }} />
           </Link>
         ))}
       </div>
@@ -314,7 +315,8 @@ export default function MerchantDashboardPage() {
           return (
             <div
               key={card.label}
-              className="rounded-[6px] border border-gray-200 bg-white p-6 shadow-sm transition hover:shadow-md"
+              className="rounded-md border p-6 shadow-sm transition hover:shadow-md"
+              style={{ borderColor: "var(--color-border)", background: "var(--color-surface)" }}
             >
               <div className="flex items-start justify-between">
                 <div className="flex-1">
@@ -324,7 +326,7 @@ export default function MerchantDashboardPage() {
                     <p className="mt-1 text-xs text-gray-500">{card.subtitle}</p>
                   )}
                 </div>
-                <div className={`rounded-[6px] p-3 ${colorClass}`}>
+                <div className={`rounded-md p-3 ${colorClass}`}>
                   <Icon size={24} />
                 </div>
               </div>
@@ -342,7 +344,7 @@ export default function MerchantDashboardPage() {
       </div>
 
       {/* Quick Actions */}
-      <div className="rounded-[6px] border border-gray-200 bg-white p-6 shadow-sm">
+      <div className="rounded-md border p-6 shadow-sm" style={{ borderColor: "var(--color-border)", background: "var(--color-surface)" }}>
         <h2 className="mb-4 text-lg font-semibold text-gray-900">Quick Actions</h2>
         <div className="grid gap-4 sm:grid-cols-3">
           {quickActions.map((action) => {
@@ -352,7 +354,8 @@ export default function MerchantDashboardPage() {
               <Link
                 key={action.href}
                 href={action.href}
-                className="flex items-center gap-3 rounded-[6px] border border-gray-200 p-4 transition hover:border-brand-300 hover:bg-brand-50"
+                className="flex items-center gap-3 rounded-md border p-4 transition hover:border-brand-300 hover:bg-brand-50"
+                style={{ borderColor: "var(--color-border)" }}
               >
                 <Icon className={`h-5 w-5 ${colorClass.split(" ")[1]}`} />
                 <div>
@@ -366,9 +369,9 @@ export default function MerchantDashboardPage() {
       </div>
 
       {/* Tip */}
-      <div className="mt-6 rounded-[6px] border border-blue-200 bg-blue-50 p-6">
+      <div className="mt-6 rounded-md border p-6" style={{ borderColor: "var(--color-info-200)", background: "var(--color-info-50)" }}>
         <div className="flex items-start gap-3">
-          <Eye className="h-5 w-5 flex-shrink-0 text-blue-600" />
+          <Eye className="h-5 w-5 shrink-0" style={{ color: "var(--color-info-600)" }} />
           <div>
             <h3 className="font-semibold text-blue-900">Pro Tip</h3>
             <p className="mt-1 text-sm text-blue-800">{tipByProfile[profile]}</p>

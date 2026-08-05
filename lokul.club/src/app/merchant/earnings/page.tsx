@@ -119,7 +119,7 @@ export default function EarningsPage() {
           return (
             <div
               key={card.label}
-              className="rounded-[6px] border border-gray-200 bg-white p-6 shadow-sm transition hover:shadow-md"
+              className="rounded-md border border-gray-200 bg-white p-6 shadow-sm transition hover:shadow-md"
             >
               <div className="flex items-start justify-between">
                 <div className="flex-1">
@@ -150,7 +150,7 @@ export default function EarningsPage() {
                     <p className="mt-2 text-xs text-gray-400">this month so far</p>
                   )}
                 </div>
-                <div className={`rounded-[6px] p-3 ${card.color}`}>
+                <div className={`rounded-md p-3 ${card.color}`}>
                   <Icon size={24} />
                 </div>
               </div>
@@ -160,17 +160,17 @@ export default function EarningsPage() {
       </div>
 
       {/* Last Month Comparison */}
-      <div className="mb-8 rounded-[6px] border border-gray-200 bg-white p-6 shadow-sm">
+      <div className="mb-8 rounded-md border border-gray-200 bg-white p-6 shadow-sm">
         <h2 className="mb-4 text-lg font-semibold text-gray-900">Month Comparison</h2>
         <div className="grid gap-4 sm:grid-cols-2">
-          <div className="rounded-[6px] bg-gray-50 p-4">
+          <div className="rounded-md bg-gray-50 p-4">
             <p className="text-sm font-medium text-gray-500">Last Month Revenue</p>
             <p className="mt-1 text-2xl font-bold text-gray-900">
               {formatRupees(lastMonth.revenuePaise)}
             </p>
             <p className="mt-0.5 text-xs text-gray-400">{lastMonth.orders} completed orders</p>
           </div>
-          <div className="rounded-[6px] bg-blue-50 p-4">
+          <div className="rounded-md bg-blue-50 p-4">
             <p className="text-sm font-medium text-blue-600">This Month Revenue</p>
             <p className="mt-1 text-2xl font-bold text-gray-900">
               {formatRupees(thisMonth.revenuePaise)}
@@ -181,7 +181,7 @@ export default function EarningsPage() {
       </div>
 
       {/* 30-Day Bar Chart */}
-      <div className="mb-8 rounded-[6px] border border-gray-200 bg-white p-6 shadow-sm">
+      <div className="mb-8 rounded-md border border-gray-200 bg-white p-6 shadow-sm">
         <h2 className="mb-6 text-lg font-semibold text-gray-900">Revenue — Last 30 Days</h2>
 
         {last30Days.length === 0 ? (
@@ -239,7 +239,7 @@ export default function EarningsPage() {
       </div>
 
       {/* Top Items Table */}
-      <div className="rounded-[6px] border border-gray-200 bg-white p-6 shadow-sm">
+      <div className="rounded-md border border-gray-200 bg-white p-6 shadow-sm">
         <h2 className="mb-4 text-lg font-semibold text-gray-900">Top Items This Month</h2>
 
         {topItems.length === 0 ? (

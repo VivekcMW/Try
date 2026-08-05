@@ -18,7 +18,7 @@ function fmt(paise: number) {
 function exportCSV(entries: AdminWalletEntry[]) {
   const rows = [
     ["ID","User","Type","Amount","Description","Status","Reference","Created"],
-    ...entries.map(e => [e.id, e.userName, e.type, fmt(e.amountPaise), e.description, e.status, e.reference ?? "", e.createdAt.toLocaleDateString()]),
+    ...entries.map(e => [e.id, e.userName, e.type, fmt(e.amountPaise), e.description, e.status, e.reference ?? "", new Date(e.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })]),
   ];
   const csv = rows.map(r => r.map(v => `"${v}"`).join(",")).join("\n");
   const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
@@ -105,7 +105,7 @@ export default function WalletTable({
                   <Badge tone={STATUS_TONES[e.status] ?? "neutral"} variant="soft" className="capitalize">{e.status}</Badge>
                 </td>
                 <td className="px-4 py-3 font-mono text-xs text-gray-400">{e.reference ?? "—"}</td>
-                <td className="px-4 py-3 text-xs text-gray-400 whitespace-nowrap">{new Date(e.createdAt).toLocaleDateString()}</td>
+                <td className="px-4 py-3 text-xs text-gray-400 whitespace-nowrap">{new Date(e.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</td>
                 <td className="px-4 py-3">
                   {e.status === "held" && (
                     <div className="flex gap-2">

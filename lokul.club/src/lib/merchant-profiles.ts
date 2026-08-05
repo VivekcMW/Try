@@ -19,13 +19,12 @@ import {
   type LucideIcon,
 } from "lucide-react";
 
-export type WorkflowProfile =
-  | "retail"
-  | "food"
-  | "appointments"
-  | "home_services"
-  | "subscriptions"
-  | "events";
+// Import unified category types
+import type { WorkflowProfile, MerchantCategory } from "@/types/merchant-categories";
+import { getCategoryWorkflow } from "@/types/merchant-categories";
+
+// Re-export WorkflowProfile for backward compatibility
+export type { WorkflowProfile } from "@/types/merchant-categories";
 
 export interface NavItem {
   icon: LucideIcon;
@@ -45,77 +44,14 @@ export interface ProfileLabels {
 }
 
 // ── Category → Profile mapping ──────────────────────────────────────────────
+// Deprecated: Use getCategoryWorkflow from @/types/merchant-categories instead
+// Kept for backward compatibility only
 
-export const CATEGORY_TO_PROFILE: Record<string, WorkflowProfile> = {
-  // Retail
-  kirana: "retail",
-  pharmacy: "retail",
-  dairy: "retail",
-  meat: "retail",
-  vegetables: "retail",
-  bakery: "retail",
-  stationery: "retail",
-  gifts: "retail",
-  jewellery: "retail",
-  mobile: "retail",
-  hardware: "retail",
-  nursery: "retail",
-  water: "retail",
-  tailor: "retail",
-  other: "retail",
+export const CATEGORY_TO_PROFILE: Record<string, WorkflowProfile> = {} as const;
 
-  // Food
-  restaurant: "food",
-  tiffin: "food",
-  catering: "food",
-  cafe: "food",
-  sweet_shop: "food",
-
-  // Appointments
-  clinic: "appointments",
-  salon: "appointments",
-  fitness: "appointments",
-  yoga: "appointments",
-  ayurveda: "appointments",
-  tutor: "appointments",
-  driving: "appointments",
-  petcare: "appointments",
-  childcare: "appointments",
-  senior: "appointments",
-  spa: "appointments",
-  dentist: "appointments",
-
-  // Home Services
-  electrician: "home_services",
-  plumber: "home_services",
-  carpenter: "home_services",
-  painter: "home_services",
-  cleaning: "home_services",
-  laundry: "home_services",
-  appliance: "home_services",
-  repair: "home_services",
-  packers: "home_services",
-  courier: "home_services",
-  security: "home_services",
-  cycle: "home_services",
-  ca_legal: "home_services",
-  insurance: "home_services",
-
-  // Subscriptions
-  newspaper: "subscriptions",
-  milk_delivery: "subscriptions",
-  water_can: "subscriptions",
-
-  // Events
-  events: "events",
-  realestate: "events",
-  travel: "events",
-  photography: "events",
-  decorator: "events",
-  caterer_events: "events",
-};
-
-// ── Nav items per profile ────────────────────────────────────────────────────
+export function getProfileFromCategory(category: string): WorkflowProfile {
+  return getCategoryWorkflow(category as MerchantCategory);
+}
 
 const BASE_NAV: NavItem[] = [
   { icon: LayoutDashboard, label: "Dashboard", href: "/merchant" },
@@ -247,7 +183,3 @@ export const PROFILE_LABELS: Record<WorkflowProfile, ProfileLabels> = {
     bookings: "Bookings",
   },
 };
-
-export function getProfileFromCategory(category: string): WorkflowProfile {
-  return CATEGORY_TO_PROFILE[category.toLowerCase()] ?? "retail";
-}

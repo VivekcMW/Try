@@ -6,6 +6,8 @@ import Link from "next/link";
 import { Store, LogOut, Menu, X, XCircle, ChevronLeft, ChevronRight } from "lucide-react";
 import { PROFILE_NAV, getProfileFromCategory, type WorkflowProfile } from "@/lib/merchant-profiles";
 import { MerchantProfileProvider } from "@/lib/merchant-profile-context";
+import { CategoryBadge } from "@/components/merchant/CategoryBadge";
+import type { MerchantCategory } from "@/types/merchant-categories";
 
 type MerchantData = {
   id: string;
@@ -137,7 +139,9 @@ export default function MerchantLayout({ children }: Readonly<{ children: React.
             </div>
             <div className="flex-1 overflow-hidden">
               <h1 className="truncate text-sm font-bold" style={{ color: "var(--color-heading)" }}>{merchant.name}</h1>
-              <p className="truncate text-xs" style={{ color: "var(--color-text-secondary)" }}>{merchant.category}</p>
+              <div className="mt-0.5">
+                <CategoryBadge category={merchant.category as MerchantCategory} size="sm" />
+              </div>
               {merchant.acceptingOrders === false && (
                 <div className="mt-1 flex items-center gap-1 text-xs" style={{ color: "var(--color-danger)" }}>
                   <XCircle className="w-3 h-3" />

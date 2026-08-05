@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { Settings as SettingsIcon, User, Phone, MapPin, Clock, Store, AlertTriangle, XCircle, CheckCircle, Pencil, Bell, Wrench, ShoppingCart, Shield, CalendarX, CreditCard, ChevronDown, ChevronUp } from "lucide-react";
 import { useMerchantProfile } from "@/lib/merchant-profile-context";
+import { CategoryBadge } from "@/components/merchant/CategoryBadge";
+import type { MerchantCategory } from "@/types/merchant-categories";
 
 type MerchantProfile = {
   id: string;
@@ -660,9 +662,9 @@ export default function SettingsPage() {
               </div>
               <div>
                 <label className="mb-1 block text-sm font-medium text-gray-700">Category</label>
-                <p className="rounded-md border border-gray-200 bg-gray-50 px-4 py-2.5 text-base text-gray-900">
-                  {merchant.category}
-                </p>
+                <div className="rounded-md border border-gray-200 bg-gray-50 px-4 py-2.5">
+                  <CategoryBadge category={merchant.category as MerchantCategory} size="md" />
+                </div>
               </div>
             </div>
 

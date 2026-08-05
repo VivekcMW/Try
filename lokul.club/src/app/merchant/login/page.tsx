@@ -285,7 +285,7 @@ export default function MerchantLoginPage() {
           )}
         </div>
 
-        <p className="text-center text-xs text-gray-500">
+        <p className="text-center text-xs" style={{ color: "var(--color-gray-500)" }}>
           Protected by Lokul.club security. Your data is encrypted.
         </p>
       </div>

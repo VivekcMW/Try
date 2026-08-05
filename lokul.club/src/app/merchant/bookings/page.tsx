@@ -124,7 +124,7 @@ export default function BookingsPage() {
           <button
             key={f.value}
             onClick={() => setFilter(f.value)}
-            className={`flex-shrink-0 rounded-lg px-4 py-2 text-sm font-semibold transition ${
+            className={`flex-shrink-0 rounded-[6px] px-4 py-2 text-sm font-semibold transition ${
               filter === f.value
                 ? "bg-blue-600 text-white shadow-sm"
                 : "bg-white text-gray-600 border border-gray-200 hover:bg-gray-50"
@@ -140,7 +140,7 @@ export default function BookingsPage() {
           <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-blue-600" />
         </div>
       ) : appointments.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 py-16">
+        <div className="flex flex-col items-center justify-center rounded-[6px] border-2 border-dashed border-gray-300 bg-gray-50 py-16">
           <CalendarDays className="h-12 w-12 text-gray-400" />
           <h3 className="mt-4 text-lg font-semibold text-gray-900">No bookings found</h3>
           <p className="mt-2 text-sm text-gray-600">
@@ -158,10 +158,10 @@ export default function BookingsPage() {
             return (
               <div
                 key={appt.id}
-                className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition hover:shadow-md"
+                className="rounded-[6px] border border-gray-200 bg-white p-4 shadow-sm transition hover:shadow-md"
               >
                 <div className="flex items-start gap-4">
-                  <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-lg bg-blue-100">
+                  <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-[6px] bg-blue-100">
                     <User className="h-6 w-6 text-blue-600" />
                   </div>
 
@@ -201,7 +201,7 @@ export default function BookingsPage() {
                     <div className="mt-3 flex flex-wrap items-center gap-2">
                       <a
                         href={`tel:${appt.user.phone}`}
-                        className="flex items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-700 transition hover:bg-gray-50"
+                        className="flex items-center gap-1.5 rounded-[6px] border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-700 transition hover:bg-gray-50"
                       >
                         <Phone size={13} />
                         {appt.user.phone}
@@ -212,7 +212,7 @@ export default function BookingsPage() {
                           <button
                             onClick={() => doAction(appt.id, "confirm")}
                             disabled={!!isLoading}
-                            className="flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-blue-700 disabled:opacity-50"
+                            className="flex items-center gap-1.5 rounded-[6px] bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-blue-700 disabled:opacity-50"
                           >
                             {isLoading && actionLoading === appt.id + "confirm" ? (
                               <Loader2 size={12} className="animate-spin" />
@@ -224,7 +224,7 @@ export default function BookingsPage() {
                           <button
                             onClick={() => handleCancel(appt.id, appt.user.name)}
                             disabled={!!isLoading}
-                            className="flex items-center gap-1.5 rounded-lg border border-red-200 px-3 py-1.5 text-xs font-semibold text-red-600 transition hover:bg-red-50 disabled:opacity-50"
+                            className="flex items-center gap-1.5 rounded-[6px] border border-red-200 px-3 py-1.5 text-xs font-semibold text-red-600 transition hover:bg-red-50 disabled:opacity-50"
                           >
                             <XCircle size={13} />
                             Cancel
@@ -237,7 +237,7 @@ export default function BookingsPage() {
                           <button
                             onClick={() => doAction(appt.id, "complete")}
                             disabled={!!isLoading}
-                            className="flex items-center gap-1.5 rounded-lg bg-green-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-green-700 disabled:opacity-50"
+                            className="flex items-center gap-1.5 rounded-[6px] bg-green-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-green-700 disabled:opacity-50"
                           >
                             {isLoading && actionLoading === appt.id + "complete" ? (
                               <Loader2 size={12} className="animate-spin" />
@@ -249,7 +249,7 @@ export default function BookingsPage() {
                           <button
                             onClick={() => handleCancel(appt.id, appt.user.name)}
                             disabled={!!isLoading}
-                            className="flex items-center gap-1.5 rounded-lg border border-red-200 px-3 py-1.5 text-xs font-semibold text-red-600 transition hover:bg-red-50 disabled:opacity-50"
+                            className="flex items-center gap-1.5 rounded-[6px] border border-red-200 px-3 py-1.5 text-xs font-semibold text-red-600 transition hover:bg-red-50 disabled:opacity-50"
                           >
                             <XCircle size={13} />
                             Cancel
@@ -275,7 +275,7 @@ export default function BookingsPage() {
       {/* Cancel modal */}
       {cancelModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl">
+          <div className="w-full max-w-md rounded-[6px] bg-white p-6 shadow-xl">
             <h2 className="text-lg font-bold text-gray-900">Cancel Appointment</h2>
             <p className="mt-1 text-sm text-gray-600">
               Are you sure you want to cancel the appointment for{" "}
@@ -290,20 +290,20 @@ export default function BookingsPage() {
                 value={cancelReason}
                 onChange={(e) => setCancelReason(e.target.value)}
                 placeholder="e.g. Merchant unavailable, rescheduling…"
-                className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 resize-none"
+                className="w-full rounded-[6px] border border-gray-300 px-3 py-2.5 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 resize-none"
               />
             </div>
             <div className="mt-5 flex gap-3">
               <button
                 onClick={() => setCancelModal(null)}
-                className="flex-1 rounded-lg border border-gray-300 px-4 py-2.5 text-sm font-semibold text-gray-700 transition hover:bg-gray-50"
+                className="flex-1 rounded-[6px] border border-gray-300 px-4 py-2.5 text-sm font-semibold text-gray-700 transition hover:bg-gray-50"
               >
                 Back
               </button>
               <button
                 onClick={submitCancel}
                 disabled={actionLoading?.startsWith(cancelModal.id)}
-                className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-red-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-red-700 disabled:opacity-50"
+                className="flex flex-1 items-center justify-center gap-2 rounded-[6px] bg-red-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-red-700 disabled:opacity-50"
               >
                 {actionLoading?.startsWith(cancelModal.id) && (
                   <Loader2 size={14} className="animate-spin" />

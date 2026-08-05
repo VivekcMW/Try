@@ -158,7 +158,7 @@ export default function BookingDetailPage() {
       </div>
 
       {/* Date / time card */}
-      <div className="mb-4 rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+      <div className="mb-4 rounded-[6px] border border-gray-200 bg-white p-4 shadow-sm">
         <div className="flex items-start gap-3">
           <CalendarDays className="mt-0.5 h-5 w-5 flex-shrink-0 text-blue-600" />
           <div>
@@ -173,7 +173,7 @@ export default function BookingDetailPage() {
       </div>
 
       {/* Customer card */}
-      <div className="mb-4 rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+      <div className="mb-4 rounded-[6px] border border-gray-200 bg-white p-4 shadow-sm">
         <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-400">Customer</p>
         <div className="flex items-center gap-3">
           <div className="flex h-11 w-11 items-center justify-center rounded-full bg-blue-100">
@@ -187,7 +187,7 @@ export default function BookingDetailPage() {
         <div className="mt-4 flex gap-3">
           <a
             href={`tel:${appointment.user.phone}`}
-            className="flex flex-1 items-center justify-center gap-2 rounded-lg border border-gray-200 py-2.5 text-sm font-semibold text-gray-700 transition hover:bg-gray-50"
+            className="flex flex-1 items-center justify-center gap-2 rounded-[6px] border border-gray-200 py-2.5 text-sm font-semibold text-gray-700 transition hover:bg-gray-50"
           >
             <Phone size={16} />
             Call
@@ -196,7 +196,7 @@ export default function BookingDetailPage() {
             href={`https://wa.me/${appointment.user.phone.replace(/\D/g, "")}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex flex-1 items-center justify-center gap-2 rounded-lg border border-green-200 py-2.5 text-sm font-semibold text-green-700 transition hover:bg-green-50"
+            className="flex flex-1 items-center justify-center gap-2 rounded-[6px] border border-green-200 py-2.5 text-sm font-semibold text-green-700 transition hover:bg-green-50"
           >
             <MessageCircle size={16} />
             WhatsApp
@@ -206,7 +206,7 @@ export default function BookingDetailPage() {
 
       {/* Notes / payment info */}
       {appointment.notesForMerchant && (
-        <div className="mb-4 rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+        <div className="mb-4 rounded-[6px] border border-gray-200 bg-white p-4 shadow-sm">
           <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-400">
             {isEvents ? "Payment & Notes" : "Notes"}
           </p>
@@ -244,7 +244,7 @@ export default function BookingDetailPage() {
 
       {/* Cancellation reason */}
       {appointment.cancellationReason && (
-        <div className="mb-4 rounded-xl border border-red-200 bg-red-50 p-4">
+        <div className="mb-4 rounded-[6px] border border-red-200 bg-red-50 p-4">
           <div className="flex items-start gap-2">
             <AlertCircle size={16} className="mt-0.5 flex-shrink-0 text-red-500" />
             <div>
@@ -257,14 +257,14 @@ export default function BookingDetailPage() {
 
       {/* Action buttons */}
       {(appointment.status === "pending" || appointment.status === "confirmed") && (
-        <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+        <div className="rounded-[6px] border border-gray-200 bg-white p-4 shadow-sm">
           <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-400">Actions</p>
           <div className="flex flex-col gap-3 sm:flex-row">
             {appointment.status === "pending" && (
               <button
                 onClick={() => doAction("confirm")}
                 disabled={!!actionLoading}
-                className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-blue-600 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:opacity-50"
+                className="flex flex-1 items-center justify-center gap-2 rounded-[6px] bg-blue-600 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:opacity-50"
               >
                 {actionLoading === "confirm" ? <Loader2 size={16} className="animate-spin" /> : <CheckCircle size={16} />}
                 Confirm Appointment
@@ -274,7 +274,7 @@ export default function BookingDetailPage() {
               <button
                 onClick={() => doAction("complete")}
                 disabled={!!actionLoading}
-                className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-green-600 py-2.5 text-sm font-semibold text-white transition hover:bg-green-700 disabled:opacity-50"
+                className="flex flex-1 items-center justify-center gap-2 rounded-[6px] bg-green-600 py-2.5 text-sm font-semibold text-white transition hover:bg-green-700 disabled:opacity-50"
               >
                 {actionLoading === "complete" ? <Loader2 size={16} className="animate-spin" /> : <CheckCircle size={16} />}
                 Mark as Complete
@@ -283,7 +283,7 @@ export default function BookingDetailPage() {
             <button
               onClick={() => { setCancelReason(""); setCancelModal(true); }}
               disabled={!!actionLoading}
-              className="flex flex-1 items-center justify-center gap-2 rounded-lg border border-red-200 py-2.5 text-sm font-semibold text-red-600 transition hover:bg-red-50 disabled:opacity-50"
+              className="flex flex-1 items-center justify-center gap-2 rounded-[6px] border border-red-200 py-2.5 text-sm font-semibold text-red-600 transition hover:bg-red-50 disabled:opacity-50"
             >
               <XCircle size={16} />
               Cancel
@@ -295,7 +295,7 @@ export default function BookingDetailPage() {
       {/* Cancel modal */}
       {cancelModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl">
+          <div className="w-full max-w-md rounded-[6px] bg-white p-6 shadow-xl">
             <h2 className="text-lg font-bold text-gray-900">Cancel Appointment</h2>
             <p className="mt-1 text-sm text-gray-600">
               Cancel appointment for{" "}
@@ -310,13 +310,13 @@ export default function BookingDetailPage() {
                 value={cancelReason}
                 onChange={(e) => setCancelReason(e.target.value)}
                 placeholder="e.g. Merchant unavailable, rescheduling…"
-                className="w-full resize-none rounded-lg border border-gray-300 px-3 py-2.5 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                className="w-full resize-none rounded-[6px] border border-gray-300 px-3 py-2.5 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
               />
             </div>
             <div className="mt-5 flex gap-3">
               <button
                 onClick={() => setCancelModal(false)}
-                className="flex-1 rounded-lg border border-gray-300 px-4 py-2.5 text-sm font-semibold text-gray-700 transition hover:bg-gray-50"
+                className="flex-1 rounded-[6px] border border-gray-300 px-4 py-2.5 text-sm font-semibold text-gray-700 transition hover:bg-gray-50"
               >
                 Back
               </button>
@@ -326,7 +326,7 @@ export default function BookingDetailPage() {
                   setCancelModal(false);
                 }}
                 disabled={!!actionLoading}
-                className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-red-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-red-700 disabled:opacity-50"
+                className="flex flex-1 items-center justify-center gap-2 rounded-[6px] bg-red-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-red-700 disabled:opacity-50"
               >
                 {actionLoading === "cancel" && <Loader2 size={14} className="animate-spin" />}
                 Confirm Cancel

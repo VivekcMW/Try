@@ -174,7 +174,7 @@ export default function RequestsPage() {
       {/* Header */}
       <div className="mb-6">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-brand-600">
+          <div className="flex h-10 w-10 items-center justify-center rounded-[6px] bg-brand-600">
             <Briefcase className="h-5 w-5 text-white" />
           </div>
           <div>
@@ -209,7 +209,7 @@ export default function RequestsPage() {
           <Loader2 className="h-8 w-8 animate-spin text-brand-600" />
         </div>
       ) : requests.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 py-16">
+        <div className="flex flex-col items-center justify-center rounded-[6px] border-2 border-dashed border-gray-300 bg-gray-50 py-16">
           <Briefcase className="h-12 w-12 text-gray-400" />
           <h3 className="mt-4 text-lg font-semibold text-gray-900">No requests found</h3>
           <p className="mt-2 text-sm text-gray-600">
@@ -223,7 +223,7 @@ export default function RequestsPage() {
           {requests.map((req) => (
             <div
               key={req.id}
-              className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition hover:shadow-md"
+              className="rounded-[6px] border border-gray-200 bg-white p-5 shadow-sm transition hover:shadow-md"
             >
               {/* Card header */}
               <div className="flex items-start justify-between gap-3">
@@ -270,7 +270,7 @@ export default function RequestsPage() {
 
               {/* Merchant reply */}
               {req.merchantReply && (
-                <div className="mt-3 flex items-start gap-2 rounded-lg bg-gray-50 p-3">
+                <div className="mt-3 flex items-start gap-2 rounded-[6px] bg-gray-50 p-3">
                   <MessageSquare className="h-4 w-4 flex-shrink-0 text-gray-400 mt-0.5" />
                   <p className="text-xs text-gray-600">{req.merchantReply}</p>
                 </div>
@@ -287,7 +287,7 @@ export default function RequestsPage() {
                         setQuoteNote("");
                         setQuoteError("");
                       }}
-                      className="flex items-center gap-1.5 rounded-lg bg-brand-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-brand-700 transition-colors"
+                      className="flex items-center gap-1.5 rounded-[6px] bg-brand-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-brand-700 transition-colors"
                     >
                       <IndianRupee className="h-4 w-4" />
                       Send Quote
@@ -295,7 +295,7 @@ export default function RequestsPage() {
                     <button
                       onClick={() => handleStatusAction(req.id, "decline")}
                       disabled={actionLoading === req.id + "decline"}
-                      className="flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 transition-colors"
+                      className="flex items-center gap-1.5 rounded-[6px] border border-gray-200 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 transition-colors"
                     >
                       {actionLoading === req.id + "decline" ? (
                         <Loader2 className="h-4 w-4 animate-spin" />
@@ -311,7 +311,7 @@ export default function RequestsPage() {
                   <>
                     <button
                       disabled
-                      className="flex items-center gap-1.5 rounded-lg bg-blue-100 px-3 py-1.5 text-sm font-medium text-blue-700 cursor-not-allowed"
+                      className="flex items-center gap-1.5 rounded-[6px] bg-blue-100 px-3 py-1.5 text-sm font-medium text-blue-700 cursor-not-allowed"
                     >
                       <CheckCircle className="h-4 w-4" />
                       Quote Sent
@@ -319,7 +319,7 @@ export default function RequestsPage() {
                     <button
                       onClick={() => handleStatusAction(req.id, "decline")}
                       disabled={actionLoading === req.id + "decline"}
-                      className="flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 transition-colors"
+                      className="flex items-center gap-1.5 rounded-[6px] border border-gray-200 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 transition-colors"
                     >
                       {actionLoading === req.id + "decline" ? (
                         <Loader2 className="h-4 w-4 animate-spin" />
@@ -332,14 +332,14 @@ export default function RequestsPage() {
                 )}
 
                 {req.status === "accepted" && (
-                  <span className="flex items-center gap-1.5 rounded-lg bg-green-100 px-3 py-1.5 text-sm font-medium text-green-700">
+                  <span className="flex items-center gap-1.5 rounded-[6px] bg-green-100 px-3 py-1.5 text-sm font-medium text-green-700">
                     <CheckCircle className="h-4 w-4" />
                     Job Accepted
                   </span>
                 )}
 
                 {req.status === "declined" && (
-                  <span className="flex items-center gap-1.5 rounded-lg bg-gray-100 px-3 py-1.5 text-sm font-medium text-gray-600">
+                  <span className="flex items-center gap-1.5 rounded-[6px] bg-gray-100 px-3 py-1.5 text-sm font-medium text-gray-600">
                     <X className="h-4 w-4" />
                     Declined
                   </span>
@@ -348,7 +348,7 @@ export default function RequestsPage() {
 
               {/* Inline Quote Panel */}
               {quoteTarget === req.id && (
-                <div className="mt-4 rounded-xl border border-blue-200 bg-blue-50 p-4">
+                <div className="mt-4 rounded-[6px] border border-blue-200 bg-blue-50 p-4">
                   <h4 className="mb-3 text-sm font-semibold text-gray-900">Send Quote</h4>
                   <div className="space-y-3">
                     <div>
@@ -366,7 +366,7 @@ export default function RequestsPage() {
                           value={quoteAmount}
                           onChange={(e) => setQuoteAmount(e.target.value)}
                           placeholder="e.g. 500"
-                          className="w-full rounded-lg border border-gray-300 pl-7 pr-4 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                          className="w-full rounded-[6px] border border-gray-300 pl-7 pr-4 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                         />
                       </div>
                     </div>
@@ -379,7 +379,7 @@ export default function RequestsPage() {
                         value={quoteNote}
                         onChange={(e) => setQuoteNote(e.target.value)}
                         placeholder="Any details about the service, visit time, etc."
-                        className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 resize-none"
+                        className="w-full rounded-[6px] border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 resize-none"
                       />
                     </div>
                     {quoteError && (
@@ -389,7 +389,7 @@ export default function RequestsPage() {
                       <button
                         onClick={() => handleSendQuote(req.id)}
                         disabled={quoteSending}
-                        className="flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700 disabled:opacity-50 transition-colors"
+                        className="flex flex-1 items-center justify-center gap-1.5 rounded-[6px] bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700 disabled:opacity-50 transition-colors"
                       >
                         {quoteSending ? (
                           <Loader2 className="h-4 w-4 animate-spin" />
@@ -401,7 +401,7 @@ export default function RequestsPage() {
                       <button
                         onClick={() => setQuoteTarget(null)}
                         disabled={quoteSending}
-                        className="rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 transition-colors"
+                        className="rounded-[6px] border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 transition-colors"
                       >
                         Cancel
                       </button>

@@ -81,11 +81,11 @@ export default function MerchantLayout({ children }: { children: React.ReactNode
               key={item.href}
               href={item.href}
               onClick={() => setSidebarOpen(false)}
-              className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition ${
-                isActive
-                  ? "bg-brand-50 text-brand-700"
-                  : "text-gray-700 hover:bg-gray-100"
-              }`}
+              className="flex items-center gap-3 rounded-[6px] px-3 py-2.5 text-sm font-medium transition"
+              style={{
+                background: isActive ? "var(--color-brand-50)" : "transparent",
+                color: isActive ? "var(--color-brand-700)" : "var(--color-foreground)",
+              }}
             >
               <Icon size={18} />
               {item.label}
@@ -93,10 +93,11 @@ export default function MerchantLayout({ children }: { children: React.ReactNode
           );
         })}
       </nav>
-      <div className="border-t border-gray-200 p-4">
+      <div className="p-4" style={{ borderTop: "1px solid var(--color-border)" }}>
         <button
           onClick={handleLogout}
-          className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-red-600 transition hover:bg-red-50"
+          className="flex w-full items-center gap-3 rounded-[6px] px-3 py-2.5 text-sm font-medium transition"
+          style={{ color: "var(--color-danger)" }}
         >
           <LogOut size={18} />
           Logout
@@ -106,16 +107,22 @@ export default function MerchantLayout({ children }: { children: React.ReactNode
   );
 
   const MerchantHeader = ({ showClose = false }: { showClose?: boolean }) => (
-    <div className={`flex h-16 items-center border-b border-gray-200 px-6 ${showClose ? "justify-between" : ""}`}>
+    <div
+      className={`flex h-16 items-center px-6 ${showClose ? "justify-between" : ""}`}
+      style={{ borderBottom: "1px solid var(--color-border)" }}
+    >
       <div className="flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-brand-600">
-          <Store className="h-5 w-5 text-white" />
+        <div
+          className="flex h-10 w-10 items-center justify-center rounded-[6px] text-white"
+          style={{ background: "var(--color-brand-600)" }}
+        >
+          <Store className="h-5 w-5" />
         </div>
         <div className="flex-1 overflow-hidden">
-          <h1 className="truncate text-sm font-bold text-gray-900">{merchant.name}</h1>
-          <p className="truncate text-xs text-gray-500">{merchant.category}</p>
+          <h1 className="truncate text-sm font-bold" style={{ color: "var(--color-heading)" }}>{merchant.name}</h1>
+          <p className="truncate text-xs" style={{ color: "var(--color-text-secondary)" }}>{merchant.category}</p>
           {merchant.acceptingOrders === false && (
-            <div className="mt-1 flex items-center gap-1 text-xs text-red-600">
+            <div className="mt-1 flex items-center gap-1 text-xs" style={{ color: "var(--color-danger)" }}>
               <XCircle className="w-3 h-3" />
               <span>Orders Paused</span>
             </div>
@@ -132,9 +139,15 @@ export default function MerchantLayout({ children }: { children: React.ReactNode
 
   return (
     <MerchantProfileProvider value={profile}>
-      <div className="flex h-screen overflow-hidden bg-gray-50">
+      <div className="flex h-screen overflow-hidden" style={{ background: "var(--color-surface-muted)" }}>
         {/* Desktop sidebar */}
-        <aside className="hidden w-64 flex-col border-r border-gray-200 bg-white lg:flex">
+        <aside
+          className="hidden w-64 flex-col lg:flex"
+          style={{
+            background: "var(--color-surface)",
+            borderRight: "1px solid var(--color-border)",
+          }}
+        >
           <MerchantHeader />
           <SidebarContent />
         </aside>
@@ -149,9 +162,13 @@ export default function MerchantLayout({ children }: { children: React.ReactNode
 
         {/* Mobile sidebar */}
         <aside
-          className={`fixed inset-y-0 left-0 z-50 w-64 flex flex-col border-r border-gray-200 bg-white transition-transform lg:hidden ${
+          className={`fixed inset-y-0 left-0 z-50 w-64 flex flex-col transition-transform lg:hidden ${
             sidebarOpen ? "translate-x-0" : "-translate-x-full"
           }`}
+          style={{
+            background: "var(--color-surface)",
+            borderRight: "1px solid var(--color-border)",
+          }}
         >
           <MerchantHeader showClose />
           <SidebarContent />
@@ -159,10 +176,17 @@ export default function MerchantLayout({ children }: { children: React.ReactNode
 
         {/* Main content */}
         <div className="flex flex-1 flex-col overflow-hidden">
-          <header className="flex h-16 items-center justify-between border-b border-gray-200 bg-white px-4 lg:px-6">
+          <header
+            className="flex h-16 items-center justify-between px-4 lg:px-6"
+            style={{
+              background: "var(--color-surface)",
+              borderBottom: "1px solid var(--color-border)",
+            }}
+          >
             <button
               onClick={() => setSidebarOpen(true)}
-              className="text-gray-500 hover:text-gray-900 lg:hidden"
+              className="transition lg:hidden"
+              style={{ color: "var(--color-text-secondary)" }}
             >
               <Menu size={24} />
             </button>
@@ -170,7 +194,8 @@ export default function MerchantLayout({ children }: { children: React.ReactNode
             <div className="ml-auto flex items-center gap-4">
               <Link
                 href="/business"
-                className="text-sm font-medium text-gray-600 hover:text-gray-900"
+                className="text-sm font-medium transition"
+                style={{ color: "var(--color-text-secondary)" }}
               >
                 View on App →
               </Link>

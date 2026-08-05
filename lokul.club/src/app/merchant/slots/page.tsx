@@ -260,14 +260,14 @@ export default function SlotsPage() {
         <div className="flex flex-shrink-0 items-center gap-2">
           <button
             onClick={() => { setWeekSuccess(null); setWeekProgress(null); setShowWeekModal(true); }}
-            className="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 shadow-sm transition hover:bg-gray-50 hover:shadow-md active:scale-95"
+            className="flex items-center gap-2 rounded-[6px] border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 shadow-sm transition hover:bg-gray-50 hover:shadow-md active:scale-95"
           >
             <CalendarRange size={18} />
             Add Week&apos;s Slots
           </button>
           <button
             onClick={() => setShowAddForm(true)}
-            className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 hover:shadow-md active:scale-95"
+            className="flex items-center gap-2 rounded-[6px] bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 hover:shadow-md active:scale-95"
           >
             <Plus size={18} />
             Add Slot
@@ -276,10 +276,10 @@ export default function SlotsPage() {
       </div>
 
       {/* Date Selector */}
-      <div className="mb-6 flex items-center gap-3 rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+      <div className="mb-6 flex items-center gap-3 rounded-[6px] border border-gray-200 bg-white p-4 shadow-sm">
         <button
           onClick={() => setSelectedDate((d) => shiftDate(d, -1))}
-          className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 text-gray-600 transition hover:bg-gray-100 active:scale-95"
+          className="flex h-9 w-9 items-center justify-center rounded-[6px] border border-gray-200 text-gray-600 transition hover:bg-gray-100 active:scale-95"
           aria-label="Previous day"
         >
           <ChevronLeft size={18} />
@@ -294,7 +294,7 @@ export default function SlotsPage() {
 
         <button
           onClick={() => setSelectedDate((d) => shiftDate(d, 1))}
-          className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 text-gray-600 transition hover:bg-gray-100 active:scale-95"
+          className="flex h-9 w-9 items-center justify-center rounded-[6px] border border-gray-200 text-gray-600 transition hover:bg-gray-100 active:scale-95"
           aria-label="Next day"
         >
           <ChevronRight size={18} />
@@ -307,7 +307,7 @@ export default function SlotsPage() {
           <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-blue-600" />
         </div>
       ) : slots.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 py-16">
+        <div className="flex flex-col items-center justify-center rounded-[6px] border-2 border-dashed border-gray-300 bg-gray-50 py-16">
           <Clock className="h-12 w-12 text-gray-400" />
           <h3 className="mt-4 text-lg font-semibold text-gray-900">No slots for this date</h3>
           <p className="mt-2 text-sm text-gray-600">
@@ -315,7 +315,7 @@ export default function SlotsPage() {
           </p>
           <button
             onClick={() => setShowAddForm(true)}
-            className="mt-6 flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700"
+            className="mt-6 flex items-center gap-2 rounded-[6px] bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700"
           >
             <Plus size={18} />
             Add Slot
@@ -329,12 +329,12 @@ export default function SlotsPage() {
             return (
               <div
                 key={slot.id}
-                className={`flex items-center gap-4 rounded-xl border bg-white p-4 shadow-sm transition hover:shadow-md ${
+                className={`flex items-center gap-4 rounded-[6px] border bg-white p-4 shadow-sm transition hover:shadow-md ${
                   full ? "border-red-200" : "border-gray-200"
                 }`}
               >
                 <div
-                  className={`flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg ${
+                  className={`flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-[6px] ${
                     full ? "bg-red-100" : "bg-blue-100"
                   }`}
                 >
@@ -384,12 +384,12 @@ export default function SlotsPage() {
       {/* Add Slot Modal */}
       {showAddForm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl">
+          <div className="w-full max-w-md rounded-[6px] bg-white p-6 shadow-xl">
             <div className="mb-6 flex items-center justify-between">
               <h2 className="text-xl font-bold text-gray-900">Add Time Slot</h2>
               <button
                 onClick={() => setShowAddForm(false)}
-                className="rounded-lg p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-900"
+                className="rounded-[6px] p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-900"
               >
                 <X size={20} />
               </button>
@@ -412,7 +412,7 @@ export default function SlotsPage() {
                     type="time"
                     value={newSlot.startTime}
                     onChange={(e) => setNewSlot({ ...newSlot, startTime: e.target.value })}
-                    className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-base outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                    className="w-full rounded-[6px] border border-gray-300 px-4 py-2.5 text-base outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                   />
                 </div>
                 <div>
@@ -423,7 +423,7 @@ export default function SlotsPage() {
                     type="time"
                     value={newSlot.endTime}
                     onChange={(e) => setNewSlot({ ...newSlot, endTime: e.target.value })}
-                    className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-base outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                    className="w-full rounded-[6px] border border-gray-300 px-4 py-2.5 text-base outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                   />
                 </div>
               </div>
@@ -439,7 +439,7 @@ export default function SlotsPage() {
                   onChange={(e) =>
                     setNewSlot({ ...newSlot, capacity: Math.max(1, parseInt(e.target.value) || 1) })
                   }
-                  className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-base outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                  className="w-full rounded-[6px] border border-gray-300 px-4 py-2.5 text-base outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                 />
                 <p className="mt-1 text-xs text-gray-500">
                   How many customers can book this slot simultaneously
@@ -453,14 +453,14 @@ export default function SlotsPage() {
                   setShowAddForm(false);
                   setNewSlot({ startTime: "", endTime: "", capacity: 1 });
                 }}
-                className="flex-1 rounded-lg border border-gray-300 px-4 py-2.5 text-sm font-semibold text-gray-700 transition hover:bg-gray-50"
+                className="flex-1 rounded-[6px] border border-gray-300 px-4 py-2.5 text-sm font-semibold text-gray-700 transition hover:bg-gray-50"
               >
                 Cancel
               </button>
               <button
                 onClick={handleAddSlot}
                 disabled={!canSave || saving}
-                className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+                className="flex flex-1 items-center justify-center gap-2 rounded-[6px] bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {saving && <Loader2 size={16} className="animate-spin" />}
                 Save Slot
@@ -473,12 +473,12 @@ export default function SlotsPage() {
       {/* Add Week's Slots Modal */}
       {showWeekModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-lg rounded-xl bg-white p-6 shadow-xl">
+          <div className="w-full max-w-lg rounded-[6px] bg-white p-6 shadow-xl">
             <div className="mb-6 flex items-center justify-between">
               <h2 className="text-xl font-bold text-gray-900">Add Week&apos;s Slots</h2>
               <button
                 onClick={() => setShowWeekModal(false)}
-                className="rounded-lg p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-900"
+                className="rounded-[6px] p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-900"
               >
                 <X size={20} />
               </button>
@@ -495,7 +495,7 @@ export default function SlotsPage() {
                     type="time"
                     value={weekConfig.startTime}
                     onChange={(e) => setWeekConfig({ ...weekConfig, startTime: e.target.value })}
-                    className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-base outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                    className="w-full rounded-[6px] border border-gray-300 px-4 py-2.5 text-base outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                   />
                 </div>
                 <div>
@@ -506,7 +506,7 @@ export default function SlotsPage() {
                     type="time"
                     value={weekConfig.endTime}
                     onChange={(e) => setWeekConfig({ ...weekConfig, endTime: e.target.value })}
-                    className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-base outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                    className="w-full rounded-[6px] border border-gray-300 px-4 py-2.5 text-base outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                   />
                 </div>
               </div>
@@ -519,7 +519,7 @@ export default function SlotsPage() {
                 <select
                   value={weekConfig.durationMins}
                   onChange={(e) => setWeekConfig({ ...weekConfig, durationMins: Number(e.target.value) })}
-                  className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-base outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                  className="w-full rounded-[6px] border border-gray-300 px-4 py-2.5 text-base outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                 >
                   {DURATION_OPTIONS.map((d) => (
                     <option key={d} value={d}>
@@ -541,7 +541,7 @@ export default function SlotsPage() {
                   onChange={(e) =>
                     setWeekConfig({ ...weekConfig, capacity: Math.max(1, parseInt(e.target.value) || 1) })
                   }
-                  className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-base outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                  className="w-full rounded-[6px] border border-gray-300 px-4 py-2.5 text-base outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                 />
               </div>
 
@@ -556,7 +556,7 @@ export default function SlotsPage() {
                       key={day}
                       type="button"
                       onClick={() => toggleDay(idx)}
-                      className={`flex items-center gap-1.5 rounded-lg border px-3 py-2 text-sm font-medium transition ${
+                      className={`flex items-center gap-1.5 rounded-[6px] border px-3 py-2 text-sm font-medium transition ${
                         weekConfig.days[idx]
                           ? "border-blue-500 bg-blue-50 text-blue-700"
                           : "border-gray-200 bg-white text-gray-600 hover:bg-gray-50"
@@ -580,7 +580,7 @@ export default function SlotsPage() {
                       key={w}
                       type="button"
                       onClick={() => setWeekConfig({ ...weekConfig, weeksAhead: w })}
-                      className={`flex-1 rounded-lg border py-2.5 text-sm font-semibold transition ${
+                      className={`flex-1 rounded-[6px] border py-2.5 text-sm font-semibold transition ${
                         weekConfig.weeksAhead === w
                           ? "border-blue-500 bg-blue-50 text-blue-700"
                           : "border-gray-200 bg-white text-gray-600 hover:bg-gray-50"
@@ -610,7 +610,7 @@ export default function SlotsPage() {
 
               {/* Success message */}
               {weekSuccess && (
-                <div className="rounded-lg bg-green-50 border border-green-200 px-4 py-3 text-sm font-medium text-green-700">
+                <div className="rounded-[6px] bg-green-50 border border-green-200 px-4 py-3 text-sm font-medium text-green-700">
                   {weekSuccess}
                 </div>
               )}
@@ -619,7 +619,7 @@ export default function SlotsPage() {
             <div className="mt-6 flex gap-3">
               <button
                 onClick={() => setShowWeekModal(false)}
-                className="flex-1 rounded-lg border border-gray-300 px-4 py-2.5 text-sm font-semibold text-gray-700 transition hover:bg-gray-50"
+                className="flex-1 rounded-[6px] border border-gray-300 px-4 py-2.5 text-sm font-semibold text-gray-700 transition hover:bg-gray-50"
               >
                 {weekSuccess ? "Close" : "Cancel"}
               </button>
@@ -627,7 +627,7 @@ export default function SlotsPage() {
                 <button
                   onClick={handleAddWeekSlots}
                   disabled={!canSaveWeek}
-                  className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="flex flex-1 items-center justify-center gap-2 rounded-[6px] bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {weekSaving ? (
                     <>

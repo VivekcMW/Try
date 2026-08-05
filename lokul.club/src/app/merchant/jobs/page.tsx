@@ -161,7 +161,7 @@ export default function JobsPage() {
     <div className="p-6 lg:p-8">
       {/* Header */}
       <div className="mb-6 flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-green-600">
+        <div className="flex h-10 w-10 items-center justify-center rounded-[6px] bg-green-600">
           <CheckSquare className="h-5 w-5 text-white" />
         </div>
         <div>
@@ -182,7 +182,7 @@ export default function JobsPage() {
           <Loader2 className="h-8 w-8 animate-spin text-green-600" />
         </div>
       ) : jobs.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 py-16">
+        <div className="flex flex-col items-center justify-center rounded-[6px] border-2 border-dashed border-gray-300 bg-gray-50 py-16">
           <CheckSquare className="h-12 w-12 text-gray-400" />
           <h3 className="mt-4 text-lg font-semibold text-gray-900">No active jobs</h3>
           <p className="mt-2 text-sm text-gray-600">
@@ -196,7 +196,7 @@ export default function JobsPage() {
             return (
               <div
                 key={job.id}
-                className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition hover:shadow-md"
+                className="rounded-[6px] border border-gray-200 bg-white p-5 shadow-sm transition hover:shadow-md"
               >
                 {/* Header row */}
                 <div className="flex items-start justify-between gap-3">
@@ -245,7 +245,7 @@ export default function JobsPage() {
                     <button
                       onClick={() => handleOnMyWay(job.id)}
                       disabled={actionLoading === job.id + "_onway"}
-                      className="flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50 transition-colors"
+                      className="flex items-center gap-1.5 rounded-[6px] bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50 transition-colors"
                     >
                       {actionLoading === job.id + "_onway" ? (
                         <Loader2 className="h-4 w-4 animate-spin" />
@@ -258,14 +258,14 @@ export default function JobsPage() {
 
                   {jobStatus === "on_the_way" && (
                     <>
-                      <span className="flex items-center gap-1.5 rounded-lg bg-blue-100 px-3 py-1.5 text-sm font-medium text-blue-700">
+                      <span className="flex items-center gap-1.5 rounded-[6px] bg-blue-100 px-3 py-1.5 text-sm font-medium text-blue-700">
                         <Navigation className="h-4 w-4" />
                         Heading there
                       </span>
                       <button
                         onClick={() => handleMarkComplete(job.id)}
                         disabled={actionLoading === job.id + "_complete"}
-                        className="flex items-center gap-1.5 rounded-lg bg-green-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-green-700 disabled:opacity-50 transition-colors"
+                        className="flex items-center gap-1.5 rounded-[6px] bg-green-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-green-700 disabled:opacity-50 transition-colors"
                       >
                         {actionLoading === job.id + "_complete" ? (
                           <Loader2 className="h-4 w-4 animate-spin" />
@@ -278,7 +278,7 @@ export default function JobsPage() {
                   )}
 
                   {jobStatus === "completed" && (
-                    <span className="flex items-center gap-1.5 rounded-lg bg-green-100 px-3 py-1.5 text-sm font-medium text-green-700">
+                    <span className="flex items-center gap-1.5 rounded-[6px] bg-green-100 px-3 py-1.5 text-sm font-medium text-green-700">
                       <CheckCircle className="h-4 w-4" />
                       Completed
                     </span>
@@ -286,7 +286,7 @@ export default function JobsPage() {
 
                   <Link
                     href={`/merchant/jobs/${job.id}`}
-                    className="ml-auto flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                    className="ml-auto flex items-center gap-1.5 rounded-[6px] border border-gray-200 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
                   >
                     View Details
                   </Link>

@@ -105,7 +105,7 @@ export default function CustomersPage() {
             placeholder="Search by name or phone..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full rounded-lg border border-gray-300 py-2 pl-10 pr-4 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+            className="w-full rounded-[6px] border border-gray-300 py-2 pl-10 pr-4 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
           />
         </div>
       </div>
@@ -134,7 +134,7 @@ export default function CustomersPage() {
 
       {/* Customer List */}
       {filtered.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 py-16">
+        <div className="flex flex-col items-center justify-center rounded-[6px] border-2 border-dashed border-gray-300 bg-gray-50 py-16">
           <Users className="h-12 w-12 text-gray-400" />
           <h3 className="mt-4 text-lg font-semibold text-gray-900">
             {search ? "No customers match your search" : "No customers yet"}
@@ -152,7 +152,7 @@ export default function CustomersPage() {
             return (
               <div
                 key={customer.id}
-                className="flex items-center gap-4 rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition hover:shadow-md"
+                className="flex items-center gap-4 rounded-[6px] border border-gray-200 bg-white p-4 shadow-sm transition hover:shadow-md"
               >
                 {/* Avatar */}
                 <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-brand-100 text-lg font-bold text-brand-700">

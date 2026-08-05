@@ -238,7 +238,7 @@ export default function BranchesPage() {
               type="text"
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
-              className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+              className="w-full rounded-[6px] border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
               placeholder="e.g., Andheri Branch"
             />
           </div>
@@ -250,7 +250,7 @@ export default function BranchesPage() {
               type="text"
               value={form.city}
               onChange={(e) => setForm({ ...form, city: e.target.value })}
-              className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+              className="w-full rounded-[6px] border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
               placeholder="e.g., Mumbai"
             />
           </div>
@@ -263,7 +263,7 @@ export default function BranchesPage() {
             value={form.address}
             onChange={(e) => setForm({ ...form, address: e.target.value })}
             rows={2}
-            className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 resize-none"
+            className="w-full rounded-[6px] border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 resize-none"
             placeholder="Full street address"
           />
         </div>
@@ -277,7 +277,7 @@ export default function BranchesPage() {
               value={form.pinCode}
               onChange={(e) => setForm({ ...form, pinCode: e.target.value })}
               maxLength={6}
-              className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+              className="w-full rounded-[6px] border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
               placeholder="e.g., 400053"
             />
           </div>
@@ -287,21 +287,21 @@ export default function BranchesPage() {
               type="tel"
               value={form.phone}
               onChange={(e) => setForm({ ...form, phone: e.target.value })}
-              className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+              className="w-full rounded-[6px] border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
               placeholder="e.g., 9876543210"
             />
           </div>
         </div>
 
         {error && (
-          <p className="rounded-lg bg-red-50 px-4 py-2.5 text-sm text-red-700">{error}</p>
+          <p className="rounded-[6px] bg-red-50 px-4 py-2.5 text-sm text-red-700">{error}</p>
         )}
 
         <div className="flex gap-3">
           <button
             onClick={onSave}
             disabled={saving}
-            className="flex-1 rounded-lg bg-brand-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-50 transition-colors"
+            className="flex-1 rounded-[6px] bg-brand-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-50 transition-colors"
           >
             {saving ? (
               <span className="flex items-center justify-center gap-2">
@@ -314,7 +314,7 @@ export default function BranchesPage() {
           <button
             onClick={onCancel}
             disabled={saving}
-            className="flex-1 rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 transition-colors"
+            className="flex-1 rounded-[6px] border border-gray-200 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 transition-colors"
           >
             Cancel
           </button>
@@ -348,7 +348,7 @@ export default function BranchesPage() {
             setAddError("");
             setShowAddModal(true);
           }}
-          className="inline-flex items-center gap-2 rounded-lg bg-brand-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-700 transition-colors"
+          className="inline-flex items-center gap-2 rounded-[6px] bg-brand-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-700 transition-colors"
         >
           <Plus className="h-4 w-4" />
           Add Branch
@@ -357,7 +357,7 @@ export default function BranchesPage() {
 
       {/* Branch List */}
       {branches.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 py-16 text-center">
+        <div className="flex flex-col items-center justify-center rounded-[6px] border-2 border-dashed border-gray-300 bg-gray-50 py-16 text-center">
           <GitBranch className="h-12 w-12 text-gray-400" />
           <h3 className="mt-4 text-lg font-semibold text-gray-900">No branches yet</h3>
           <p className="mt-2 max-w-sm text-sm text-gray-600">
@@ -369,7 +369,7 @@ export default function BranchesPage() {
               setAddError("");
               setShowAddModal(true);
             }}
-            className="mt-6 inline-flex items-center gap-2 rounded-lg bg-brand-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-700 transition-colors"
+            className="mt-6 inline-flex items-center gap-2 rounded-[6px] bg-brand-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-700 transition-colors"
           >
             <Plus className="h-4 w-4" />
             Add First Branch
@@ -380,7 +380,7 @@ export default function BranchesPage() {
           {branches.map((branch) => (
             <div
               key={branch.id}
-              className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm"
+              className="rounded-[6px] border border-gray-200 bg-white p-5 shadow-sm"
             >
               {editingBranch?.id === branch.id ? (
                 /* Inline edit form */
@@ -414,7 +414,7 @@ export default function BranchesPage() {
                     <button
                       onClick={() => handleDelete(branch.id)}
                       disabled={deleteLoading}
-                      className="flex-1 rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50 transition-colors"
+                      className="flex-1 rounded-[6px] bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50 transition-colors"
                     >
                       {deleteLoading ? (
                         <span className="flex items-center justify-center gap-2">
@@ -426,7 +426,7 @@ export default function BranchesPage() {
                     </button>
                     <button
                       onClick={() => setDeletingId(null)}
-                      className="flex-1 rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                      className="flex-1 rounded-[6px] border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
                     >
                       Cancel
                     </button>
@@ -474,7 +474,7 @@ export default function BranchesPage() {
                         onClick={() => handleToggleActive(branch)}
                         disabled={togglingId === branch.id}
                         title={branch.isActive ? "Deactivate branch" : "Activate branch"}
-                        className="rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-50 disabled:opacity-50 transition-colors"
+                        className="rounded-[6px] border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-50 disabled:opacity-50 transition-colors"
                       >
                         {togglingId === branch.id ? (
                           <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -486,14 +486,14 @@ export default function BranchesPage() {
                       </button>
                       <button
                         onClick={() => openEdit(branch)}
-                        className="rounded-lg border border-gray-200 p-1.5 text-gray-600 hover:bg-gray-50 transition-colors"
+                        className="rounded-[6px] border border-gray-200 p-1.5 text-gray-600 hover:bg-gray-50 transition-colors"
                         title="Edit branch"
                       >
                         <Pencil className="h-4 w-4" />
                       </button>
                       <button
                         onClick={() => setDeletingId(branch.id)}
-                        className="rounded-lg border border-red-200 p-1.5 text-red-600 hover:bg-red-50 transition-colors"
+                        className="rounded-[6px] border border-red-200 p-1.5 text-red-600 hover:bg-red-50 transition-colors"
                         title="Delete branch"
                       >
                         <Trash2 className="h-4 w-4" />
@@ -510,7 +510,7 @@ export default function BranchesPage() {
       {/* Add Branch Modal */}
       {showAddModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl">
+          <div className="w-full max-w-lg rounded-[6px] bg-white p-6 shadow-xl">
             <div className="mb-5 flex items-center justify-between">
               <h2 className="text-lg font-semibold text-gray-900">Add Branch</h2>
               <button

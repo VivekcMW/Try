@@ -171,7 +171,7 @@ function OnboardingChecklist() {
   const incompleteItems = data.checks.filter((c) => !c.done);
 
   return (
-    <div className="mb-6 rounded-xl border border-amber-200 bg-amber-50 p-5">
+    <div className="mb-6 rounded-[6px] border border-amber-200 bg-amber-50 p-5">
       <div className="mb-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <CheckCircle className="h-5 w-5 text-amber-600" />
@@ -197,7 +197,7 @@ function OnboardingChecklist() {
           <Link
             key={item.id}
             href={item.href}
-            className="flex items-start gap-3 rounded-lg bg-white p-3 hover:bg-amber-50"
+            className="flex items-start gap-3 rounded-[6px] bg-white p-3 hover:bg-amber-50"
           >
             <div className="mt-0.5 h-4 w-4 flex-shrink-0 rounded-full border-2 border-amber-400" />
             <div>
@@ -314,7 +314,7 @@ export default function MerchantDashboardPage() {
           return (
             <div
               key={card.label}
-              className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm transition hover:shadow-md"
+              className="rounded-[6px] border border-gray-200 bg-white p-6 shadow-sm transition hover:shadow-md"
             >
               <div className="flex items-start justify-between">
                 <div className="flex-1">
@@ -324,7 +324,7 @@ export default function MerchantDashboardPage() {
                     <p className="mt-1 text-xs text-gray-500">{card.subtitle}</p>
                   )}
                 </div>
-                <div className={`rounded-lg p-3 ${colorClass}`}>
+                <div className={`rounded-[6px] p-3 ${colorClass}`}>
                   <Icon size={24} />
                 </div>
               </div>
@@ -342,7 +342,7 @@ export default function MerchantDashboardPage() {
       </div>
 
       {/* Quick Actions */}
-      <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+      <div className="rounded-[6px] border border-gray-200 bg-white p-6 shadow-sm">
         <h2 className="mb-4 text-lg font-semibold text-gray-900">Quick Actions</h2>
         <div className="grid gap-4 sm:grid-cols-3">
           {quickActions.map((action) => {
@@ -352,7 +352,7 @@ export default function MerchantDashboardPage() {
               <Link
                 key={action.href}
                 href={action.href}
-                className="flex items-center gap-3 rounded-lg border border-gray-200 p-4 transition hover:border-brand-300 hover:bg-brand-50"
+                className="flex items-center gap-3 rounded-[6px] border border-gray-200 p-4 transition hover:border-brand-300 hover:bg-brand-50"
               >
                 <Icon className={`h-5 w-5 ${colorClass.split(" ")[1]}`} />
                 <div>
@@ -366,7 +366,7 @@ export default function MerchantDashboardPage() {
       </div>
 
       {/* Tip */}
-      <div className="mt-6 rounded-xl border border-blue-200 bg-blue-50 p-6">
+      <div className="mt-6 rounded-[6px] border border-blue-200 bg-blue-50 p-6">
         <div className="flex items-start gap-3">
           <Eye className="h-5 w-5 flex-shrink-0 text-blue-600" />
           <div>

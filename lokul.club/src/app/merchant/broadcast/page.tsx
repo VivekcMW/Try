@@ -75,7 +75,7 @@ export default function BroadcastPage() {
       {/* Header */}
       <div className="bg-white border-b border-gray-200 px-4 py-4 sm:px-6">
         <div className="flex items-center gap-3">
-          <div className="p-2 bg-violet-100 rounded-lg">
+          <div className="p-2 bg-violet-100 rounded-[6px]">
             <Megaphone className="w-6 h-6 text-violet-600" />
           </div>
           <div>
@@ -91,7 +91,7 @@ export default function BroadcastPage() {
         {/* Left: Compose */}
         <div className="space-y-4">
           {/* Compose card */}
-          <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
+          <div className="bg-white rounded-[6px] border border-gray-200 shadow-sm p-5">
             <h2 className="text-base font-semibold text-gray-900 mb-4">
               Compose Announcement
             </h2>
@@ -107,7 +107,7 @@ export default function BroadcastPage() {
                 onChange={(e) => setTitle(e.target.value)}
                 maxLength={100}
                 placeholder='e.g., "Diwali Sale This Weekend!"'
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+                className="w-full rounded-[6px] border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
               />
               <p className="text-xs text-gray-400 mt-1 text-right">
                 {title.length}/100
@@ -125,7 +125,7 @@ export default function BroadcastPage() {
                 maxLength={500}
                 rows={4}
                 placeholder='e.g., "Get 20% off on all items from Friday to Sunday. Visit us in-store or order online!"'
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent resize-none"
+                className="w-full rounded-[6px] border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent resize-none"
               />
               <p className="text-xs text-gray-400 mt-1 text-right">
                 {message.length}/500
@@ -139,7 +139,7 @@ export default function BroadcastPage() {
                   <Smartphone className="w-3.5 h-3.5" />
                   Notification preview
                 </p>
-                <div className="bg-gray-900 rounded-xl px-4 py-3 text-white shadow-md">
+                <div className="bg-gray-900 rounded-[6px] px-4 py-3 text-white shadow-md">
                   <div className="flex items-center gap-2 mb-1">
                     <div className="w-4 h-4 rounded bg-violet-500 flex items-center justify-center">
                       <Megaphone className="w-2.5 h-2.5 text-white" />
@@ -157,7 +157,7 @@ export default function BroadcastPage() {
             )}
 
             {/* Warning */}
-            <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-4">
+            <div className="bg-amber-50 border border-amber-200 rounded-[6px] p-3 mb-4">
               <div className="flex gap-2">
                 <AlertTriangle className="w-4 h-4 text-amber-500 mt-0.5 flex-shrink-0" />
                 <div className="text-xs text-amber-800">
@@ -176,7 +176,7 @@ export default function BroadcastPage() {
 
             {/* Success */}
             {successMsg && (
-              <div className="flex items-center gap-2 bg-green-50 border border-green-200 rounded-lg px-3 py-2 mb-4">
+              <div className="flex items-center gap-2 bg-green-50 border border-green-200 rounded-[6px] px-3 py-2 mb-4">
                 <CheckCircle className="w-4 h-4 text-green-600 flex-shrink-0" />
                 <p className="text-sm text-green-700 font-medium">{successMsg}</p>
               </div>
@@ -186,7 +186,7 @@ export default function BroadcastPage() {
             <button
               onClick={handleSend}
               disabled={sending || !title.trim() || !message.trim()}
-              className="w-full flex items-center justify-center gap-2 bg-violet-600 hover:bg-violet-700 disabled:bg-gray-200 disabled:text-gray-400 text-white font-semibold py-2.5 rounded-lg transition-colors text-sm"
+              className="w-full flex items-center justify-center gap-2 bg-violet-600 hover:bg-violet-700 disabled:bg-gray-200 disabled:text-gray-400 text-white font-semibold py-2.5 rounded-[6px] transition-colors text-sm"
             >
               {sending ? (
                 <>
@@ -214,7 +214,7 @@ export default function BroadcastPage() {
               <Loader2 className="w-6 h-6 text-violet-500 animate-spin" />
             </div>
           ) : broadcasts.length === 0 ? (
-            <div className="bg-white rounded-xl border border-gray-200 shadow-sm flex flex-col items-center justify-center py-16 px-6 text-center">
+            <div className="bg-white rounded-[6px] border border-gray-200 shadow-sm flex flex-col items-center justify-center py-16 px-6 text-center">
               <InboxIcon className="w-10 h-10 text-gray-300 mb-3" />
               <p className="text-sm font-medium text-gray-500">
                 No broadcasts yet
@@ -229,7 +229,7 @@ export default function BroadcastPage() {
               {broadcasts.map((b) => (
                 <div
                   key={b.id}
-                  className="bg-white rounded-xl border border-gray-200 shadow-sm p-4"
+                  className="bg-white rounded-[6px] border border-gray-200 shadow-sm p-4"
                 >
                   <div className="flex items-start justify-between gap-2">
                     <p className="text-sm font-semibold text-gray-900 leading-tight">

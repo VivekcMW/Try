@@ -200,7 +200,7 @@ export default function CouponsPage() {
         </div>
         <button
           onClick={openModal}
-          className="flex flex-shrink-0 items-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 hover:shadow-md active:scale-95"
+          className="flex flex-shrink-0 items-center gap-2 rounded-[6px] bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 hover:shadow-md active:scale-95"
         >
           <Plus size={18} />
           Create Coupon
@@ -209,7 +209,7 @@ export default function CouponsPage() {
 
       {/* Empty state */}
       {coupons.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 py-16">
+        <div className="flex flex-col items-center justify-center rounded-[6px] border-2 border-dashed border-gray-300 bg-gray-50 py-16">
           <Ticket className="h-12 w-12 text-gray-400" />
           <h3 className="mt-4 text-lg font-semibold text-gray-900">No coupons yet</h3>
           <p className="mt-2 max-w-sm text-center text-sm text-gray-600">
@@ -217,7 +217,7 @@ export default function CouponsPage() {
           </p>
           <button
             onClick={openModal}
-            className="mt-6 flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700"
+            className="mt-6 flex items-center gap-2 rounded-[6px] bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700"
           >
             <Plus size={18} />
             Create Coupon
@@ -231,12 +231,12 @@ export default function CouponsPage() {
             return (
               <div
                 key={coupon.id}
-                className={`flex items-center gap-4 rounded-xl border bg-white p-4 shadow-sm transition hover:shadow-md ${
+                className={`flex items-center gap-4 rounded-[6px] border bg-white p-4 shadow-sm transition hover:shadow-md ${
                   expired ? "border-red-200 bg-red-50/40" : "border-gray-200"
                 }`}
               >
                 {/* Icon */}
-                <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-blue-50">
+                <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-[6px] bg-blue-50">
                   <Ticket className="h-6 w-6 text-blue-600" />
                 </div>
 
@@ -294,7 +294,7 @@ export default function CouponsPage() {
                   {/* Delete */}
                   <button
                     onClick={() => handleDelete(coupon.id)}
-                    className="rounded-lg p-2 text-gray-400 transition hover:bg-red-50 hover:text-red-600"
+                    className="rounded-[6px] p-2 text-gray-400 transition hover:bg-red-50 hover:text-red-600"
                     title="Delete coupon"
                   >
                     <Trash2 size={18} />
@@ -309,12 +309,12 @@ export default function CouponsPage() {
       {/* Create Modal */}
       {showCreateModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-lg rounded-xl bg-white p-6 shadow-xl">
+          <div className="w-full max-w-lg rounded-[6px] bg-white p-6 shadow-xl">
             <div className="mb-6 flex items-center justify-between">
               <h2 className="text-xl font-bold text-gray-900">Create Coupon</h2>
               <button
                 onClick={() => setShowCreateModal(false)}
-                className="rounded-lg p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-900"
+                className="rounded-[6px] p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-900"
               >
                 <X size={20} />
               </button>
@@ -334,7 +334,7 @@ export default function CouponsPage() {
                   onChange={(e) =>
                     setForm({ ...form, code: e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "") })
                   }
-                  className="w-full rounded-lg border border-gray-300 px-4 py-2.5 font-mono text-base font-semibold uppercase tracking-wider outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                  className="w-full rounded-[6px] border border-gray-300 px-4 py-2.5 font-mono text-base font-semibold uppercase tracking-wider outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                 />
                 <p className="mt-1 text-xs text-gray-400">3–20 characters, letters and numbers only</p>
               </div>
@@ -344,7 +344,7 @@ export default function CouponsPage() {
                 <label className="mb-1.5 block text-sm font-medium text-gray-700">
                   Discount Type <span className="text-red-500">*</span>
                 </label>
-                <div className="flex overflow-hidden rounded-lg border border-gray-300">
+                <div className="flex overflow-hidden rounded-[6px] border border-gray-300">
                   <button
                     type="button"
                     onClick={() => setForm({ ...form, discountType: "percent_off" })}
@@ -384,7 +384,7 @@ export default function CouponsPage() {
                   placeholder={form.discountType === "percent_off" ? "e.g. 20" : "e.g. 50"}
                   value={form.discountValue}
                   onChange={(e) => setForm({ ...form, discountValue: e.target.value })}
-                  className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-base outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                  className="w-full rounded-[6px] border border-gray-300 px-4 py-2.5 text-base outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                 />
               </div>
 
@@ -401,7 +401,7 @@ export default function CouponsPage() {
                     placeholder="e.g. 200"
                     value={form.minSpendRupees}
                     onChange={(e) => setForm({ ...form, minSpendRupees: e.target.value })}
-                    className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-base outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                    className="w-full rounded-[6px] border border-gray-300 px-4 py-2.5 text-base outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                   />
                 </div>
                 <div>
@@ -415,7 +415,7 @@ export default function CouponsPage() {
                     placeholder="Unlimited"
                     value={form.maxUsesTotal}
                     onChange={(e) => setForm({ ...form, maxUsesTotal: e.target.value })}
-                    className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-base outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                    className="w-full rounded-[6px] border border-gray-300 px-4 py-2.5 text-base outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                   />
                 </div>
               </div>
@@ -430,7 +430,7 @@ export default function CouponsPage() {
                   value={form.expiresAt}
                   min={new Date().toISOString().split("T")[0]}
                   onChange={(e) => setForm({ ...form, expiresAt: e.target.value })}
-                  className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-base outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                  className="w-full rounded-[6px] border border-gray-300 px-4 py-2.5 text-base outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                 />
               </div>
 
@@ -444,13 +444,13 @@ export default function CouponsPage() {
                   placeholder="e.g. Weekend special offer"
                   value={form.description}
                   onChange={(e) => setForm({ ...form, description: e.target.value })}
-                  className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-base outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                  className="w-full rounded-[6px] border border-gray-300 px-4 py-2.5 text-base outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                 />
               </div>
 
               {/* Error message */}
               {formError && (
-                <p className="rounded-lg bg-red-50 px-4 py-2.5 text-sm text-red-600">{formError}</p>
+                <p className="rounded-[6px] bg-red-50 px-4 py-2.5 text-sm text-red-600">{formError}</p>
               )}
             </div>
 
@@ -458,14 +458,14 @@ export default function CouponsPage() {
             <div className="mt-6 flex gap-3">
               <button
                 onClick={() => setShowCreateModal(false)}
-                className="flex-1 rounded-lg border border-gray-300 px-4 py-2.5 text-sm font-semibold text-gray-700 transition hover:bg-gray-50"
+                className="flex-1 rounded-[6px] border border-gray-300 px-4 py-2.5 text-sm font-semibold text-gray-700 transition hover:bg-gray-50"
               >
                 Cancel
               </button>
               <button
                 onClick={handleCreate}
                 disabled={creating}
-                className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+                className="flex flex-1 items-center justify-center gap-2 rounded-[6px] bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {creating && <Loader2 size={16} className="animate-spin" />}
                 Create Coupon

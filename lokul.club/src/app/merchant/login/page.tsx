@@ -113,38 +113,58 @@ export default function MerchantLoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-12">
+    <div
+      className="flex min-h-screen items-center justify-center px-4 py-12"
+      style={{ background: "var(--color-surface-muted)" }}
+    >
       <div className="w-full max-w-md space-y-8">
         {/* Header */}
         <div className="text-center">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-brand-600">
-            <Store className="h-8 w-8 text-white" />
+          <div
+            className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-[6px] text-white shadow-sm"
+            style={{ background: "linear-gradient(135deg, var(--color-brand-600), var(--color-brand-900))" }}
+          >
+            <Store className="h-8 w-8" />
           </div>
-          <h1 className="text-3xl font-bold text-gray-900">Merchant Dashboard</h1>
-          <p className="mt-2 text-sm text-gray-600">
+          <h1 className="text-3xl font-bold" style={{ color: "var(--color-heading)" }}>Merchant Dashboard</h1>
+          <p className="mt-2 text-sm" style={{ color: "var(--color-text-secondary)" }}>
             Manage your business catalog, offers, and orders
           </p>
         </div>
 
         {/* Card */}
-        <div className="rounded-2xl border border-gray-200 bg-white p-8 shadow-sm">
+        <div
+          className="rounded-[6px] p-8"
+          style={{
+            background: "var(--color-surface)",
+            border: "1px solid var(--color-border)",
+            boxShadow: "var(--shadow-md)",
+          }}
+        >
           {step === "phone" ? (
             <div className="space-y-6">
               <div>
-                <h2 className="text-xl font-semibold text-gray-900">
+                <h2 className="text-xl font-semibold" style={{ color: "var(--color-heading)" }}>
                   Login to your account
                 </h2>
-                <p className="mt-1 text-sm text-gray-600">
+                <p className="mt-1 text-sm" style={{ color: "var(--color-text-secondary)" }}>
                   Enter your registered mobile number
                 </p>
               </div>
 
               <div>
-                <label className="mb-2 block text-sm font-medium text-gray-700">
+                <label className="mb-2 block text-sm font-medium" style={{ color: "var(--color-foreground)" }}>
                   Mobile number
                 </label>
                 <div className="flex gap-2">
-                  <div className="flex items-center rounded-lg border border-gray-300 bg-gray-50 px-3 py-2.5 text-sm font-semibold text-gray-700">
+                  <div
+                    className="flex items-center rounded-[6px] px-3 py-2.5 text-sm font-semibold"
+                    style={{
+                      background: "var(--color-surface-muted)",
+                      border: "1px solid var(--color-border)",
+                      color: "var(--color-foreground)",
+                    }}
+                  >
                     +91
                   </div>
                   <input
@@ -155,26 +175,35 @@ export default function MerchantLoginPage() {
                     value={phone}
                     onChange={(e) => setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))}
                     onKeyDown={(e) => e.key === "Enter" && sendOtp()}
-                    className="flex-1 rounded-lg border border-gray-300 px-4 py-2.5 text-base outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
+                    className="flex-1 rounded-[6px] px-4 py-2.5 text-base outline-none transition"
+                    style={{
+                      border: "1px solid var(--color-border)",
+                      background: "var(--color-surface)",
+                    }}
                   />
                 </div>
                 {error && (
-                  <p className="mt-2 text-sm text-red-600">{error}</p>
+                  <p className="mt-2 text-sm" style={{ color: "var(--color-danger)" }}>{error}</p>
                 )}
               </div>
 
               <button
                 onClick={sendOtp}
                 disabled={phone.length !== 10 || loading}
-                className="flex w-full items-center justify-center gap-2 rounded-lg bg-brand-600 px-4 py-3 text-base font-semibold text-white transition hover:bg-brand-700 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
+                className="flex w-full items-center justify-center gap-2 rounded-[6px] px-4 py-3 text-base font-semibold text-white transition active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
+                style={{
+                  background: "var(--color-brand-600)",
+                }}
+                onMouseEnter={(e) => !e.currentTarget.disabled && (e.currentTarget.style.background = "var(--color-brand-700)")}
+                onMouseLeave={(e) => !e.currentTarget.disabled && (e.currentTarget.style.background = "var(--color-brand-600)")}
               >
                 {loading && <Loader2 size={18} className="animate-spin" />}
                 Send OTP
               </button>
 
-              <div className="pt-4 text-center text-sm text-gray-600">
+              <div className="pt-4 text-center text-sm" style={{ color: "var(--color-text-secondary)" }}>
                 Don't have an account?{" "}
-                <Link href="/business" className="font-semibold text-brand-600 hover:text-brand-700">
+                <Link href="/business" className="font-semibold transition" style={{ color: "var(--color-brand-600)" }}>
                   Register your business
                 </Link>
               </div>
@@ -183,17 +212,18 @@ export default function MerchantLoginPage() {
             <div className="space-y-6">
               <button
                 onClick={() => setStep("phone")}
-                className="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-gray-900"
+                className="flex items-center gap-2 text-sm font-medium transition"
+                style={{ color: "var(--color-text-secondary)" }}
               >
                 <ArrowLeft size={16} />
                 Change number
               </button>
 
               <div>
-                <h2 className="text-xl font-semibold text-gray-900">
+                <h2 className="text-xl font-semibold" style={{ color: "var(--color-heading)" }}>
                   Verify your number
                 </h2>
-                <p className="mt-1 text-sm text-gray-600">
+                <p className="mt-1 text-sm" style={{ color: "var(--color-text-secondary)" }}>
                   Enter the 6-digit code sent to +91 {phone}
                 </p>
               </div>
@@ -212,31 +242,40 @@ export default function MerchantLoginPage() {
                       value={digit}
                       onChange={(e) => handleOtpChange(idx, e.target.value)}
                       onKeyDown={(e) => handleOtpKeyDown(idx, e)}
-                      className="h-14 w-full rounded-lg border-2 border-gray-300 text-center text-xl font-semibold outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
+                      className="h-14 w-full rounded-[6px] text-center text-xl font-semibold outline-none transition"
+                      style={{
+                        border: "2px solid var(--color-border)",
+                      }}
                     />
                   ))}
                 </div>
                 {error && (
-                  <p className="mt-3 text-sm text-red-600">{error}</p>
+                  <p className="mt-3 text-sm" style={{ color: "var(--color-danger)" }}>{error}</p>
                 )}
               </div>
 
               <button
                 onClick={verifyOtp}
                 disabled={otp.some((d) => !d) || loading}
-                className="flex w-full items-center justify-center gap-2 rounded-lg bg-brand-600 px-4 py-3 text-base font-semibold text-white transition hover:bg-brand-700 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
+                className="flex w-full items-center justify-center gap-2 rounded-[6px] px-4 py-3 text-base font-semibold text-white transition active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
+                style={{
+                  background: "var(--color-brand-600)",
+                }}
+                onMouseEnter={(e) => !e.currentTarget.disabled && (e.currentTarget.style.background = "var(--color-brand-700)")}
+                onMouseLeave={(e) => !e.currentTarget.disabled && (e.currentTarget.style.background = "var(--color-brand-600)")}
               >
                 {loading && <Loader2 size={18} className="animate-spin" />}
                 Verify & Login
               </button>
 
-              <div className="text-center text-sm text-gray-600">
+              <div className="text-center text-sm" style={{ color: "var(--color-text-secondary)" }}>
                 {countdown > 0 ? (
                   <p>Resend OTP in {countdown}s</p>
                 ) : (
                   <button
                     onClick={sendOtp}
-                    className="font-semibold text-brand-600 hover:text-brand-700"
+                    className="font-semibold transition"
+                    style={{ color: "var(--color-brand-600)" }}
                   >
                     Resend OTP
                   </button>

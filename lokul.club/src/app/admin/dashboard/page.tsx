@@ -1,5 +1,4 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getServerUser } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { getAdminStats } from "@/lib/admin-stats";
 import { getPlatformStats, getFeatureFlags } from "@/lib/admin-platform";
@@ -29,7 +28,7 @@ const noRealDb = (process.env.DATABASE_URL ?? "").includes("USER:PASSWORD");
 const E2E = process.env.E2E_TEST === "1" || noRealDb;
 
 export default async function DashboardPage() {
-  const session = await getServerSession(authOptions);
+  const user = await getServerUser();
   if ((session?.user as { role?: string } | undefined)?.role !== "admin") redirect("/admin/login");
 
   const [stats, platform, { flags }, integrations, recentNews, featureStats] = await Promise.all([

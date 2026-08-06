@@ -1,5 +1,4 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getServerUser } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { getFeatureFlags } from "@/lib/admin-platform";
 import FlagsTable from "@/components/admin/FlagsTable";
@@ -9,7 +8,7 @@ export const dynamic = "force-dynamic";
 export const metadata = { title: "Feature Flags | Lokul Admin" };
 
 export default async function FlagsPage() {
-  const session = await getServerSession(authOptions);
+  const user = await getServerUser();
   if ((session?.user as { role?: string } | undefined)?.role !== "admin") redirect("/admin/login");
 
   const { flags } = await getFeatureFlags();

@@ -1,10 +1,10 @@
 "use client";
 
-import { signIn } from "next-auth/react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Lock, Mail, KeyRound, Eye, EyeOff } from "lucide-react";
 import { Alert, Button } from "@/components/ui";
+import { useEmailAuth } from "@/hooks/useSupabaseAuth";
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -12,19 +12,19 @@ export default function AdminLoginPage() {
   const [password, setPassword]     = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError]           = useState("");
-  const [loading, setLoading]       = useState(false);
+  const { signIn, loading } = useEmailAuth();
 
   async function handleSubmit(e: { preventDefault(): void }) {
     e.preventDefault();
     setError("");
-    setLoading(true);
-    const res = await signIn("credentials", { email, password, redirect: false });
-    setLoading(false);
-    if (res?.ok) {
+    
+    const result = await signIn(email, password);
+    
+    if (result.success) {
       router.push("/admin/dashboard");
       router.refresh();
     } else {
-      setError("Invalid email or password. Check the credentials below.");
+      setError(result.error || "Invalid email or password. Check the credentials below.");
     }
   }
 

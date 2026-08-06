@@ -1,7 +1,6 @@
 "use server";
 
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getServerUser } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 
@@ -9,7 +8,7 @@ const noRealDb = (process.env.DATABASE_URL ?? "").includes("USER:PASSWORD");
 const E2E = process.env.E2E_TEST === "1" || noRealDb;
 
 async function requireAdmin(): Promise<string> {
-  const session = await getServerSession(authOptions);
+  const user = await getServerUser();
   const user = session?.user as { id?: string; role?: string } | undefined;
   if (user?.role !== "admin") throw new Error("Unauthorized");
   return user.id ?? "admin";

@@ -15,8 +15,7 @@
  *
  * Auth: admin session (same guard as /api/admin/export).
  */
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getServerUser } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -32,7 +31,7 @@ function parseDate(value: string | null, fallback: Date): Date {
 }
 
 export async function GET(req: NextRequest) {
-  const session = await getServerSession(authOptions);
+  const user = await getServerUser();
   if ((session?.user as { role?: string } | undefined)?.role !== "admin") {
     return new NextResponse("Unauthorized", { status: 401 });
   }

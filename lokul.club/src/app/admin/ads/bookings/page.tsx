@@ -1,7 +1,6 @@
+import { getServerUser } from "@/lib/supabase/server";
 import { Suspense } from "react";
-import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
-import { authOptions } from "@/lib/auth";
 import { PageHeader } from "@/components/ui";
 import AdBookingsTable from "@/components/admin/AdBookingsTable";
 import { getAdBookings, AD_BOOKING_STATUSES, AD_PLACEMENTS } from "@/lib/admin-ads";
@@ -13,7 +12,7 @@ export default async function AdBookingsPage({
 }: {
   searchParams: Promise<{ page?: string; status?: string; placement?: string }>;
 }) {
-  const session = await getServerSession(authOptions);
+  const user = await getServerUser();
   if ((session?.user as { role?: string } | undefined)?.role !== "admin") redirect("/admin/login");
 
   const sp        = await searchParams;

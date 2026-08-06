@@ -5,6 +5,7 @@ import { ArrowLeft, MessageCircle, ShieldCheck } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import { Button, HStack, Screen, Text, VStack } from '@/components/ui';
 import { colors, radius, spacing, textPresets } from '@lokul/ui-tokens';
+import { sendPhoneOTP, verifyPhoneOTP } from '../../../lib/supabase';
 
 const OTP_LENGTH = 4;
 const RESEND_SECONDS = 30;
@@ -42,29 +43,26 @@ export default function OtpEntryScreen() {
     }
   };
 
-  const verify = (value: string) => {
+  const verify = async (value: string) => {
     if (value.length !== OTP_LENGTH) {
       setError(t('otp_error_incorrect'));
       return;
     }
     setError(null);
-    // Navigate immediately — verify in background, show error only on failure
-    router.replace('/(onboarding)/profile');
-    const base = process.env.EXPO_PUBLIC_API_BASE ?? '';
-    fetch(`${base}/api/mobile/otp/verify`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ phone: phone ?? '', code: value }),
-    }).then(async (res) => {
-      if (!res.ok) {
-        const body = await res.json().catch(() => ({}));
-        // In production navigate back and show error
-        if (process.env.NODE_ENV === 'production') {
-          router.replace('/(onboarding)/phone');
-          setError(body.error ?? t('otp_error_incorrect'));
-        }
+    
+    try {
+      // Verify OTP via Supabase
+      const result = await verifyPhoneOTP(phone ?? '', value);
+      
+      if (result.session) {
+        // Successfully authenticated! Navigate to profile
+        router.replace('/(onboarding)/profile');
+      } else {
+        setError(t('otp_error_incorrect'));
       }
-    }).catch(() => { /* offline — already navigated */ });
+    } catch (err: any) {
+      setError(err.message || t('otp_error_incorrect'));
+    }
   };
 
   const resend = async () => {
@@ -73,15 +71,13 @@ export default function OtpEntryScreen() {
     setCode('');
     setError(null);
     inputRef.current?.focus();
+    
     try {
-      const base = process.env.EXPO_PUBLIC_API_BASE ?? '';
-      await fetch(`${base}/api/mobile/otp/send`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone: phone ?? '' }),
-      });
-    } catch {
-      // silently ignore
+      // Resend OTP via Supabase
+      await sendPhoneOTP(phone ?? '');
+    } catch (err: any) {
+      // Silently ignore - user can try again
+      console.error('Failed to resend OTP:', err);
     }
   };
 

@@ -218,7 +218,8 @@ model WaitlistEntry {
 
 model User {
   id             String     @id @default(cuid())
-  phone          String     @unique // E.164 (+91XXXXXXXXXX)
+  phone          String?    @unique // E.164 (+91XXXXXXXXXX) - optional if DigiLocker login
+  email          String?    @unique // Optional email from DigiLocker
   name           String
   avatarUrl      String?
   bio            String?
@@ -235,10 +236,25 @@ model User {
   updatedAt      DateTime   @updatedAt
   deletedAt      DateTime?
 
+  // DigiLocker Integration
+  digilockerId       String?   @unique @map("digilocker_id")
+  diglockerVerified  Boolean   @default(false) @map("digilocker_verified")
+  diglockerName      String?   @map("digilocker_name")
+  diglockerDob       DateTime? @map("digilocker_dob")
+  diglockerGender    String?   @map("digilocker_gender")
+
+  // Aadhaar Verification
+  aadhaarVerified    Boolean   @default(false) @map("aadhaar_verified")
+  aadhaarName        String?   @map("aadhaar_name")
+  aadhaarDob         DateTime? @map("aadhaar_dob")
+  aadhaarGender      String?   @map("aadhaar_gender")
+  aadhaarAddress     String?   @map("aadhaar_address") // JSON string
+
   localities      UserLocality[]
   residences      UserResidence[]
   savedAddresses  UserAddress[]   @relation("UserAddresses")
   kycDocuments    KycDocument[]
+  diglockerDocuments DigiLockerDocument[] @relation("UserDigiLockerDocs")
   posts           Post[]
   comments        Comment[]
   reactions       Reaction[]
@@ -378,6 +394,9 @@ model User {
   // Amenity booking
   amenityBookings AmenityBooking[]
 
+  // OTP verifications
+  otpVerifications OtpVerification[]
+
   @@index([phone])
   @@index([kycTier])
   @@index([status])
@@ -456,6 +475,26 @@ model KycDocument {
 
   @@index([userId])
   @@index([status])
+}
+
+// DigiLocker Document Storage
+model DigiLockerDocument {
+  id          String    @id @default(cuid())
+  userId      String
+  docType     String // "GST", "PAN", "AADHRC", "DL", "FSSAI", etc.
+  docUri      String // DigiLocker URI or request ID
+  docName     String
+  requestedAt DateTime  @default(now())
+  fetchedAt   DateTime?
+  verifiedAt  DateTime?
+  storageUrl  String? // S3/Supabase Storage URL after fetch
+  metadata    Json? // Additional document metadata
+  
+  user User @relation("UserDigiLockerDocs", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([docType])
+  @@index([requestedAt])
 }
 
 model Vouch {
@@ -1895,16 +1934,26 @@ model SubscriptionDelivery {
 // ─────────────────────────────────────────────────────────────────────────────
 
 model OtpVerification {
-  id        String   @id @default(cuid())
-  phone     String // E.164 (+91XXXXXXXXXX)
-  code      String
-  expiresAt DateTime
-  used      Boolean  @default(false)
-  attempts  Int      @default(0)
-  createdAt DateTime @default(now())
+  id            String    @id @default(cuid())
+  phone         String?   // E.164 (+91XXXXXXXXXX) - optional for email OTP
+  email         String?   // Email address for email-based OTP
+  code          String    // 6-digit OTP code
+  transactionId String    @unique // Unique identifier for this OTP session
+  provider      String    @default("sms") // whatsapp | email | sms
+  expiresAt     DateTime  // When OTP expires
+  used          Boolean   @default(false) // Whether OTP has been used
+  verifiedAt    DateTime? // When OTP was successfully verified
+  attempts      Int       @default(0) // Number of verification attempts
+  userId        String?   // Link to User after verification (optional)
+  createdAt     DateTime  @default(now())
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   @@index([phone])
+  @@index([email])
+  @@index([transactionId])
   @@index([expiresAt])
+  @@index([provider])
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

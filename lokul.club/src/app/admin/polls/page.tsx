@@ -1,5 +1,4 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getServerUser } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import PollsTable from "@/components/admin/PollsTable";
@@ -17,7 +16,7 @@ const FIXTURE_POLLS = [
 ];
 
 export default async function PollsPage() {
-  const session = await getServerSession(authOptions);
+  const user = await getServerUser();
   if ((session?.user as { role?: string } | undefined)?.role !== "admin") redirect("/admin/login");
 
   let polls = FIXTURE_POLLS as typeof FIXTURE_POLLS;

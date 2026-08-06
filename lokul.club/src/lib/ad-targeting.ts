@@ -12,8 +12,7 @@
  * resolveAudience() below.
  */
 import { prisma } from "@/lib/prisma";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getServerUser } from "@/lib/supabase/server";
 import { requireMobileAuth } from "@/lib/mobile-auth";
 import type { CommunityType, AgeBand } from "@/generated/prisma/enums";
 
@@ -80,8 +79,8 @@ export interface ResolvedAudience {
 export async function resolveAudience(req: Request): Promise<ResolvedAudience | null> {
   let userId = requireMobileAuth(req);
   if (!userId) {
-    const session = await getServerSession(authOptions).catch(() => null);
-    userId = (session?.user as { id?: string } | undefined)?.id ?? null;
+    const user = await getServerUser().catch(() => null);
+    userId = user?.id ?? null;
   }
   if (!userId) return null;
 

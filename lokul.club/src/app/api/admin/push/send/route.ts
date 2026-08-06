@@ -2,9 +2,8 @@
  * POST /api/admin/push/send  — broadcast Expo push notifications
  *   Body: { title, body, data?, target: 'all'|'pinCode'|'society', pinCode?, societyId? }
  */
+import { getServerUser } from "@/lib/supabase/server";
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
 const EXPO_PUSH_URL = "https://exp.host/--/api/v2/push/send";
@@ -27,7 +26,7 @@ async function sendBatch(messages: ExpoMessage[]) {
 }
 
 export async function POST(req: NextRequest) {
-  const session = await getServerSession(authOptions);
+  const user = await getServerUser();
   if ((session?.user as { role?: string } | undefined)?.role !== "admin") {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }

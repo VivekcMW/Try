@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { Button, HStack, Input, Screen, Text, VStack } from '@/components/ui';
 import { useOnboardingStore } from '@/store/onboardingStore';
 import { colors, radius, spacing } from '@lokul/ui-tokens';
+import { sendPhoneOTP } from '../../../lib/supabase';
 
 export default function PhoneEntryScreen() {
   const { t } = useTranslation('onboarding');
@@ -21,22 +22,22 @@ export default function PhoneEntryScreen() {
 
   const isValid = useMemo(() => /^[6-9]\d{9}$/.test(phone), [phone]);
 
-  const submit = () => {
+  const submit = async () => {
     if (!isValid) {
       setError(t('phone_error_invalid'));
       return;
     }
     const e164 = `+91${phone}`;
     setPhone(e164);
-    // Navigate immediately — OTP screen shows at once, no wait for network
-    router.push({ pathname: '/(onboarding)/otp', params: { phone: e164 } });
-    // Fire the send in background; resend button on OTP screen handles retries
-    const base = process.env.EXPO_PUBLIC_API_BASE ?? '';
-    fetch(`${base}/api/mobile/otp/send`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ phone: e164 }),
-    }).catch(() => { /* silently ignore — user can tap Resend */ });
+    
+    try {
+      // Send OTP via Supabase
+      await sendPhoneOTP(e164);
+      // Navigate to OTP screen after successful send
+      router.push({ pathname: '/(onboarding)/otp', params: { phone: e164 } });
+    } catch (err: any) {
+      setError(err.message || t('phone_error_network'));
+    }
   };
 
   return (
@@ -103,6 +104,11 @@ export default function PhoneEntryScreen() {
             {t('try_whatsapp')}
           </Text>
         </Text>
+        <Pressable onPress={() => router.push('/(onboarding)/email-login')}>
+          <Text variant="caption" style={{ color: colors.brand[600], fontWeight: '600', textAlign: 'center' }}>
+            Use email login (Dev mode)
+          </Text>
+        </Pressable>
       </VStack>
     </Screen>
   );

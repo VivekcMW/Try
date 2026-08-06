@@ -1,12 +1,10 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
-import { redirect } from "next/navigation";
+import { getServerSession } from "@/lib/supabase/server";
 import AdminShell from "@/components/admin/AdminShell";
 
 export const metadata = { title: "Admin | Lokul.club" };
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
-  const session = await getServerSession(authOptions);
-  // Login page doesn't need shell — let middleware handle protection for inner pages
+  const session = await getServerSession();
+  // Middleware handles auth protection, so we just pass session to shell
   return <AdminShell session={session}>{children}</AdminShell>;
 }

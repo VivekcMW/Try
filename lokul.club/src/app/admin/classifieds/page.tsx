@@ -1,5 +1,4 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getServerUser } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { getClassifieds } from "@/lib/admin-platform";
 import ClassifiedsTable from "@/components/admin/ClassifiedsTable";
@@ -14,7 +13,7 @@ export default async function ClassifiedsPage({
 }: {
   searchParams: Promise<{ page?: string; search?: string; status?: string; category?: string }>;
 }) {
-  const session = await getServerSession(authOptions);
+  const user = await getServerUser();
   if ((session?.user as { role?: string } | undefined)?.role !== "admin") redirect("/admin/login");
 
   const sp       = await searchParams;

@@ -1,5 +1,4 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getServerUser } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { getReports } from "@/lib/admin-platform";
 import ModerationQueue from "@/components/admin/ModerationQueue";
@@ -14,7 +13,7 @@ export default async function ModerationPage({
 }: {
   searchParams: Promise<{ page?: string; status?: string; priority?: string }>;
 }) {
-  const session = await getServerSession(authOptions);
+  const user = await getServerUser();
   if ((session?.user as { role?: string } | undefined)?.role !== "admin") redirect("/admin/login");
 
   const sp       = await searchParams;

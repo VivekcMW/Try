@@ -11,16 +11,15 @@
  * model, no recurring billing) — MRR/ARR/subscriber-tier charts were removed
  * rather than left wired to nonexistent data.
  */
-import { getServerSession } from "next-auth";
+import { getServerUser } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-import { authOptions } from "@/lib/auth";
 import { getRevenueOverview } from "@/lib/admin-revenue";
 import RevenueCharts from "@/components/admin/RevenueCharts";
 
 export const dynamic = "force-dynamic";
 
 export default async function RevenuePage() {
-  const session = await getServerSession(authOptions);
+  const user = await getServerUser();
   if ((session?.user as { role?: string } | undefined)?.role !== "admin") redirect("/admin/login");
 
   const overview = await getRevenueOverview();

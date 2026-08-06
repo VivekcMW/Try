@@ -1,7 +1,6 @@
+import { getServerUser } from "@/lib/supabase/server";
 import { Suspense } from "react";
-import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
-import { authOptions } from "@/lib/auth";
 import { PageHeader } from "@/components/ui";
 import AdCampaignsTable from "@/components/admin/AdCampaignsTable";
 import { getAdCampaigns, AD_CAMPAIGN_STATUSES } from "@/lib/admin-ads";
@@ -13,7 +12,7 @@ export default async function AdCampaignsPage({
 }: {
   searchParams: Promise<{ page?: string; status?: string; search?: string }>;
 }) {
-  const session = await getServerSession(authOptions);
+  const user = await getServerUser();
   if ((session?.user as { role?: string } | undefined)?.role !== "admin") redirect("/admin/login");
 
   const sp     = await searchParams;

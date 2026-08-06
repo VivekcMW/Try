@@ -1,5 +1,4 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getServerUser } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { getSocietyHealth } from "@/lib/admin-platform";
 import SocietyHealthTable from "@/components/admin/SocietyHealthTable";
@@ -9,7 +8,7 @@ export const dynamic = "force-dynamic";
 export const metadata = { title: "Society Health | Lokul Admin" };
 
 export default async function SocietyHealthPage() {
-  const session = await getServerSession(authOptions);
+  const user = await getServerUser();
   if ((session?.user as { role?: string } | undefined)?.role !== "admin") redirect("/admin/login");
 
   const societies = await getSocietyHealth();

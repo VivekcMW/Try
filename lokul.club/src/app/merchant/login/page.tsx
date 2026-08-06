@@ -2,20 +2,53 @@
 
 import { useState, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { Loader2, ArrowLeft, Store } from "lucide-react";
+import { Loader2, ArrowLeft, Store, Mail, Phone as PhoneIcon } from "lucide-react";
 import Link from "next/link";
+import { supabase } from "@/lib/supabase/client";
 
+type LoginMode = "email" | "phone";
 type Step = "phone" | "otp";
 
 export default function MerchantLoginPage() {
   const router = useRouter();
+  const [mode, setMode] = useState<LoginMode>("email");
   const [step, setStep] = useState<Step>("phone");
   const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [otp, setOtp] = useState<string[]>(["", "", "", "", "", ""]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [countdown, setCountdown] = useState(0);
   const otpRefs = useRef<(HTMLInputElement | null)[]>([]);
+
+  const loginWithEmail = useCallback(async () => {
+    if (!email || !password) return;
+    setLoading(true);
+    setError("");
+
+    try {
+      // Call the bridge API that handles both Supabase auth and merchant session
+      const res = await fetch("/api/merchant/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || "Login failed");
+      }
+
+      // Success - redirect to dashboard
+      router.push("/merchant");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Invalid credentials");
+    } finally {
+      setLoading(false);
+    }
+  }, [email, password, router]);
 
   const sendOtp = useCallback(async () => {
     if (phone.length !== 10) return;
@@ -23,16 +56,16 @@ export default function MerchantLoginPage() {
     setError("");
 
     try {
-      const res = await fetch("/api/web/otp/send", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phone: `+91${phone}` }),
+      const { error } = await supabase.auth.signInWithOtp({
+        phone: `+91${phone}`,
+        options: {
+          data: {
+            app: 'merchant',
+          },
+        },
       });
 
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || "Failed to send OTP");
-      }
+      if (error) throw error;
 
       setStep("otp");
       setCountdown(30);
@@ -60,20 +93,16 @@ export default function MerchantLoginPage() {
     setError("");
 
     try {
-      const res = await fetch("/api/merchant/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phone: `+91${phone}`, otp: otpCode }),
+      const { data, error } = await supabase.auth.verifyOtp({
+        phone: `+91${phone}`,
+        token: otpCode,
+        type: 'sms',
       });
 
-      const data = await res.json();
+      if (error) throw error;
 
-      if (!res.ok) {
-        throw new Error(data.error || "Login failed");
-      }
-
-      if (!data.success) {
-        throw new Error(data.error || "Login failed");
+      if (!data.session) {
+        throw new Error("Failed to create session");
       }
 
       // Success - redirect to dashboard
@@ -141,7 +170,109 @@ export default function MerchantLoginPage() {
             boxShadow: "var(--shadow-md)",
           }}
         >
-          {step === "phone" ? (
+          {/* Mode Toggle */}
+          {step === "phone" && (
+            <div className="mb-6 flex gap-2 rounded-md p-1" style={{ background: "var(--color-surface-muted)" }}>
+              <button
+                onClick={() => setMode("email")}
+                className="flex-1 flex items-center justify-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition"
+                style={{
+                  background: mode === "email" ? "var(--color-surface)" : "transparent",
+                  color: mode === "email" ? "var(--color-brand-600)" : "var(--color-text-secondary)",
+                  border: mode === "email" ? "1px solid var(--color-border)" : "1px solid transparent",
+                }}
+              >
+                <Mail size={16} />
+                Email
+              </button>
+              <button
+                onClick={() => setMode("phone")}
+                className="flex-1 flex items-center justify-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition"
+                style={{
+                  background: mode === "phone" ? "var(--color-surface)" : "transparent",
+                  color: mode === "phone" ? "var(--color-brand-600)" : "var(--color-text-secondary)",
+                  border: mode === "phone" ? "1px solid var(--color-border)" : "1px solid transparent",
+                }}
+              >
+                <PhoneIcon size={16} />
+                Phone
+              </button>
+            </div>
+          )}
+
+          {mode === "email" && step === "phone" ? (
+            <div className="space-y-6">
+              <div>
+                <h2 className="text-xl font-semibold" style={{ color: "var(--color-heading)" }}>
+                  Login to your account
+                </h2>
+                <p className="mt-1 text-sm" style={{ color: "var(--color-text-secondary)" }}>
+                  Enter your email and password
+                </p>
+              </div>
+
+              <div>
+                <label htmlFor="merchant-email" className="mb-2 block text-sm font-medium" style={{ color: "var(--color-foreground)" }}>
+                  Email
+                </label>
+                <input
+                  id="merchant-email"
+                  type="email"
+                  placeholder="merchant@example.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full rounded-md px-4 py-2.5 text-base outline-none transition"
+                  style={{
+                    border: "1px solid var(--color-border)",
+                    background: "var(--color-surface)",
+                  }}
+                />
+              </div>
+
+              <div>
+                <label htmlFor="merchant-password" className="mb-2 block text-sm font-medium" style={{ color: "var(--color-foreground)" }}>
+                  Password
+                </label>
+                <input
+                  id="merchant-password"
+                  type="password"
+                  placeholder="Enter your password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && loginWithEmail()}
+                  className="w-full rounded-md px-4 py-2.5 text-base outline-none transition"
+                  style={{
+                    border: "1px solid var(--color-border)",
+                    background: "var(--color-surface)",
+                  }}
+                />
+                {error && (
+                  <p className="mt-2 text-sm" style={{ color: "var(--color-danger)" }}>{error}</p>
+                )}
+              </div>
+
+              <button
+                onClick={loginWithEmail}
+                disabled={!email || !password || loading}
+                className="flex w-full items-center justify-center gap-2 rounded-md px-4 py-3 text-base font-semibold text-white transition active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
+                style={{
+                  background: "var(--color-brand-600)",
+                }}
+                onMouseEnter={(e) => !e.currentTarget.disabled && (e.currentTarget.style.background = "var(--color-brand-700)")}
+                onMouseLeave={(e) => !e.currentTarget.disabled && (e.currentTarget.style.background = "var(--color-brand-600)")}
+              >
+                {loading && <Loader2 size={18} className="animate-spin" />}
+                Login
+              </button>
+
+              <div className="pt-4 text-center text-sm" style={{ color: "var(--color-text-secondary)" }}>
+                Don't have an account?{" "}
+                <Link href="/business" className="font-semibold transition" style={{ color: "var(--color-brand-600)" }}>
+                  Register your business
+                </Link>
+              </div>
+            </div>
+          ) : step === "phone" ? (
             <div className="space-y-6">
               <div>
                 <h2 className="text-xl font-semibold" style={{ color: "var(--color-heading)" }}>

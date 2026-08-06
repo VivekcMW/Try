@@ -1,14 +1,13 @@
+import { getServerUser } from "@/lib/supabase/server";
 import Link from "next/link";
-import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
-import { authOptions } from "@/lib/auth";
 import { PageHeader } from "@/components/ui";
 import { getAdsOverview } from "@/lib/admin-ads";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdsOverviewPage() {
-  const session = await getServerSession(authOptions);
+  const user = await getServerUser();
   if ((session?.user as { role?: string } | undefined)?.role !== "admin") redirect("/admin/login");
 
   const o = await getAdsOverview();

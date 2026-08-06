@@ -1,5 +1,4 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getServerUser } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import NotificationsTable from "@/components/admin/NotificationsTable";
@@ -18,7 +17,7 @@ const FIXTURE_NOTIFS = [
 ];
 
 export default async function NotificationsPage() {
-  const session = await getServerSession(authOptions);
+  const user = await getServerUser();
   if ((session?.user as { role?: string } | undefined)?.role !== "admin") redirect("/admin/login");
 
   let notifs = FIXTURE_NOTIFS as typeof FIXTURE_NOTIFS;

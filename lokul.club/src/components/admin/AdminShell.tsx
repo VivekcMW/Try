@@ -1,8 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { signOut } from "next-auth/react";
+import { usePathname, useRouter } from "next/navigation";
 import {
   LayoutDashboard, Users, LogOut, Menu, X, ChevronDown, ChevronLeft,
   ShieldAlert, Building2, Store, Megaphone, Flag, ScrollText, ListChecks, Plug,
@@ -13,9 +12,10 @@ import {
   Phone, Route, UserCheck, Stethoscope, TriangleAlert, Presentation,
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import type { Session } from "next-auth";
+import type { Session } from "@supabase/supabase-js";
 import { Button } from "@/components/ui";
 import AdminGlobalSearch from "@/components/admin/AdminGlobalSearch";
+import { supabase } from "@/lib/supabase/client";
 
 const NAV_GROUPS = [
   {
@@ -115,8 +115,15 @@ export default function AdminShell({
   session:  Session | null;
 }) {
   const path = usePathname();
+  const router = useRouter();
   const [open, setOpen] = useState(false);           // mobile drawer
   const [collapsed, setCollapsed] = useState(false); // desktop collapse
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    router.push('/admin/login');
+    router.refresh();
+  };
 
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>(() =>
     Object.fromEntries(NAV_GROUPS.map((g) => [g.label, true]))
@@ -257,7 +264,7 @@ export default function AdminShell({
         {collapsed ? (
           <div className="border-t border-border p-2 flex justify-center">
             <button
-              onClick={() => signOut({ callbackUrl: "/admin/login" })}
+              onClick={handleSignOut}
               title="Sign out"
               className="flex h-8 w-8 items-center justify-center rounded-[6px] text-gray-400 hover:bg-gray-100 hover:text-red-500 transition-colors"
             >
@@ -272,7 +279,7 @@ export default function AdminShell({
               size="sm"
               fullWidth
               leftIcon={<LogOut size={13} />}
-              onClick={() => signOut({ callbackUrl: "/admin/login" })}
+              onClick={handleSignOut}
               className="mt-1.5 justify-start text-gray-500 text-xs"
             >
               Sign out
@@ -300,7 +307,7 @@ export default function AdminShell({
             <AdminGlobalSearch />
           </div>
           <span className="ml-auto text-xs text-gray-400">
-            {session?.user?.name ?? "Admin"}
+            {session?.user?.email ?? "Admin"}
           </span>
         </header>
 

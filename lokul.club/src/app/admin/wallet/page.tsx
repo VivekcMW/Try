@@ -1,5 +1,4 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getServerUser } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { getWalletEntries } from "@/lib/admin-platform";
 import WalletTable from "@/components/admin/WalletTable";
@@ -14,7 +13,7 @@ export default async function WalletPage({
 }: {
   searchParams: Promise<{ page?: string; search?: string; type?: string; status?: string }>;
 }) {
-  const session = await getServerSession(authOptions);
+  const user = await getServerUser();
   if ((session?.user as { role?: string } | undefined)?.role !== "admin") redirect("/admin/login");
 
   const sp     = await searchParams;

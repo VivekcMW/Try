@@ -106,7 +106,7 @@ export default function EmailLoginScreen() {
           </VStack>
 
           {Boolean(error) && (
-            <Text variant="body" style={{ color: colors.status.danger }}>
+            <Text variant="body" style={{ color: colors.danger }}>
               {error}
             </Text>
           )}

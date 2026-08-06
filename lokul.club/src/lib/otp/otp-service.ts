@@ -32,6 +32,7 @@ interface SendOTPResult {
   transactionId?: string;
   provider?: OTPProvider;
   error?: string;
+  otp?: string; // Only included in dev mode
 }
 
 interface VerifyOTPResult {
@@ -119,11 +120,38 @@ export class OTPService {
     }
 
     try {
-      // Generate OTP and transaction ID
-      const otp = this.generateOTP();
+      // DEV MODE: Bypass provider requirement, use fixed OTP
+      const isDev = process.env.NODE_ENV === 'development' || process.env.E2E_TEST === '1';
+      const otp = isDev ? '123456' : this.generateOTP();
       const transactionId = this.generateTransactionId();
       const expiresAt = new Date(Date.now() + expiryMinutes * 60 * 1000);
 
+      // In dev mode, skip providers and just store + log OTP
+      if (isDev) {
+        await prisma.otpVerification.create({
+          data: {
+            phone: phone || null,
+            email: email || null,
+            code: otp,
+            transactionId,
+            provider: 'sms', // Placeholder for dev
+            expiresAt,
+            attempts: 0,
+            used: false,
+          },
+        });
+
+        console.log(`🔧 [DEV MODE] OTP for ${phone || email}: ${otp} (transactionId: ${transactionId})`);
+
+        return {
+          success: true,
+          transactionId,
+          provider: 'sms',
+          otp, // Include OTP in response for dev mode testing
+        };
+      }
+
+      // PRODUCTION MODE: Use actual providers
       // Select provider
       let provider = this.selectProvider(phone, email, preferredProvider);
 

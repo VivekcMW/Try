@@ -56,16 +56,17 @@ export default function MerchantLoginPage() {
     setError("");
 
     try {
-      const { error } = await supabase.auth.signInWithOtp({
-        phone: `+91${phone}`,
-        options: {
-          data: {
-            app: 'merchant',
-          },
-        },
+      const res = await fetch("/api/web/otp/send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone: `+91${phone}` }),
       });
 
-      if (error) throw error;
+      const data = await res.json();
+
+      if (!res.ok || !data.sent) {
+        throw new Error(data.error || "Failed to send OTP");
+      }
 
       setStep("otp");
       setCountdown(30);
@@ -93,16 +94,30 @@ export default function MerchantLoginPage() {
     setError("");
 
     try {
-      const { data, error } = await supabase.auth.verifyOtp({
-        phone: `+91${phone}`,
-        token: otpCode,
-        type: 'sms',
+      // First verify the OTP
+      const verifyRes = await fetch("/api/web/otp/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone: `+91${phone}`, code: otpCode }),
       });
 
-      if (error) throw error;
+      const verifyData = await verifyRes.json();
 
-      if (!data.session) {
-        throw new Error("Failed to create session");
+      if (!verifyRes.ok || !verifyData.verified) {
+        throw new Error(verifyData.error || "Invalid OTP");
+      }
+
+      // Then login via merchant API
+      const loginRes = await fetch("/api/merchant/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone: `+91${phone}`, otp: otpCode }),
+      });
+
+      const loginData = await loginRes.json();
+
+      if (!loginRes.ok || !loginData.success) {
+        throw new Error(loginData.error || "Login failed");
       }
 
       // Success - redirect to dashboard

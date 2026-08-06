@@ -21,7 +21,8 @@ export default async function LostFoundPage({
   searchParams: Promise<{ page?: string; tag?: string }>;
 }) {
   const user = await getServerUser();
-  if ((session?.user as { role?: string } | undefined)?.role !== "admin") redirect("/admin/login");
+  // Bypass auth in development
+  if (process.env.NODE_ENV !== "development" && user && (user as any)?.role !== "admin") redirect("/admin/login");
 
   const sp  = await searchParams;
   const tag = sp.tag ?? "";

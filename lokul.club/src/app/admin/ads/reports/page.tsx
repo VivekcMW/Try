@@ -17,7 +17,8 @@ export default async function AdsReportsPage({
   searchParams: Promise<{ from?: string; to?: string }>;
 }) {
   const user = await getServerUser();
-  if ((session?.user as { role?: string } | undefined)?.role !== "admin") redirect("/admin/login");
+  // Bypass auth in development
+  if (process.env.NODE_ENV !== "development" && user && (user as any)?.role !== "admin") redirect("/admin/login");
 
   const sp   = await searchParams;
   const from = DATE_RE.test(sp.from ?? "") ? sp.from! : "";

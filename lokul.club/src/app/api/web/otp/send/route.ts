@@ -1,27 +1,58 @@
-import { randomInt } from "node:crypto";
 import { NextRequest, NextResponse } from "next/server";
-import { storeOtp } from "@/lib/otp-store";
-import { sendOtpSms } from "@/lib/sms";
+import { OTPService } from "@/lib/otp/otp-service";
 
 export async function POST(req: NextRequest) {
+  console.log('[OTP API] POST /api/web/otp/send called');
+  
   const body = await req.json().catch(() => null);
   const phone: string | undefined = body?.phone;
+  const email: string | undefined = body?.email;
 
-  if (!phone || !/^\+91\d{10}$/.test(phone)) {
+  console.log('[OTP API] Request body:', { phone, email });
+
+  // Require either phone or email
+  if (!phone && !email) {
+    return NextResponse.json({ error: "Phone or email required" }, { status: 400 });
+  }
+
+  if (phone && !/^\+91\d{10}$/.test(phone)) {
     return NextResponse.json({ error: "Valid +91 phone number required" }, { status: 400 });
   }
 
-  // In dev / E2E always use code 123456 so tests are predictable
-  const isDev = process.env.E2E_TEST === "1" || process.env.NODE_ENV === "development";
-  const code = isDev ? "123456" : randomInt(100_000, 1_000_000).toString();
+  try {
+    console.log('[OTP API] Initializing OTP service...');
+    const otpService = new OTPService();
+    
+    console.log('[OTP API] Checking for pending OTP...');
+    // Check for pending OTP (rate limiting)
+    const hasPending = await otpService.hasPendingOTP(phone, email);
+    if (hasPending) {
+      return NextResponse.json({ error: "Please wait before requesting another OTP" }, { status: 429 });
+    }
 
-  await storeOtp(phone, code);
+    console.log('[OTP API] Sending OTP via service...');
+    // Send OTP via our new multi-provider system
+    const result = await otpService.sendOTP(phone, email);
 
-  if (isDev) {
-    console.log(`[OTP DEV] ${phone} → ${code}`);
-  } else {
-    await sendOtpSms(phone, `Your Lokul OTP is ${code}. Valid for 5 minutes. Do not share.`);
+    console.log('[OTP API] Send result:', result);
+
+    if (!result.success) {
+      console.error("[OTP] Failed to send:", result.error);
+      return NextResponse.json({ error: result.error || "Failed to send OTP" }, { status: 500 });
+    }
+
+    // In dev mode, log the OTP for testing
+    if (process.env.NODE_ENV === "development" || process.env.E2E_TEST === "1") {
+      console.log(`[OTP DEV] ${phone || email} → ${result.otp} (transactionId: ${result.transactionId})`);
+    }
+
+    return NextResponse.json({ 
+      sent: true, 
+      transactionId: result.transactionId,
+      provider: result.provider 
+    });
+  } catch (error) {
+    console.error("[OTP] Send error:", error);
+    return NextResponse.json({ error: "Failed to send OTP" }, { status: 500 });
   }
-
-  return NextResponse.json({ sent: true });
 }

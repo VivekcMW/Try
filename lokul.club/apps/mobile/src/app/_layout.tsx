@@ -27,6 +27,13 @@ SplashScreen.preventAutoHideAsync();
 // Suppress specific warnings in production (keep in dev for debugging)
 if (!__DEV__) {
   LogBox.ignoreAllLogs();
+} else {
+  // Suppress expected push notification errors in development (needs APNs entitlements)
+  LogBox.ignoreLogs([
+    '[PushToken]',
+    'aps-environment',
+    'expo-notifications',
+  ]);
 }
 
 const BASE = process.env.EXPO_PUBLIC_API_BASE ?? '';

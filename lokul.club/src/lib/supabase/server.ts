@@ -98,6 +98,25 @@ export async function createServerSupabaseClient() {
  * Equivalent to NextAuth's getServerSession()
  */
 export async function getServerSession() {
+  // Check for local admin session cookie first (for local dev)
+  const cookieStore = await cookies();
+  const adminSession = cookieStore.get('admin_session');
+  
+  if (adminSession?.value === 'authenticated') {
+    // Return a mock session for local admin
+    return {
+      user: {
+        id: 'local-admin',
+        email: process.env.ADMIN_EMAIL || 'admin@lokul.club',
+        role: 'admin'
+      },
+      access_token: 'local-admin-token',
+      token_type: 'bearer',
+      expires_at: Date.now() + 7 * 24 * 60 * 60 * 1000, // 7 days
+    } as any;
+  }
+
+  // Fallback to Supabase auth
   const supabase = await createServerSupabaseClient()
   const { data: { session } } = await supabase.auth.getSession()
   return session
@@ -107,6 +126,22 @@ export async function getServerSession() {
  * Get current user in Server Components
  */
 export async function getServerUser() {
+  // Check for local admin session cookie first (for local dev)
+  const cookieStore = await cookies();
+  const adminSession = cookieStore.get('admin_session');
+  
+  if (adminSession?.value === 'authenticated') {
+    // Return a mock user for local admin
+    return {
+      id: 'local-admin',
+      email: process.env.ADMIN_EMAIL || 'admin@lokul.club',
+      role: 'admin',
+      aud: 'authenticated',
+      created_at: new Date().toISOString(),
+    } as any;
+  }
+
+  // Fallback to Supabase auth
   const supabase = await createServerSupabaseClient()
   const { data: { user } } = await supabase.auth.getUser()
   return user

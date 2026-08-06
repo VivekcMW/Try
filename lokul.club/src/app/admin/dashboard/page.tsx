@@ -28,8 +28,16 @@ const noRealDb = (process.env.DATABASE_URL ?? "").includes("USER:PASSWORD");
 const E2E = process.env.E2E_TEST === "1" || noRealDb;
 
 export default async function DashboardPage() {
-  const user = await getServerUser();
-  if ((session?.user as { role?: string } | undefined)?.role !== "admin") redirect("/admin/login");
+  // Bypass auth in development
+  const isDev = process.env.NODE_ENV === 'development';
+  
+  if (!isDev) {
+    const user = await getServerUser();
+    // Allow local admin or check role
+    if (!user || ((user as any)?.role !== "admin" && (user as any)?.email !== process.env.ADMIN_EMAIL)) {
+      redirect("/admin/login");
+    }
+  }
 
   const [stats, platform, { flags }, integrations, recentNews, featureStats] = await Promise.all([
     getAdminStats(),

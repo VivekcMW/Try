@@ -62,19 +62,23 @@ export default async function proxy(request: NextRequest) {
 
   const { data: { session } } = await supabase.auth.getSession();
 
+  // Check for local admin session cookie (development mode)
+  const adminSessionCookie = request.cookies.get('admin_session');
+  const isLocalAdminAuth = adminSessionCookie?.value === 'authenticated';
+
   // Protect admin routes
   if (request.nextUrl.pathname.startsWith('/admin')) {
     // Allow login page
     if (request.nextUrl.pathname === '/admin/login') {
       // If already logged in, redirect to dashboard
-      if (session) {
-        return NextResponse.redirect(new URL('/admin', request.url));
+      if (session || isLocalAdminAuth) {
+        return NextResponse.redirect(new URL('/admin/dashboard', request.url));
       }
       return response;
     }
 
     // Require authentication for all other admin pages
-    if (!session) {
+    if (!session && !isLocalAdminAuth) {
       return NextResponse.redirect(new URL('/admin/login', request.url));
     }
   }

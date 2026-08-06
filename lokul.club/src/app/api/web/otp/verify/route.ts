@@ -1,26 +1,38 @@
 import { NextRequest, NextResponse } from "next/server";
-import { verifyOtp } from "@/lib/otp-store";
+import { OTPService } from "@/lib/otp/otp-service";
 
 export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => null);
   const phone: string | undefined = body?.phone;
+  const email: string | undefined = body?.email;
   const code: string | undefined = body?.code;
+  const transactionId: string | undefined = body?.transactionId;
 
-  if (!phone || !code) {
-    return NextResponse.json({ error: "phone and code required" }, { status: 400 });
+  if ((!phone && !email) || !code) {
+    return NextResponse.json({ error: "Phone/email and code required" }, { status: 400 });
   }
 
-  const result = await verifyOtp(phone, code.trim());
+  try {
+    const otpService = new OTPService();
+    
+    // OTPService.verifyOTP signature: (transactionId, code, phone, email)
+    const result = await otpService.verifyOTP(
+      transactionId || '', 
+      code.trim(), 
+      phone, 
+      email
+    );
 
-  if (result === "ok") {
-    return NextResponse.json({ verified: true });
+    if (result.success) {
+      return NextResponse.json({ verified: true, userId: result.userId });
+    }
+
+    return NextResponse.json({ 
+      verified: false, 
+      error: result.error || "Verification failed." 
+    }, { status: 400 });
+  } catch (error) {
+    console.error("[OTP] Verify error:", error);
+    return NextResponse.json({ error: "Verification failed" }, { status: 500 });
   }
-
-  const messages: Record<string, string> = {
-    expired:  "OTP expired. Please request a new one.",
-    invalid:  "Incorrect OTP. Please try again.",
-    too_many: "Too many attempts. Please request a new OTP.",
-  };
-
-  return NextResponse.json({ verified: false, error: messages[result] ?? "Verification failed." }, { status: 400 });
 }

@@ -4,7 +4,6 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Lock, Mail, KeyRound, Eye, EyeOff } from "lucide-react";
 import { Alert, Button } from "@/components/ui";
-import { useEmailAuth } from "@/hooks/useSupabaseAuth";
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -12,19 +11,33 @@ export default function AdminLoginPage() {
   const [password, setPassword]     = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError]           = useState("");
-  const { signIn, loading } = useEmailAuth();
+  const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e: { preventDefault(): void }) {
     e.preventDefault();
     setError("");
+    setLoading(true);
     
-    const result = await signIn(email, password);
-    
-    if (result.success) {
-      router.push("/admin/dashboard");
-      router.refresh();
-    } else {
-      setError(result.error || "Invalid email or password. Check the credentials below.");
+    try {
+      // Use local admin auth API
+      const response = await fetch("/api/admin/auth/local-login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        router.push("/admin/dashboard");
+        router.refresh();
+      } else {
+        setError(result.error || "Invalid email or password. Check the credentials below.");
+      }
+    } catch (err) {
+      setError("Login failed. Please try again.");
+    } finally {
+      setLoading(false);
     }
   }
 

@@ -28,7 +28,7 @@ import { colors, radius, spacing } from '@lokul/ui-tokens';
 const BASE = process.env.EXPO_PUBLIC_API_BASE ?? '';
 
 const MODULES = [
-  { Icon: Store,       label: 'Services',        desc: 'Plumbers · electricians · maids',   route: '/(marketplace)/',         featureKey: 'services'         },
+  { Icon: Store,       label: 'Local Catalog',   desc: 'Nearby shops with live delivery',   route: '/(discover)/catalog',     featureKey: 'services'         },
   { Icon: BadgeCheck,  label: 'Local Shops',     desc: 'Nearby shops & businesses',         route: '/(peer)/',                featureKey: 'shop_directory'   },
   { Icon: Car,         label: 'Carpool',         desc: 'Share rides with neighbours',       route: '/(discover)/carpool',     featureKey: 'carpool'          },
   { Icon: ShoppingBag, label: 'Group Buy',       desc: 'Buy together, save more',           route: '/(groupbuy)/index',       featureKey: 'group_buying'     },

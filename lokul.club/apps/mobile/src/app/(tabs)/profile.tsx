@@ -136,7 +136,7 @@ export default function ProfileScreen() {
     SUPPORTED_LANGUAGES.find((item) => item.code === language)?.nativeName ?? language;
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top']}>
+    <SafeAreaView style={styles.safe} edges={['top']} testID="profile-screen">
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
 
         {/* Community setup nudge — shown when user has not mapped their society */}
@@ -489,7 +489,12 @@ function Divider() {
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.surface.surfaceMuted },
-  content: { padding: spacing[5], gap: spacing[5], paddingBottom: spacing[16] },
+  content: {
+    paddingHorizontal: spacing[5],
+    paddingTop: spacing[4],
+    paddingBottom: spacing[16],
+    gap: spacing[5],
+  },
   verifyBanner: {
     backgroundColor: '#FEF3C7',
     borderWidth: 1,

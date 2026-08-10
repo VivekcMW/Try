@@ -1,13 +1,20 @@
-import { Tabs } from 'expo-router';
-import { Compass, Home, MessageCircle, Plus, User } from 'lucide-react-native';
+import { Redirect, Tabs } from 'expo-router';
+import { Compass, Home, Plus, ShoppingBag, User } from 'lucide-react-native';
 import { Platform, StyleSheet, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { colors, radius } from '@lokul/ui-tokens';
+import { colors, radius, shadows } from '@lokul/ui-tokens';
 import { useAccessibilityStore } from '@/store/accessibilityStore';
+import { useOnboardingStore } from '@/store/onboardingStore';
 
 export default function TabLayout() {
   const { t } = useTranslation('common');
   const seniorMode = useAccessibilityStore((s) => s.seniorMode);
+  const { pin, name } = useOnboardingStore();
+
+  // Redirect to complete onboarding if missing critical data
+  if (!pin || !name) {
+    return <Redirect href="/(onboarding)/profile" />;
+  }
 
   const iconSize  = seniorMode ? 28 : 22;
   const tabHeight = Platform.OS === 'ios'
@@ -23,12 +30,16 @@ export default function TabLayout() {
         tabBarInactiveTintColor: colors.surface.textSecondary,
         tabBarStyle: {
           backgroundColor: colors.surface.background,
+          borderTopWidth: 1,
           borderTopColor: colors.surface.border,
           height: tabHeight,
-          paddingTop: 6,
+          paddingTop: 8,
           paddingBottom: Platform.OS === 'ios' ? 28 : 8,
+          ...shadows.sm.ios,
+          elevation: shadows.sm.android,
         },
-        tabBarLabelStyle: { fontSize: labelSize, fontWeight: '600' },
+        tabBarLabelStyle: { fontSize: labelSize, fontWeight: '600', marginTop: 2 },
+        tabBarItemStyle: { paddingVertical: 2 },
       }}
     >
       <Tabs.Screen
@@ -55,19 +66,23 @@ export default function TabLayout() {
           title: '',
           tabBarIcon: ({ focused }) => (
             <View style={[styles.createBtn, focused && styles.createBtnActive]}>
-              <Plus size={seniorMode ? 30 : 26} color="#fff" strokeWidth={2.6} />
+              <Plus size={seniorMode ? 30 : 26} color={colors.surface.background} strokeWidth={2.6} />
             </View>
           ),
         }}
       />
       <Tabs.Screen
-        name="chats"
+        name="orders"
         options={{
-          title: t('tab_chats'),
+          title: 'Orders',
           tabBarIcon: ({ color, focused }) => (
-            <MessageCircle size={iconSize} color={color} strokeWidth={focused ? 2.4 : 1.8} />
+            <ShoppingBag size={iconSize} color={color} strokeWidth={focused ? 2.4 : 1.8} />
           ),
         }}
+      />
+      <Tabs.Screen
+        name="chats"
+        options={{ href: null }}
       />
       <Tabs.Screen
         name="profile"
@@ -79,6 +94,7 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen name="safety" options={{ href: null }} />
+      <Tabs.Screen name="index-commerce" options={{ href: null }} />
     </Tabs>
   );
 }

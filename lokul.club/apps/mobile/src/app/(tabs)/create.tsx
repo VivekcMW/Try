@@ -182,7 +182,7 @@ export default function CreateSheet() {
   const router = useRouter();
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
+    <SafeAreaView style={styles.safe} edges={['top', 'bottom']} testID="create-screen">
       <View style={styles.header}>
         <View style={{ width: 40 }} />
         <Text style={styles.headerTitle}>Create</Text>
@@ -246,8 +246,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: spacing[4],
-    paddingVertical: spacing[3],
+    paddingHorizontal: spacing[5],
+    paddingTop: spacing[4],
+    paddingBottom: spacing[3],
     backgroundColor: colors.surface.background,
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: colors.surface.border,
@@ -265,7 +266,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  scroll: { padding: spacing[4], paddingBottom: spacing[10] },
+  scroll: { paddingHorizontal: spacing[5], paddingTop: spacing[4], paddingBottom: spacing[10] },
   section: { marginBottom: spacing[5] },
   sectionLabel: {
     fontSize: 11,

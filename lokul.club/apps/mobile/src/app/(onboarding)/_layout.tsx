@@ -10,8 +10,16 @@ export default function OnboardingLayout() {
       <Stack.Screen name="splash" options={{ animation: 'fade' }} />
       <Stack.Screen name="phone" />
       <Stack.Screen name="otp" />
+      <Stack.Screen name="email-login" />
       <Stack.Screen name="profile" />
       <Stack.Screen name="locality" />
+      <Stack.Screen name="interests" />
+      <Stack.Screen name="edit-interests" />
+      <Stack.Screen name="roles" />
+      <Stack.Screen name="permissions" />
+      <Stack.Screen name="residence-type" />
+      <Stack.Screen name="society" />
+      <Stack.Screen name="tower-flat" />
       <Stack.Screen name="welcome" options={{ animation: 'fade', gestureEnabled: false }} />
     </Stack>
   );

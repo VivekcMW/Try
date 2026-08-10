@@ -1,0 +1,17 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "ES2021",
+    "lib": ["ES2021"],
+    "jsx": "react",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "types": ["detox", "node"]
+  },
+  "include": [
+    "./**/*.ts",
+    "./types.d.ts"
+  ],
+  "exclude": ["node_modules"]
+}

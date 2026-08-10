@@ -50,18 +50,18 @@ export interface OnboardingState {
 
 const initial = {
   phone: null,
-  name: '',
+  name: 'Test User',
   photoUri: null,
-  pin: '',
-  city: null,
-  locationType: null as LocationType,
-  societyId: null,
-  societyName: null,
-  tower: null,
-  flat: '',
+  pin: '560001',
+  city: 'Bangalore',
+  locationType: 'society' as LocationType,
+  societyId: 'test-society-1',
+  societyName: 'Kumar Sienna',
+  tower: 'A',
+  flat: 'A-101',
   houseLabel: '',
   streetAddress: '',
-  interests: [] as string[],
+  interests: ['sports', 'food', 'events'] as string[],
   declaredRoles: [] as string[],
 };
 

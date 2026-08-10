@@ -112,14 +112,16 @@ export default function MarketplaceIndexScreen() {
 
       {/* Search */}
       <View style={styles.searchRow}>
-        <Search size={16} color={colors.surface.textSecondary} style={styles.searchIcon} />
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Search services…"
-          placeholderTextColor={colors.surface.textSecondary}
-          value={query}
-          onChangeText={setQuery}
-        />
+        <HStack gap={2.5} align="center" style={styles.searchContainer}>
+          <Search size={18} color={colors.surface.textSecondary} />
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search services…"
+            placeholderTextColor={colors.surface.textSecondary}
+            value={query}
+            onChangeText={setQuery}
+          />
+        </HStack>
       </View>
 
       {/* Grouped category grid */}
@@ -209,13 +211,19 @@ const styles = StyleSheet.create({
     backgroundColor: colors.brand[50], alignItems: 'center', justifyContent: 'center',
   },
   searchRow: {
-    paddingHorizontal: spacing[4], paddingBottom: spacing[3], position: 'relative',
+    paddingHorizontal: spacing[4], paddingBottom: spacing[3],
   },
-  searchIcon: { position: 'absolute', left: spacing[7], top: '50%', transform: [{ translateY: -8 }], zIndex: 1 },
+  searchContainer: {
+    backgroundColor: colors.surface.surfaceMuted,
+    borderRadius: radius.full,
+    paddingHorizontal: spacing[4],
+    height: 40,
+  },
   searchInput: {
-    backgroundColor: colors.gray[100], borderRadius: 20,
-    paddingHorizontal: spacing[10], paddingVertical: spacing[3],
-    fontSize: 14, color: colors.surface.heading,
+    flex: 1,
+    fontSize: 14,
+    color: colors.surface.heading,
+    padding: 0,
   },
   grid: { paddingHorizontal: spacing[4], paddingBottom: spacing[16], gap: spacing[5] },
   sectionHeader: {

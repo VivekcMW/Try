@@ -192,7 +192,7 @@ const styles = StyleSheet.create({
   safe:        { flex: 1, backgroundColor: colors.surface.surfaceMuted },
   content:     { padding: spacing[5], gap: spacing[5], paddingBottom: spacing[16] },
   search:      { backgroundColor: colors.surface.background },
-  searchInput: { flex: 1, height: 36, color: colors.surface.foreground, fontSize: 14 },
+  searchInput: { flex: 1, height: 40, color: colors.surface.foreground, fontSize: 14, padding: 0 },
   iconBox: {
     width: 40, height: 40, borderRadius: radius.md,
     alignItems: 'center', justifyContent: 'center',

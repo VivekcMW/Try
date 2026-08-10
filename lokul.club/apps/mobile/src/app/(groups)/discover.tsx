@@ -89,7 +89,7 @@ export default function Discover() {
       </View>
 
       <View style={styles.searchWrap}>
-        <Search size={16} color={colors.surface.textSecondary} />
+        <Search size={18} color={colors.surface.textSecondary} />
         <TextInput
           value={q}
           onChangeText={setQ}
@@ -184,16 +184,15 @@ const styles = StyleSheet.create({
   searchWrap: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing[2],
-    paddingHorizontal: spacing[3],
+    gap: spacing[2.5],
+    paddingHorizontal: spacing[4],
     marginHorizontal: spacing[4],
     marginTop: spacing[3],
-    backgroundColor: colors.surface.background,
-    borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: colors.surface.border,
+    backgroundColor: colors.surface.surfaceMuted,
+    borderRadius: radius.full,
+    height: 40,
   },
-  search: { flex: 1, height: 40, color: colors.surface.foreground },
+  search: { flex: 1, color: colors.surface.foreground, fontSize: 14, padding: 0 },
   chips: { flexGrow: 0, marginTop: spacing[3] },
   chip: {
     paddingHorizontal: spacing[3],

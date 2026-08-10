@@ -18,6 +18,7 @@ export interface ScreenProps {
   background?: string;
   contentStyle?: ViewStyle;
   keyboardAvoiding?: boolean;
+  testID?: string;
 }
 
 export function Screen({
@@ -28,6 +29,7 @@ export function Screen({
   background = colors.surface.background,
   contentStyle,
   keyboardAvoiding = true,
+  testID,
 }: ScreenProps) {
   const inner = (
     <View
@@ -65,7 +67,7 @@ export function Screen({
   );
 
   return (
-    <SafeAreaView edges={edges} style={[styles.flex, { backgroundColor: background }]}>
+    <SafeAreaView testID={testID} edges={edges} style={[styles.flex, { backgroundColor: background }]}>
       {content}
     </SafeAreaView>
   );

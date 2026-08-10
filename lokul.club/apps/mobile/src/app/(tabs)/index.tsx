@@ -1,3 +1,10 @@
+// Feature flag to switch between old feed and new commerce home
+const USE_COMMERCE_HOME = true;  // Set to false to use old social feed
+
+// New commerce-first home screen
+import HomeScreenCommerce from './index-commerce';
+
+// Keep old imports for the social feed version
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Dimensions,
@@ -86,6 +93,16 @@ type FeedItem =
   | { kind: 'news'; item: LocalityNewsItem };
 
 export default function HomeScreen() {
+  // Feature flag: Use new commerce-first home screen
+  if (USE_COMMERCE_HOME) {
+    return <HomeScreenCommerce />;
+  }
+
+  // Old social feed implementation
+  return <HomeScreenFeed />;
+}
+
+function HomeScreenFeed() {
   const router = useRouter();
   const seniorMode = useAccessibilityStore((s) => s.seniorMode);
   const societyName = useOnboardingStore((s) => s.societyName) ?? 'your locality';
@@ -222,7 +239,7 @@ export default function HomeScreen() {
   if (seniorMode) return <Redirect href="/(senior)/home" />;
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top']}>
+    <SafeAreaView style={styles.safe} edges={['top']} testID="home-screen">
       <OfflineBanner />
       <Header society={societyName} tier={tier} />
 
@@ -247,6 +264,7 @@ export default function HomeScreen() {
       />
 
       <FlatList
+        testID="feed-list"
         data={feedItems}
         keyExtractor={(item, index) => {
           if (item.kind === 'post')     return item.post.id;
@@ -259,7 +277,7 @@ export default function HomeScreen() {
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
         ListHeaderComponent={
           <View style={{ gap: spacing[3] }}>
-            <StoriesRow />
+            <StoriesRow testID="stories-row" />
             <PromoCarousel />
             {pinned.map((p) => (
               <PostCard
@@ -325,6 +343,23 @@ export default function HomeScreen() {
           );
         }}
         ItemSeparatorComponent={() => <View style={{ height: spacing[3] }} />}
+        ListEmptyComponent={
+          feedItems.length === 0 && !refreshing ? (
+            <View style={{ padding: spacing[8], alignItems: 'center' }}>
+              <Text variant="h3" style={{ marginBottom: spacing[2], textAlign: 'center' }}>
+                No posts yet
+              </Text>
+              <Text variant="body" tone="secondary" style={{ textAlign: 'center', marginBottom: spacing[6] }}>
+                Be the first to share something with your community
+              </Text>
+              <Button 
+                label="Create Post" 
+                onPress={onPost}
+                leftIcon={<Plus size={18} color="#fff" />}
+              />
+            </View>
+          ) : null
+        }
         showsVerticalScrollIndicator={false}
       />
 
@@ -1010,7 +1045,7 @@ const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.surface.surfaceMuted },
   header: {
     paddingHorizontal: spacing[5],
-    paddingTop: spacing[2],
+    paddingTop: spacing[4],
     paddingBottom: spacing[3],
     backgroundColor: colors.surface.background,
     flexDirection: 'row',
@@ -1045,7 +1080,7 @@ const styles = StyleSheet.create({
   filterRow: {
     paddingHorizontal: spacing[5],
     paddingVertical: spacing[3],
-    gap: spacing[2],
+    gap: spacing[2.5],
     flexDirection: 'row',
     alignItems: 'center',
   },

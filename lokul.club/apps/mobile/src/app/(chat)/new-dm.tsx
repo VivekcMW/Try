@@ -75,15 +75,17 @@ export default function NewDmScreen() {
 
       {/* Search */}
       <View style={styles.searchRow}>
-        <Search size={16} color={colors.surface.textSecondary} style={{ position: 'absolute', left: spacing[4], zIndex: 1 }} />
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Search resident by name…"
-          placeholderTextColor={colors.surface.textSecondary}
-          value={query}
-          onChangeText={setQuery}
-          autoFocus
-        />
+        <HStack gap={2.5} align="center" style={styles.searchContainer}>
+          <Search size={18} color={colors.surface.textSecondary} />
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search resident by name…"
+            placeholderTextColor={colors.surface.textSecondary}
+            value={query}
+            onChangeText={setQuery}
+            autoFocus
+          />
+        </HStack>
       </View>
 
       {loading ? (
@@ -152,10 +154,17 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing[4], paddingVertical: spacing[3],
     borderBottomWidth: 0.5, borderBottomColor: colors.surface.border,
   },
+  searchContainer: {
+    backgroundColor: colors.surface.surfaceMuted,
+    borderRadius: radius.full,
+    paddingHorizontal: spacing[4],
+    height: 40,
+  },
   searchInput: {
-    backgroundColor: colors.gray[100], borderRadius: 20,
-    paddingHorizontal: spacing[10], paddingVertical: spacing[2.5],
-    fontSize: 14, color: colors.surface.heading,
+    flex: 1,
+    fontSize: 14,
+    color: colors.surface.heading,
+    padding: 0,
   },
   row: {
     flexDirection: 'row', alignItems: 'center', gap: spacing[3],

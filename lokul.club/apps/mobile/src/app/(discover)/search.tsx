@@ -198,8 +198,8 @@ export default function SearchScreen() {
         <Pressable onPress={() => router.back()} style={styles.backBtn} accessibilityRole="button">
           <ArrowLeft size={20} color={colors.surface.heading} />
         </Pressable>
-        <HStack gap={2} align="center" style={styles.searchBox}>
-          <Search size={17} color={colors.surface.textSecondary} />
+        <HStack gap={2.5} align="center" style={styles.searchBox}>
+          <Search size={18} color={colors.surface.textSecondary} />
           <TextInput
             ref={inputRef}
             value={q}
@@ -279,16 +279,16 @@ const styles = StyleSheet.create({
   },
   searchBox: {
     flex: 1,
-    backgroundColor: colors.gray[100],
+    backgroundColor: colors.surface.surfaceMuted,
     borderRadius: radius.full,
-    paddingHorizontal: spacing[3],
-    paddingVertical: spacing[2],
+    paddingHorizontal: spacing[4],
+    height: 40,
   },
   searchInput: {
     flex: 1,
     color: colors.surface.heading,
-    fontSize: 15,
-    lineHeight: 20,
+    fontSize: 14,
+    padding: 0,
   },
   clearBtn: {
     width: 20, height: 20, borderRadius: 10,

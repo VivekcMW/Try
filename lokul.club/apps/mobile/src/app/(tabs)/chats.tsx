@@ -217,7 +217,7 @@ export default function ChatsScreen() {
   }, [filter, query, threads]);
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top']}>
+    <SafeAreaView style={styles.safe} edges={['top']} testID="chats-screen">
       {/* ── Sticky header (outside ScrollView) ───────────── */}
       <View style={styles.header}>
         <View style={styles.titleRow}>
@@ -234,12 +234,12 @@ export default function ChatsScreen() {
         </View>
 
         <View style={styles.searchWrap}>
-          <Search size={16} color={colors.gray[500]} />
+          <Search size={18} color={colors.surface.textSecondary} />
           <TextInput
             value={query}
             onChangeText={setQuery}
             placeholder="Search"
-            placeholderTextColor={colors.gray[500]}
+            placeholderTextColor={colors.surface.textSecondary}
             style={styles.searchInput}
             returnKeyType="search"
           />
@@ -313,7 +313,7 @@ const styles = StyleSheet.create({
   header: {
     backgroundColor: colors.surface.background,
     paddingHorizontal: PAD_X,
-    paddingTop: spacing[2],
+    paddingTop: spacing[4],
     paddingBottom: spacing[3],
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: colors.surface.border,
@@ -340,22 +340,22 @@ const styles = StyleSheet.create({
   searchWrap: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing[2],
+    gap: spacing[2.5],
     backgroundColor: colors.surface.surfaceMuted,
     borderRadius: radius.full,
-    paddingHorizontal: spacing[3],
-    height: 38,
+    paddingHorizontal: spacing[4],
+    height: 40,
     marginBottom: spacing[3],
   },
   searchInput: {
     flex: 1,
-    fontSize: 15,
+    fontSize: 14,
     color: colors.surface.foreground,
     padding: 0,
   },
   chipRow: {
     flexDirection: 'row',
-    gap: spacing[2],
+    gap: spacing[2.5],
   },
   chip: {
     paddingHorizontal: spacing[3],

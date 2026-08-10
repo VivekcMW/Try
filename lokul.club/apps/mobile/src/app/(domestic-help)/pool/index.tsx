@@ -185,7 +185,7 @@ export default function HelperPoolScreen() {
       {/* Search */}
       <View style={styles.searchContainer}>
         <HStack style={styles.searchBar}>
-          <Search size={20} color={colors.textSecondary} />
+          <Search size={18} color={colors.textSecondary} />
           <TextInput
             style={styles.searchInput}
             value={searchQuery}
@@ -317,16 +317,17 @@ const styles = StyleSheet.create({
   },
   searchBar: {
     backgroundColor: colors.surfaceMuted,
-    borderRadius: radius.lg,
+    borderRadius: radius.full,
     paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
+    height: 40,
     gap: spacing.sm,
     alignItems: 'center',
   },
   searchInput: {
     flex: 1,
-    fontSize: 16,
+    fontSize: 14,
     color: colors.foreground,
+    padding: 0,
   },
   filterPillsScroll: {
     flexGrow: 0,

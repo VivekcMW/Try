@@ -95,14 +95,16 @@ export default function ClassifiedsIndexScreen() {
 
       {/* Search */}
       <View style={styles.searchWrap}>
-        <Search size={16} color={colors.surface.textSecondary} style={styles.searchIcon} />
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Search listings…"
-          placeholderTextColor={colors.surface.textSecondary}
-          value={query}
-          onChangeText={setQuery}
-        />
+        <HStack gap={2.5} align="center" style={styles.searchContainer}>
+          <Search size={18} color={colors.surface.textSecondary} />
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search listings…"
+            placeholderTextColor={colors.surface.textSecondary}
+            value={query}
+            onChangeText={setQuery}
+          />
+        </HStack>
       </View>
 
       {/* Category filter */}
@@ -229,12 +231,18 @@ const styles = StyleSheet.create({
     backgroundColor: colors.brand[600], paddingHorizontal: spacing[4],
     paddingVertical: spacing[2], borderRadius: 20,
   },
-  searchWrap: { paddingHorizontal: spacing[4], paddingBottom: spacing[2], position: 'relative' },
-  searchIcon: { position: 'absolute', left: spacing[7], top: '50%', transform: [{ translateY: -8 }], zIndex: 1 },
+  searchWrap: { paddingHorizontal: spacing[4], paddingBottom: spacing[2] },
+  searchContainer: {
+    backgroundColor: colors.surface.surfaceMuted,
+    borderRadius: radius.full,
+    paddingHorizontal: spacing[4],
+    height: 40,
+  },
   searchInput: {
-    backgroundColor: colors.gray[100], borderRadius: 20,
-    paddingHorizontal: spacing[10], paddingVertical: spacing[2.5],
-    fontSize: 14, color: colors.surface.heading,
+    flex: 1,
+    fontSize: 14,
+    color: colors.surface.heading,
+    padding: 0,
   },
   catScroll: { paddingHorizontal: spacing[4], paddingBottom: spacing[2], gap: spacing[2] },
   catChip: {

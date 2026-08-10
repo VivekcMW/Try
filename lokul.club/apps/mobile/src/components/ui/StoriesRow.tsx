@@ -29,9 +29,10 @@ type SponsoredStory = {
 
 interface Props {
   readonly onStoryPress?: (story: ApiStory) => void;
+  readonly testID?: string;
 }
 
-export function StoriesRow({ onStoryPress }: Props) {
+export function StoriesRow({ onStoryPress, testID }: Props) {
   const router   = useRouter();
   const pinCode  = useOnboardingStore((s) => s.pin);
   const userId   = useOnboardingStore((s) => s.phone);
@@ -94,6 +95,7 @@ export function StoriesRow({ onStoryPress }: Props) {
 
   return (
     <ScrollView
+      testID={testID}
       horizontal
       showsHorizontalScrollIndicator={false}
       contentContainerStyle={s.row}

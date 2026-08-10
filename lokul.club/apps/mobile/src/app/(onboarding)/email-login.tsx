@@ -34,8 +34,8 @@ export default function EmailLoginScreen() {
         throw new Error('Failed to create session');
       }
 
-      // Success - navigate to main app
-      router.replace('/(app)/(tabs)/home');
+      // Success - complete onboarding before accessing main app
+      router.replace('/(onboarding)/profile');
     } catch (err: any) {
       setError(err.message || 'Invalid credentials');
     } finally {
@@ -44,7 +44,7 @@ export default function EmailLoginScreen() {
   };
 
   return (
-    <Screen padded={false}>
+    <Screen padded={false} testID="email-login-screen">
       <View style={styles.header}>
         <Pressable 
           onPress={() => router.canGoBack() ? router.back() : router.replace('/(onboarding)/splash')} 
@@ -72,6 +72,7 @@ export default function EmailLoginScreen() {
               Email
             </Text>
             <Input
+              testID="email-input"
               placeholder="user@example.com"
               keyboardType="email-address"
               autoCapitalize="none"
@@ -90,6 +91,7 @@ export default function EmailLoginScreen() {
               Password
             </Text>
             <Input
+              testID="password-input"
               placeholder="Enter your password"
               secureTextEntry
               autoCapitalize="none"
@@ -114,8 +116,9 @@ export default function EmailLoginScreen() {
       </VStack>
 
       <VStack gap={3} style={styles.footer}>
-        <Button 
-          label={loading ? "Logging in..." : "Login"} 
+        <Button
+          testID="login-button"
+          label={loading ? "Logging in..." : "Login"}
           onPress={handleLogin} 
           disabled={!email || !password || loading} 
           fullWidth 

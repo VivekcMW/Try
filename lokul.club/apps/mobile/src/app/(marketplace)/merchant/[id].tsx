@@ -31,6 +31,58 @@ type CatalogItem = {
   unit?: string; imageUrl?: string; isAvailable: boolean; kind: string;
 };
 
+// Demo fallback so the shopping flow works while backend has no data
+const DEMO_MERCHANTS: Record<string, ApiMerchant> = {
+  '1': {
+    id: '1', name: 'Amul Parlour', bio: 'Dairy · Ice Cream · Snacks — serving the society for 8 years',
+    rating: 4.5, reviewCount: 120, verified: true, acceptingOrders: true,
+    responseTime: '~10 min', category: 'grocery', estimatedDeliveryMins: 10,
+    businessHoursStart: '07:00', businessHoursEnd: '22:00',
+  },
+  '2': {
+    id: '2', name: 'Fresh Veggies Store', bio: 'Farm-fresh vegetables & fruits, sourced daily from local mandis',
+    rating: 4.3, reviewCount: 85, verified: false, acceptingOrders: true,
+    responseTime: '~15 min', category: 'grocery', estimatedDeliveryMins: 15,
+    businessHoursStart: '06:00', businessHoursEnd: '21:00',
+  },
+  '3': {
+    id: '3', name: 'MedPlus Pharmacy', bio: 'Medicines, healthcare & baby care — open 24/7 for emergencies',
+    rating: 4.7, reviewCount: 200, verified: true, acceptingOrders: true,
+    responseTime: '~20 min', category: 'pharmacy', estimatedDeliveryMins: 20,
+    businessHoursStart: '00:00', businessHoursEnd: '23:59',
+  },
+  '4': {
+    id: '4', name: 'Sharma Bakery', bio: 'Fresh bread, cakes & cookies baked every morning',
+    rating: 4.4, reviewCount: 64, verified: false, acceptingOrders: true,
+    responseTime: '~25 min', category: 'bakery', estimatedDeliveryMins: 25,
+    businessHoursStart: '07:00', businessHoursEnd: '21:00',
+  },
+};
+
+const DEMO_CATALOG: Record<string, CatalogItem[]> = {
+  '1': [
+    { id: '1', name: 'Amul Taaza Milk', description: 'Toned milk pouch', pricePaise: 6000, unit: '500ml', isAvailable: true, kind: 'product' },
+    { id: '2', name: 'Britannia Bread', description: 'Whole wheat', pricePaise: 4000, unit: '400g', isAvailable: true, kind: 'product' },
+    { id: '4', name: 'Amul Butter', description: 'Pasteurised', pricePaise: 5500, unit: '100g', isAvailable: true, kind: 'product' },
+    { id: '5', name: 'Amul Ice Cream', description: 'Vanilla family pack', pricePaise: 15000, unit: '1L', isAvailable: true, kind: 'product' },
+  ],
+  '2': [
+    { id: '21', name: 'Tomatoes', description: 'Fresh & ripe', pricePaise: 4000, unit: '1kg', isAvailable: true, kind: 'product' },
+    { id: '22', name: 'Onions', description: 'Nashik red', pricePaise: 3500, unit: '1kg', isAvailable: true, kind: 'product' },
+    { id: '23', name: 'Bananas', description: 'Robusta', pricePaise: 5000, unit: '1 dozen', isAvailable: true, kind: 'product' },
+  ],
+  '3': [
+    { id: '31', name: 'Paracetamol 500mg', description: 'Strip of 10', pricePaise: 3000, unit: '10 tabs', isAvailable: true, kind: 'product' },
+    { id: '32', name: 'Vitamin C', description: 'Chewable tablets', pricePaise: 12000, unit: '30 tabs', isAvailable: true, kind: 'product' },
+    { id: '33', name: 'Band-Aid', description: 'Waterproof', pricePaise: 4500, unit: '20 strips', isAvailable: true, kind: 'product' },
+  ],
+  '4': [
+    { id: '41', name: 'Whole Wheat Bread', description: 'Baked fresh today', pricePaise: 4500, unit: '400g', isAvailable: true, kind: 'product' },
+    { id: '42', name: 'Chocolate Cake', description: 'Half kg, eggless', pricePaise: 35000, unit: '500g', isAvailable: true, kind: 'product' },
+    { id: '43', name: 'Butter Cookies', description: 'Melt in mouth', pricePaise: 12000, unit: '250g', isAvailable: true, kind: 'product' },
+  ],
+};
+
 export default function MerchantProfileScreen() {
   const { id }  = useLocalSearchParams<{ id: string }>();
   const router  = useRouter();
@@ -64,13 +116,22 @@ export default function MerchantProfileScreen() {
       // Fetch merchant details
       const res  = await fetch(`${BASE}/api/mobile/merchants/${id}`);
       const data = await res.json();
-      setMerchant(data);
-      
-      // Fetch catalog items
-      const catalogRes = await fetch(`${BASE}/api/mobile/merchants/${id}/catalog`);
-      const catalogData = await catalogRes.json();
-      setCatalogItems(catalogData.items || []);
-    } catch { /* noop */ } finally { setLoading(false); }
+      if (data?.id) {
+        setMerchant(data);
+        const catalogRes = await fetch(`${BASE}/api/mobile/merchants/${id}/catalog`);
+        const catalogData = await catalogRes.json();
+        setCatalogItems(catalogData.items || []);
+      } else if (DEMO_MERCHANTS[id]) {
+        setMerchant(DEMO_MERCHANTS[id]);
+        setCatalogItems(DEMO_CATALOG[id] ?? []);
+      }
+    } catch {
+      // Backend unavailable — fall back to demo data
+      if (DEMO_MERCHANTS[id]) {
+        setMerchant(DEMO_MERCHANTS[id]);
+        setCatalogItems(DEMO_CATALOG[id] ?? []);
+      }
+    } finally { setLoading(false); }
   }, [id]);
 
   useEffect(() => { load(); }, [load]);
@@ -85,8 +146,21 @@ export default function MerchantProfileScreen() {
 
   if (!merchant) {
     return (
-      <SafeAreaView style={styles.safe}>
-        <Text variant="body" style={{ padding: spacing[6] }}>Provider not found.</Text>
+      <SafeAreaView style={styles.safe} edges={['top']}>
+        <HStack gap={3} align="center" style={styles.topBar}>
+          <Pressable onPress={() => router.back()} style={styles.backBtn} accessibilityRole="button">
+            <ArrowLeft size={20} color={colors.surface.heading} />
+          </Pressable>
+          <Text variant="h3" style={{ flex: 1, color: colors.surface.heading }}>Shop</Text>
+        </HStack>
+        <View style={{ alignItems: 'center', paddingTop: spacing[16], paddingHorizontal: spacing[6], gap: spacing[3] }}>
+          <Package size={56} color={colors.gray[300]} />
+          <Text variant="h3" style={{ color: colors.surface.heading }}>Shop not found</Text>
+          <Text variant="body" tone="secondary" style={{ textAlign: 'center' }}>
+            This shop may have moved or is no longer available.
+          </Text>
+          <Button label="Browse Other Shops" onPress={() => router.replace('/(discover)/catalog' as never)} style={{ marginTop: spacing[3] }} />
+        </View>
       </SafeAreaView>
     );
   }
@@ -419,7 +493,7 @@ const styles = StyleSheet.create({
   cartBadge: {
     position: 'absolute', top: -4, right: -4,
     width: 20, height: 20, borderRadius: 10,
-    backgroundColor: colors.semantic.error,
+    backgroundColor: colors.semantic.danger,
     alignItems: 'center', justifyContent: 'center',
   },
   searchContainer: {

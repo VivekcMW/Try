@@ -60,15 +60,23 @@ export function MerchantCard({
           <View style={styles.badges}>
             {merchant.isEndorsed && (
               <View style={styles.endorsedBadge}>
-                <BadgeCheck size={14} color="#fff" fill={colors.brand[600]} />
+                <BadgeCheck size={14} color={colors.surface.background} fill={colors.brand[600]} />
               </View>
             )}
             {hasOffer && (
-              <Badge variant="success" size="sm" style={styles.offerBadge}>
-                {merchant.offer.type === 'percent_off' && `${merchant.offer.value}% OFF`}
-                {merchant.offer.type === 'flat_off' && `₹${merchant.offer.value / 100} OFF`}
-                {merchant.offer.type === 'bogo' && 'BOGO'}
-              </Badge>
+              <Badge
+                tone="success"
+                variant="solid"
+                size="sm"
+                style={styles.offerBadge}
+                label={
+                  merchant.offer!.type === 'percent_off'
+                    ? `${merchant.offer!.value}% OFF`
+                    : merchant.offer!.type === 'flat_off'
+                      ? `₹${merchant.offer!.value / 100} OFF`
+                      : 'BOGO'
+                }
+              />
             )}
           </View>
         </View>
@@ -76,12 +84,12 @@ export function MerchantCard({
         {/* Content */}
         <VStack gap={1.5} style={styles.content}>
           <VStack gap={0.5}>
-            <HStack gap={2} align="center" justify="space-between">
+            <HStack gap={2} align="center" justify="between">
               <Text variant="body" style={styles.name} numberOfLines={1}>
                 {merchant.name}
               </Text>
               {merchant.subscriptionTier === 'premium' && (
-                <Badge variant="brand" size="sm">Premium</Badge>
+                <Badge tone="brand" size="sm" label="Premium" />
               )}
             </HStack>
             
@@ -94,7 +102,7 @@ export function MerchantCard({
           <HStack gap={3} align="center">
             {hasRating && (
               <HStack gap={1} align="center">
-                <Star size={14} color={colors.amber[500]} fill={colors.amber[500]} />
+                <Star size={14} color={colors.accent[500]} fill={colors.accent[500]} />
                 <Text variant="caption" style={{ fontWeight: '600' }}>
                   {merchant.rating.toFixed(1)}
                 </Text>
@@ -133,34 +141,38 @@ export function MerchantCard({
           </HStack>
 
           {/* Delivery info */}
-          {'estimatedDeliveryMins' in merchant && merchant.estimatedDeliveryMins && (
-            <HStack gap={2} align="center">
+          {'estimatedDeliveryMins' in merchant && merchant.estimatedDeliveryMins != null && (
+            <HStack gap={1.5} align="center">
               <HStack gap={1} align="center">
                 <Clock size={14} color={colors.surface.textSecondary} />
                 <Text variant="caption" tone="secondary">
                   {merchant.estimatedDeliveryMins} mins
                 </Text>
               </HStack>
-              
-              {freeDelivery && (
-                <Text variant="caption" style={{ color: colors.success[600], fontWeight: '600' }}>
-                  Free delivery ₹{(merchant.freeDeliveryAbovePaise / 100).toFixed(0)}+
+
+              <Text variant="caption" tone="secondary">·</Text>
+
+              {freeDelivery ? (
+                <Text variant="caption" style={{ color: colors.semantic.success, fontWeight: '600' }}>
+                  Free delivery above ₹{(merchant.freeDeliveryAbovePaise! / 100).toFixed(0)}
                 </Text>
-              )}
-              
-              {deliveryFee && !freeDelivery && (
+              ) : deliveryFee ? (
                 <Text variant="caption" tone="secondary">
                   Delivery {deliveryFee}
+                </Text>
+              ) : (
+                <Text variant="caption" style={{ color: colors.semantic.success, fontWeight: '600' }}>
+                  Free delivery
                 </Text>
               )}
             </HStack>
           )}
 
           {/* Status */}
-          {!isOpenNow || !acceptingOrders && (
+          {(!isOpenNow || !acceptingOrders) && (
             <HStack gap={1} align="center">
-              <View style={[styles.statusDot, { backgroundColor: colors.error[500] }]} />
-              <Text variant="caption" style={{ color: colors.error[600] }}>
+              <View style={[styles.statusDot, { backgroundColor: colors.semantic.danger }]} />
+              <Text variant="caption" style={{ color: colors.semantic.danger }}>
                 {'closedReason' in merchant && merchant.closedReason ? merchant.closedReason : 'Closed'}
               </Text>
             </HStack>
@@ -174,9 +186,11 @@ export function MerchantCard({
 const styles = StyleSheet.create({
   card: {
     overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: colors.surface.border,
   },
   imageContainer: {
-    height: 120,
+    height: 110,
     position: 'relative',
     backgroundColor: colors.surface.surfaceMuted,
   },
@@ -190,6 +204,8 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: spacing[2],
     right: spacing[2],
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: spacing[1.5],
   },
   endorsedBadge: {

@@ -1,7 +1,7 @@
 import { Alert, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { ArrowLeft, Minus, Package, Plus, ShoppingCart, Trash2 } from 'lucide-react-native';
+import { ArrowLeft, Minus, Plus, ShoppingCart, Trash2 } from 'lucide-react-native';
 import { Button, Card, HStack, Text, VStack } from '@/components/ui';
 import { useCartStore } from '@/store/cartStore';
 import { colors, spacing } from '@lokul/ui-tokens';
@@ -40,7 +40,7 @@ export default function CartScreen() {
         <Text variant="h3" style={{ flex: 1, color: colors.surface.heading }}>Shopping Cart</Text>
         {items.length > 0 && (
           <Pressable onPress={handleClearCart} style={styles.clearBtn} accessibilityRole="button">
-            <Trash2 size={18} color={colors.semantic.error} />
+            <Trash2 size={18} color={colors.semantic.danger} />
           </Pressable>
         )}
       </HStack>
@@ -77,15 +77,11 @@ export default function CartScreen() {
                 <Card key={item.id} padding={3} elevation="sm">
                   <HStack gap={3}>
                     <View style={styles.itemImage}>
-                      {item.imageUrl ? (
-                        <View style={styles.itemImagePlaceholder}>
-                          <Package size={24} color={colors.gray[400]} />
-                        </View>
-                      ) : (
-                        <View style={styles.itemImagePlaceholder}>
-                          <Package size={24} color={colors.gray[400]} />
-                        </View>
-                      )}
+                      <View style={[styles.itemImagePlaceholder, { backgroundColor: colors.brand[50] }]}>
+                        <Text variant="h3" style={{ color: colors.brand[600] }}>
+                          {item.name.charAt(0).toUpperCase()}
+                        </Text>
+                      </View>
                     </View>
                     <VStack gap={1} style={{ flex: 1 }}>
                       <HStack gap={2} align="center" style={{ justifyContent: 'space-between' }}>
@@ -93,7 +89,7 @@ export default function CartScreen() {
                           {item.name}
                         </Text>
                         <Pressable onPress={() => removeItem(item.id)} style={styles.removeBtn}>
-                          <Trash2 size={16} color={colors.semantic.error} />
+                          <Trash2 size={16} color={colors.semantic.danger} />
                         </Pressable>
                       </HStack>
                       <Text variant="caption" tone="secondary">

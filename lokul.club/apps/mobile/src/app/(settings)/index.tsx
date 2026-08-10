@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import {
+  ArrowLeft,
   Bell,
   ChevronRight,
   HelpCircle,
@@ -101,9 +102,12 @@ export default function SettingsIndexScreen() {
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
-      <VStack gap={0} style={styles.header}>
-        <Text variant="h3" style={{ color: colors.surface.heading }}>{t('settings:title')}</Text>
-      </VStack>
+      <HStack gap={3} align="center" style={styles.header}>
+        <Pressable onPress={() => router.canGoBack() ? router.back() : router.replace('/(tabs)/profile')} hitSlop={10} accessibilityLabel="Go back">
+          <ArrowLeft size={20} color={colors.surface.heading} />
+        </Pressable>
+        <Text variant="h3" style={{ color: colors.surface.heading, flex: 1 }}>{t('settings:title')}</Text>
+      </HStack>
 
       <ScrollView contentContainerStyle={{ paddingBottom: spacing[16] }}>
         {/* Profile card */}

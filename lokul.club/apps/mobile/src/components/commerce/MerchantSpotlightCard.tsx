@@ -172,7 +172,7 @@ export function MerchantSpotlightCard({ merchant, width = 280 }: Readonly<Mercha
 
 const styles = StyleSheet.create({
   card: {
-    height: 220,
+    // No fixed height — a 220px cap clipped the tags + CTA button
     borderRadius: radius.xl,
     overflow: 'hidden',
     backgroundColor: colors.surface.background,
@@ -262,6 +262,7 @@ const styles = StyleSheet.create({
     color: colors.surface.background,
   },
   content: {
+    flex: 1,
     padding: spacing[3],
     gap: spacing[1.5],
   },
@@ -289,7 +290,7 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
   },
   ctaButton: {
-    marginTop: spacing[1],
+    marginTop: 'auto',
     paddingVertical: spacing[2],
     backgroundColor: colors.brand[50],
     borderWidth: 1,

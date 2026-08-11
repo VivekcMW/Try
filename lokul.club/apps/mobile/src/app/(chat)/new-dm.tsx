@@ -5,7 +5,7 @@ import { useRouter } from 'expo-router';
 import { Check, Search, User, X } from 'lucide-react-native';
 import { useOnboardingStore } from '@/store/onboardingStore';
 import { useWalletStore } from '@/store/walletStore';
-import { colors, spacing } from '@lokul/ui-tokens';
+import { colors, radius, spacing } from '@lokul/ui-tokens';
 
 const BASE = process.env.EXPO_PUBLIC_API_BASE ?? '';
 

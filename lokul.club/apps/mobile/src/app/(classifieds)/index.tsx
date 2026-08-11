@@ -7,7 +7,7 @@ import { Badge, Card, HStack, Text, VStack } from '@/components/ui';
 import { AdSlot } from '@/components/AdSlot';
 import type { ClassifiedCategory } from '@/data/community-seed';
 import { useOnboardingStore } from '@/store/onboardingStore';
-import { colors, spacing } from '@lokul/ui-tokens';
+import { colors, radius, spacing } from '@lokul/ui-tokens';
 
 const BASE = process.env.EXPO_PUBLIC_API_BASE ?? '';
 

@@ -1,16 +1,19 @@
 import { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { AlertTriangle, ArrowLeft, CheckCircle, Clock, MapPin, Package, Search, ShoppingCart, Star } from 'lucide-react-native';
-import { Avatar, Badge, Button, Card, HStack, Text, VStack } from '@/components/ui';
+import { AlertTriangle, ArrowLeft, ArrowRight, CheckCircle, MessageCircle, Minus, Package, Plus, Search, ShoppingCart, Star } from 'lucide-react-native';
+import { Avatar, Button, HStack, Text, VStack } from '@/components/ui';
 import { AdSlot } from '@/components/AdSlot';
 import { useWalletStore } from '@/store/walletStore';
 import { useOnboardingStore } from '@/store/onboardingStore';
 import { useCartStore } from '@/store/cartStore';
-import { colors, spacing } from '@lokul/ui-tokens';
+import { DEMO_PROVIDERS } from '@/store/bookingStore';
+import { colors, fontSize, radius, shadows, spacing } from '@lokul/ui-tokens';
 
 const BASE = process.env.EXPO_PUBLIC_API_BASE ?? '';
+
+const formatPrice = (paise: number) => `₹${(paise / 100).toFixed(paise % 100 === 0 ? 0 : 2)}`;
 
 type ApiMerchant = {
   id: string; name: string; bio?: string; rating?: number; reviewCount?: number;
@@ -57,6 +60,162 @@ const DEMO_MERCHANTS: Record<string, ApiMerchant> = {
     responseTime: '~25 min', category: 'bakery', estimatedDeliveryMins: 25,
     businessHoursStart: '07:00', businessHoursEnd: '21:00',
   },
+  '5': {
+    id: '5', name: 'Glamour Touch Salon', bio: 'Haircuts, facials & grooming — walk-ins and home visits',
+    rating: 4.6, reviewCount: 94, verified: true, acceptingOrders: true,
+    responseTime: '~30 min', category: 'salon',
+    businessHoursStart: '09:00', businessHoursEnd: '20:00',
+  },
+  '6': {
+    id: '6', name: 'Style Studio Unisex Salon', bio: 'Hair spa, manicure & bridal packages by certified stylists',
+    rating: 4.2, reviewCount: 58, verified: false, acceptingOrders: true,
+    responseTime: '~1 hr', category: 'salon',
+    businessHoursStart: '10:00', businessHoursEnd: '21:00',
+  },
+  '7': {
+    id: '7', name: 'Sunrise Family Clinic', bio: 'General physician, vaccinations & preventive health checks',
+    rating: 4.8, reviewCount: 210, verified: true, acceptingOrders: true,
+    responseTime: '~15 min', category: 'clinic',
+    businessHoursStart: '08:00', businessHoursEnd: '21:00',
+  },
+  '8': {
+    id: '8', name: 'Smile Care Dental Clinic', bio: 'Complete dental care — checkups, cleaning & root canal',
+    rating: 4.5, reviewCount: 132, verified: true, acceptingOrders: true,
+    responseTime: '~20 min', category: 'clinic',
+    businessHoursStart: '10:00', businessHoursEnd: '20:00',
+  },
+  '9': {
+    id: '9', name: 'LifeCare Multispeciality Hospital', bio: 'OPD, diagnostics & 24/7 emergency care for the community',
+    rating: 4.4, reviewCount: 340, verified: false, acceptingOrders: true,
+    responseTime: '~10 min', category: 'clinic',
+    businessHoursStart: '00:00', businessHoursEnd: '23:59',
+  },
+  '10': {
+    id: '10', name: 'QuickFix AC & Appliance Repair', bio: 'Doorstep repair for AC, fridge & washing machines — visit fee waived on repair',
+    rating: 4.5, reviewCount: 176, verified: true, acceptingOrders: true,
+    responseTime: '~15 min', category: 'repair',
+    businessHoursStart: '09:00', businessHoursEnd: '21:00',
+  },
+  '11': {
+    id: '11', name: 'Sharma Plumbing & Electrical', bio: 'Leaks, wiring & fittings — 30-day workmanship warranty',
+    rating: 4.3, reviewCount: 98, verified: false, acceptingOrders: true,
+    responseTime: '~20 min', category: 'repair',
+    businessHoursStart: '08:00', businessHoursEnd: '20:00',
+  },
+  '12': {
+    id: '12', name: 'SafeNest Packers & Movers', bio: 'Local shifting with free site visit & insured transit',
+    rating: 4.6, reviewCount: 220, verified: true, acceptingOrders: true,
+    responseTime: '~1 hr', category: 'movers',
+    businessHoursStart: '09:00', businessHoursEnd: '19:00',
+  },
+  '13': {
+    id: '13', name: 'Happy Paws Grooming & Vet', bio: 'Pet grooming at home or clinic · vet consultations & vaccines',
+    rating: 4.7, reviewCount: 143, verified: true, acceptingOrders: true,
+    responseTime: '~30 min', category: 'pet_care',
+    businessHoursStart: '09:00', businessHoursEnd: '20:00',
+  },
+  '14': {
+    id: '14', name: 'HealthFirst Diagnostics @Home', bio: 'Blood tests at home — NABL certified lab, reports in 24h',
+    rating: 4.6, reviewCount: 188, verified: true, acceptingOrders: true,
+    responseTime: '~10 min', category: 'lab_test',
+    businessHoursStart: '06:00', businessHoursEnd: '12:00',
+  },
+  '15': {
+    id: '15', name: 'ShieldPro Pest Control', bio: 'Cockroach, termite & bed-bug treatment with 90-day warranty',
+    rating: 4.4, reviewCount: 112, verified: true, acceptingOrders: true,
+    responseTime: '~20 min', category: 'pest_control',
+    businessHoursStart: '09:00', businessHoursEnd: '19:00',
+  },
+  '16': {
+    id: '16', name: 'Moments Photography & Events', bio: 'Weddings, birthdays & society events — photo, decor & catering',
+    rating: 4.8, reviewCount: 76, verified: true, acceptingOrders: true,
+    responseTime: '~1 hr', category: 'event',
+    businessHoursStart: '10:00', businessHoursEnd: '20:00',
+  },
+  '17': {
+    id: '17', name: 'Ghar Ka Khana Tiffin', bio: 'Home-style veg & non-veg tiffins — monthly plans, made fresh daily',
+    rating: 4.5, reviewCount: 261, verified: true, acceptingOrders: true,
+    responseTime: '~15 min', category: 'tiffin',
+    businessHoursStart: '07:00', businessHoursEnd: '21:00',
+  },
+  '18': {
+    id: '18', name: 'LegalEase CA & Advocates', bio: 'Tax filing, GST, notary & legal consultations — online or in office',
+    rating: 4.7, reviewCount: 89, verified: true, acceptingOrders: true,
+    responseTime: '~30 min', category: 'consult',
+    businessHoursStart: '10:00', businessHoursEnd: '19:00',
+  },
+  '20': {
+    id: '20', name: 'Sparkle Wash Laundry', bio: 'Free pickup & delivery — wash, iron & dry-clean in 48h',
+    rating: 4.3, reviewCount: 154, verified: false, acceptingOrders: true,
+    responseTime: '~20 min', category: 'laundry',
+    businessHoursStart: '08:00', businessHoursEnd: '21:00',
+  },
+  '21': {
+    id: '21', name: 'Lakshmi Home Cleaning', bio: 'Trusted house help — daily cleaning, deep cleans & utensils',
+    rating: 4.5, reviewCount: 87, verified: true, acceptingOrders: true,
+    responseTime: '~30 min', category: 'maid',
+    businessHoursStart: '07:00', businessHoursEnd: '19:00',
+  },
+  '22': {
+    id: '22', name: "Anita's Kitchen Service", bio: 'Home cooks for daily meals — veg & non-veg, trial meal available',
+    rating: 4.6, reviewCount: 64, verified: true, acceptingOrders: true,
+    responseTime: '~1 hr', category: 'cook',
+    businessHoursStart: '06:00', businessHoursEnd: '20:00',
+  },
+  '23': {
+    id: '23', name: 'Ravi On-Call Drivers', bio: 'Verified drivers — hourly, daily or monthly engagement',
+    rating: 4.4, reviewCount: 121, verified: true, acceptingOrders: true,
+    responseTime: '~15 min', category: 'driver',
+    businessHoursStart: '06:00', businessHoursEnd: '23:00',
+  },
+  '24': {
+    id: '24', name: 'WoodCraft Carpentry', bio: 'Furniture repair, fittings & custom woodwork at your home',
+    rating: 4.5, reviewCount: 73, verified: false, acceptingOrders: true,
+    responseTime: '~25 min', category: 'carpenter',
+    businessHoursStart: '09:00', businessHoursEnd: '19:00',
+  },
+  '25': {
+    id: '25', name: 'ColorMax Painting & Civil', bio: 'Home painting, waterproofing & minor civil work — free site visit',
+    rating: 4.6, reviewCount: 95, verified: true, acceptingOrders: true,
+    responseTime: '~1 hr', category: 'painter',
+    businessHoursStart: '09:00', businessHoursEnd: '19:00',
+  },
+  '27': {
+    id: '27', name: 'GreenThumb Mali Services', bio: 'Garden maintenance, potting & terrace garden setup',
+    rating: 4.3, reviewCount: 41, verified: false, acceptingOrders: true,
+    responseTime: '~40 min', category: 'gardener',
+    businessHoursStart: '07:00', businessHoursEnd: '18:00',
+  },
+  '28': {
+    id: '28', name: 'ShineAuto Car Wash @Home', bio: 'Doorstep car wash & detailing — waterless eco wash',
+    rating: 4.4, reviewCount: 108, verified: true, acceptingOrders: true,
+    responseTime: '~20 min', category: 'car_wash',
+    businessHoursStart: '07:00', businessHoursEnd: '20:00',
+  },
+  '29': {
+    id: '29', name: 'FitLife Trainers & Yoga', bio: 'Personal training & yoga at home or society gym',
+    rating: 4.7, reviewCount: 66, verified: true, acceptingOrders: true,
+    responseTime: '~30 min', category: 'fitness',
+    businessHoursStart: '06:00', businessHoursEnd: '21:00',
+  },
+  '30': {
+    id: '30', name: 'Relax Spa & Massage @Home', bio: 'Certified therapists — massage & physiotherapy at home',
+    rating: 4.5, reviewCount: 59, verified: true, acceptingOrders: true,
+    responseTime: '~45 min', category: 'massage',
+    businessHoursStart: '09:00', businessHoursEnd: '21:00',
+  },
+  '32': {
+    id: '32', name: 'BrightMinds Tutors', bio: 'School tuition — maths, science & English, at home or center',
+    rating: 4.8, reviewCount: 112, verified: true, acceptingOrders: true,
+    responseTime: '~1 hr', category: 'tutor_academic',
+    businessHoursStart: '15:00', businessHoursEnd: '21:00',
+  },
+  '33': {
+    id: '33', name: 'CareNest Elder & Child Care', bio: 'Background-verified caretakers & nannies — hourly or monthly',
+    rating: 4.6, reviewCount: 48, verified: true, acceptingOrders: true,
+    responseTime: '~2 hrs', category: 'elderly_care',
+    businessHoursStart: '08:00', businessHoursEnd: '20:00',
+  },
 };
 
 const DEMO_CATALOG: Record<string, CatalogItem[]> = {
@@ -81,6 +240,157 @@ const DEMO_CATALOG: Record<string, CatalogItem[]> = {
     { id: '42', name: 'Chocolate Cake', description: 'Half kg, eggless', pricePaise: 35000, unit: '500g', isAvailable: true, kind: 'product' },
     { id: '43', name: 'Butter Cookies', description: 'Melt in mouth', pricePaise: 12000, unit: '250g', isAvailable: true, kind: 'product' },
   ],
+  '5': [
+    { id: '51', name: "Men's Haircut", description: 'Wash, cut & style', pricePaise: 15000, unit: 'session', isAvailable: true, kind: 'service' },
+    { id: '52', name: 'Beard Trim & Shape', description: 'Hot towel finish', pricePaise: 8000, unit: 'session', isAvailable: true, kind: 'service' },
+    { id: '53', name: 'Classic Facial', description: 'Deep cleanse, 45 min', pricePaise: 50000, unit: 'session', isAvailable: true, kind: 'service' },
+    { id: '54', name: 'Hair Color (Global)', description: 'Ammonia-free', pricePaise: 80000, unit: 'session', isAvailable: true, kind: 'service' },
+    { id: '55', name: 'Head Massage', description: 'Relaxing champi, 20 min', pricePaise: 20000, unit: 'session', isAvailable: true, kind: 'service' },
+  ],
+  '6': [
+    { id: '61', name: "Women's Haircut", description: 'Consult, cut & blow dry', pricePaise: 30000, unit: 'session', isAvailable: true, kind: 'service' },
+    { id: '62', name: 'Hair Spa', description: 'Deep conditioning, 60 min', pricePaise: 90000, unit: 'session', isAvailable: true, kind: 'service' },
+    { id: '63', name: 'Manicure', description: 'Classic with polish', pricePaise: 35000, unit: 'session', isAvailable: true, kind: 'service' },
+    { id: '64', name: 'Pedicure', description: 'Spa pedicure, 45 min', pricePaise: 45000, unit: 'session', isAvailable: true, kind: 'service' },
+    { id: '65', name: 'Threading (Eyebrows)', description: 'Quick & precise', pricePaise: 6000, unit: 'session', isAvailable: true, kind: 'service' },
+    { id: '66', name: 'Full Arms Waxing', description: 'Rica wax', pricePaise: 40000, unit: 'session', isAvailable: false, kind: 'service' },
+  ],
+  '7': [
+    { id: '71', name: 'General Consultation', description: 'Dr. Meera Nair, MBBS MD', pricePaise: 30000, unit: 'visit', isAvailable: true, kind: 'service' },
+    { id: '72', name: 'Blood Pressure Check', description: 'Walk-in, no appointment', pricePaise: 5000, unit: 'visit', isAvailable: true, kind: 'service' },
+    { id: '73', name: 'Diabetes Screening', description: 'HbA1c + fasting sugar', pricePaise: 25000, unit: 'test', isAvailable: true, kind: 'service' },
+    { id: '74', name: 'Flu Vaccination', description: 'Adults & children', pricePaise: 50000, unit: 'dose', isAvailable: true, kind: 'service' },
+  ],
+  '8': [
+    { id: '81', name: 'Dental Checkup', description: 'Consultation + X-ray review', pricePaise: 20000, unit: 'visit', isAvailable: true, kind: 'service' },
+    { id: '82', name: 'Teeth Cleaning (Scaling)', description: 'Ultrasonic, 30 min', pricePaise: 80000, unit: 'session', isAvailable: true, kind: 'service' },
+    { id: '83', name: 'Tooth Filling', description: 'Composite, per tooth', pricePaise: 120000, unit: 'tooth', isAvailable: true, kind: 'service' },
+    { id: '84', name: 'Root Canal Treatment', description: 'Single sitting RCT', pricePaise: 450000, unit: 'tooth', isAvailable: true, kind: 'service' },
+  ],
+  '9': [
+    { id: '91', name: 'OPD Consultation', description: 'Specialist of your choice', pricePaise: 50000, unit: 'visit', isAvailable: true, kind: 'service' },
+    { id: '92', name: 'Full Body Checkup', description: '62 parameters + reports', pricePaise: 250000, unit: 'package', isAvailable: true, kind: 'service' },
+    { id: '93', name: 'X-Ray (Single View)', description: 'Digital, instant report', pricePaise: 40000, unit: 'scan', isAvailable: true, kind: 'service' },
+    { id: '94', name: 'ECG', description: '12-lead with cardiologist review', pricePaise: 35000, unit: 'test', isAvailable: true, kind: 'service' },
+    { id: '95', name: 'Physiotherapy Session', description: 'At clinic, 45 min', pricePaise: 60000, unit: 'session', isAvailable: true, kind: 'service' },
+  ],
+  '10': [
+    { id: '101', name: 'AC Service (Deep Clean)', description: 'Split/window, foam jet wash', pricePaise: 59900, unit: 'unit', isAvailable: true, kind: 'service' },
+    { id: '102', name: 'AC Gas Refill', description: 'R32/R410 with leak check', pricePaise: 150000, unit: 'unit', isAvailable: true, kind: 'service' },
+    { id: '103', name: 'Fridge Repair', description: 'Diagnosis + labor', pricePaise: 40000, unit: 'visit', isAvailable: true, kind: 'service' },
+    { id: '104', name: 'Washing Machine Repair', description: 'Diagnosis + labor', pricePaise: 45000, unit: 'visit', isAvailable: true, kind: 'service' },
+  ],
+  '11': [
+    { id: '111', name: 'Tap / Faucet Replacement', description: 'Labor only, parts extra', pricePaise: 25000, unit: 'job', isAvailable: true, kind: 'service' },
+    { id: '112', name: 'Leak Fix (Minor)', description: 'Joints, valves & pipes', pricePaise: 35000, unit: 'job', isAvailable: true, kind: 'service' },
+    { id: '113', name: 'Switchboard / Wiring Fix', description: 'Per point, ISI parts', pricePaise: 20000, unit: 'point', isAvailable: true, kind: 'service' },
+    { id: '114', name: 'Geyser Installation', description: 'Wall mount + connections', pricePaise: 60000, unit: 'job', isAvailable: true, kind: 'service' },
+  ],
+  '12': [
+    { id: '121', name: '1BHK Local Shift', description: 'Packing to unloading, insured', pricePaise: 800000, unit: 'move', isAvailable: true, kind: 'service' },
+    { id: '122', name: '2BHK Local Shift', description: 'Packing to unloading, insured', pricePaise: 1200000, unit: 'move', isAvailable: true, kind: 'service' },
+    { id: '123', name: 'Few Items / Mini Move', description: 'Up to 10 boxes + 2 furniture', pricePaise: 300000, unit: 'move', isAvailable: true, kind: 'service' },
+  ],
+  '13': [
+    { id: '131', name: 'Full Grooming (Dog)', description: 'Bath, haircut, nails — 60-90 min', pricePaise: 120000, unit: 'session', isAvailable: true, kind: 'service' },
+    { id: '132', name: 'Bath & Brush (Cat/Dog)', description: 'Gentle shampoo + blow dry', pricePaise: 60000, unit: 'session', isAvailable: true, kind: 'service' },
+    { id: '133', name: 'Vet Consultation', description: 'General health check', pricePaise: 40000, unit: 'visit', isAvailable: true, kind: 'service' },
+    { id: '134', name: 'Vaccination (Anti-rabies)', description: 'Includes record card', pricePaise: 35000, unit: 'dose', isAvailable: true, kind: 'service' },
+  ],
+  '14': [
+    { id: '141', name: 'Full Body Checkup', description: '60+ parameters · fasting required', pricePaise: 149900, unit: 'package', isAvailable: true, kind: 'service' },
+    { id: '142', name: 'HbA1c + Fasting Sugar', description: 'Diabetes profile · fasting required', pricePaise: 45000, unit: 'test', isAvailable: true, kind: 'service' },
+    { id: '143', name: 'Thyroid Profile (T3 T4 TSH)', description: 'No fasting needed', pricePaise: 40000, unit: 'test', isAvailable: true, kind: 'service' },
+    { id: '144', name: 'Vitamin D + B12', description: 'No fasting needed', pricePaise: 90000, unit: 'test', isAvailable: true, kind: 'service' },
+  ],
+  '15': [
+    { id: '151', name: 'Cockroach Treatment', description: 'Gel + spray, 90-day warranty', pricePaise: 89900, unit: 'home', isAvailable: true, kind: 'service' },
+    { id: '152', name: 'Termite Treatment', description: 'Drill & inject, 1-yr warranty', pricePaise: 350000, unit: 'home', isAvailable: true, kind: 'service' },
+    { id: '153', name: 'Bed Bug Treatment', description: '2 visits included', pricePaise: 150000, unit: 'home', isAvailable: true, kind: 'service' },
+    { id: '154', name: 'Mosquito Fogging', description: 'Balcony + indoor', pricePaise: 60000, unit: 'home', isAvailable: true, kind: 'service' },
+  ],
+  '16': [
+    { id: '161', name: 'Birthday Party Package', description: 'Photo + decor, 4 hrs', pricePaise: 1500000, unit: 'event', isAvailable: true, kind: 'service' },
+    { id: '162', name: 'Wedding Photography', description: 'Full day, 2 photographers', pricePaise: 5000000, unit: 'event', isAvailable: true, kind: 'service' },
+    { id: '163', name: 'Society Event Coverage', description: 'Photos + highlight video', pricePaise: 800000, unit: 'event', isAvailable: true, kind: 'service' },
+  ],
+  '17': [
+    { id: '171', name: 'Veg Tiffin — Monthly', description: 'Lunch, 26 days, 3 roti + sabzi + dal + rice', pricePaise: 260000, unit: 'month', isAvailable: true, kind: 'service' },
+    { id: '172', name: 'Veg + Non-veg — Monthly', description: 'Lunch, 26 days, chicken twice a week', pricePaise: 320000, unit: 'month', isAvailable: true, kind: 'service' },
+    { id: '173', name: 'Trial Tiffin — 3 days', description: 'Try before you subscribe', pricePaise: 36000, unit: 'trial', isAvailable: true, kind: 'service' },
+  ],
+  '18': [
+    { id: '181', name: 'ITR Filing Consultation', description: '30 min with CA', pricePaise: 99900, unit: 'session', isAvailable: true, kind: 'service' },
+    { id: '182', name: 'GST Registration Help', description: '45 min + document checklist', pricePaise: 149900, unit: 'session', isAvailable: true, kind: 'service' },
+    { id: '183', name: 'Legal Consultation', description: '30 min with advocate', pricePaise: 120000, unit: 'session', isAvailable: true, kind: 'service' },
+    { id: '184', name: 'Rent Agreement + Notary', description: 'Drafting & registration', pricePaise: 250000, unit: 'document', isAvailable: true, kind: 'service' },
+  ],
+  '20': [
+    { id: '201', name: 'Wash & Fold', description: 'Per kg, 48h turnaround', pricePaise: 8000, unit: 'kg', isAvailable: true, kind: 'service' },
+    { id: '202', name: 'Wash & Iron', description: 'Per kg, 48h turnaround', pricePaise: 12000, unit: 'kg', isAvailable: true, kind: 'service' },
+    { id: '203', name: 'Dry Clean — Suit/Saree', description: 'Per piece, 72h', pricePaise: 25000, unit: 'piece', isAvailable: true, kind: 'service' },
+    { id: '204', name: 'Shoe Cleaning', description: 'Per pair', pricePaise: 20000, unit: 'pair', isAvailable: true, kind: 'service' },
+  ],
+  '21': [
+    { id: '211', name: 'Daily Cleaning — Monthly', description: 'Brooming, mopping & dusting, 26 days', pricePaise: 250000, unit: 'month', isAvailable: true, kind: 'service' },
+    { id: '212', name: 'Utensils + Cleaning — Monthly', description: 'Full package, 26 days', pricePaise: 350000, unit: 'month', isAvailable: true, kind: 'service' },
+    { id: '213', name: 'Bathroom Deep Clean', description: 'One-time, per bathroom', pricePaise: 45000, unit: 'bathroom', isAvailable: true, kind: 'service' },
+    { id: '214', name: 'Trial Visit', description: 'Meet & see the work before hiring', pricePaise: 20000, unit: 'visit', isAvailable: true, kind: 'service' },
+  ],
+  '22': [
+    { id: '221', name: 'Daily Cooking — Monthly', description: 'Lunch + dinner for family of 4, 26 days', pricePaise: 600000, unit: 'month', isAvailable: true, kind: 'service' },
+    { id: '222', name: 'One Meal Daily — Monthly', description: 'Lunch or dinner, 26 days', pricePaise: 350000, unit: 'month', isAvailable: true, kind: 'service' },
+    { id: '223', name: 'Trial Meal', description: 'One meal cooked at your home', pricePaise: 30000, unit: 'visit', isAvailable: true, kind: 'service' },
+    { id: '224', name: 'Party Cooking (up to 15)', description: 'One-day event cooking', pricePaise: 250000, unit: 'event', isAvailable: true, kind: 'service' },
+  ],
+  '23': [
+    { id: '231', name: 'Driver — 4 hours', description: 'Your car, verified driver', pricePaise: 60000, unit: 'booking', isAvailable: true, kind: 'service' },
+    { id: '232', name: 'Driver — Full day (8 hrs)', description: 'Outstation allowed', pricePaise: 110000, unit: 'day', isAvailable: true, kind: 'service' },
+    { id: '233', name: 'Monthly Driver', description: 'Mon–Sat, 8 hrs/day', pricePaise: 1800000, unit: 'month', isAvailable: true, kind: 'service' },
+  ],
+  '24': [
+    { id: '241', name: 'Furniture Repair', description: 'Hinges, joints & polish touch-up', pricePaise: 35000, unit: 'job', isAvailable: true, kind: 'service' },
+    { id: '242', name: 'Curtain Rod / Shelf Fitting', description: 'Per fitting with hardware', pricePaise: 25000, unit: 'fitting', isAvailable: true, kind: 'service' },
+    { id: '243', name: 'Door Alignment & Locks', description: 'Per door', pricePaise: 30000, unit: 'door', isAvailable: true, kind: 'service' },
+  ],
+  '25': [
+    { id: '251', name: '1BHK Full Painting', description: 'Putty + primer + 2 coats', pricePaise: 1800000, unit: 'home', isAvailable: true, kind: 'service' },
+    { id: '252', name: '2BHK Full Painting', description: 'Putty + primer + 2 coats', pricePaise: 2800000, unit: 'home', isAvailable: true, kind: 'service' },
+    { id: '253', name: 'Single Wall / Accent', description: 'Texture or solid color', pricePaise: 250000, unit: 'wall', isAvailable: true, kind: 'service' },
+    { id: '254', name: 'Bathroom Waterproofing', description: 'Leak-proof warranty 2 yrs', pricePaise: 600000, unit: 'bathroom', isAvailable: true, kind: 'service' },
+  ],
+  '27': [
+    { id: '271', name: 'Garden Maintenance — Monthly', description: '2 visits/week, pruning & watering setup', pricePaise: 150000, unit: 'month', isAvailable: true, kind: 'service' },
+    { id: '272', name: 'One-time Garden Cleanup', description: 'Weeding, trimming & disposal', pricePaise: 80000, unit: 'visit', isAvailable: true, kind: 'service' },
+    { id: '273', name: 'Terrace Garden Setup', description: 'Pots, soil & starter plants', pricePaise: 350000, unit: 'setup', isAvailable: true, kind: 'service' },
+  ],
+  '28': [
+    { id: '281', name: 'Exterior Wash', description: 'Waterless eco wash + tyre shine', pricePaise: 30000, unit: 'wash', isAvailable: true, kind: 'service' },
+    { id: '282', name: 'Interior + Exterior', description: 'Vacuum, dashboard polish & wash', pricePaise: 60000, unit: 'wash', isAvailable: true, kind: 'service' },
+    { id: '283', name: 'Monthly Plan (4 washes)', description: 'Weekly exterior wash', pricePaise: 100000, unit: 'month', isAvailable: true, kind: 'service' },
+  ],
+  '29': [
+    { id: '291', name: 'Personal Training — Session', description: 'At home or society gym, 60 min', pricePaise: 80000, unit: 'session', isAvailable: true, kind: 'service' },
+    { id: '292', name: 'Personal Training — Monthly', description: '12 sessions', pricePaise: 800000, unit: 'month', isAvailable: true, kind: 'service' },
+    { id: '293', name: 'Yoga — Group Class', description: 'Society clubhouse, 45 min', pricePaise: 30000, unit: 'class', isAvailable: true, kind: 'service' },
+    { id: '294', name: 'Yoga — Monthly (12 classes)', description: 'Morning batches', pricePaise: 300000, unit: 'month', isAvailable: true, kind: 'service' },
+  ],
+  '30': [
+    { id: '301', name: 'Swedish Massage — 60 min', description: 'Certified therapist at home', pricePaise: 150000, unit: 'session', isAvailable: true, kind: 'service' },
+    { id: '302', name: 'Deep Tissue — 60 min', description: 'For muscle recovery', pricePaise: 180000, unit: 'session', isAvailable: true, kind: 'service' },
+    { id: '303', name: 'Physiotherapy Session', description: 'Post-injury / posture care at home', pricePaise: 70000, unit: 'session', isAvailable: true, kind: 'service' },
+  ],
+  '32': [
+    { id: '321', name: 'Maths Tuition — Monthly', description: 'Class 6-10, 3 days/week at home', pricePaise: 400000, unit: 'month', isAvailable: true, kind: 'service' },
+    { id: '322', name: 'Science Tuition — Monthly', description: 'Class 6-10, 3 days/week', pricePaise: 400000, unit: 'month', isAvailable: true, kind: 'service' },
+    { id: '323', name: 'Demo Class', description: 'Free 45-min trial class', pricePaise: 0, unit: 'class', isAvailable: true, kind: 'service' },
+  ],
+  '33': [
+    { id: '331', name: 'Elder Care — Day Shift', description: '8 hrs, verified caretaker', pricePaise: 120000, unit: 'day', isAvailable: true, kind: 'service' },
+    { id: '332', name: 'Elder Care — Monthly', description: 'Mon–Sat day shift', pricePaise: 2500000, unit: 'month', isAvailable: true, kind: 'service' },
+    { id: '333', name: 'Nanny — Monthly', description: 'Mon–Sat, 8 hrs/day', pricePaise: 1800000, unit: 'month', isAvailable: true, kind: 'service' },
+    { id: '334', name: 'Meet & Greet Visit', description: 'Interview the caretaker first', pricePaise: 0, unit: 'visit', isAvailable: true, kind: 'service' },
+  ],
 };
 
 export default function MerchantProfileScreen() {
@@ -89,25 +399,24 @@ export default function MerchantProfileScreen() {
   const userId  = useWalletStore((s) => s.userId);
   const pinCode = useOnboardingStore((s) => s.pin);
   const addToCart = useCartStore((s) => s.addItem);
-  const getItemQuantity = useCartStore((s) => s.getItemQuantity);
-  const getTotalItems = useCartStore((s) => s.getTotalItems);
+  // Subscribe to items so quantities and the cart FAB stay in sync
+  const cartItems = useCartStore((s) => s.items);
+  const getItemQuantity = (itemId: string) =>
+    cartItems.find((i) => i.id === itemId)?.quantity ?? 0;
+  const totalCartItems = cartItems.reduce((sum, i) => sum + i.quantity, 0);
   const [merchant, setMerchant] = useState<ApiMerchant | null>(null);
   const [catalogItems, setCatalogItems] = useState<CatalogItem[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
-  const [sortBy, setSortBy] = useState<'name' | 'price'>('name');
   const [loading,  setLoading]  = useState(true);
+  const insets = useSafeAreaInsets();
 
-  // Filter and sort catalog items
   const filteredItems = catalogItems
     .filter((item) => {
       if (!searchQuery) return true;
       return item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
              item.description?.toLowerCase().includes(searchQuery.toLowerCase());
     })
-    .sort((a, b) => {
-      if (sortBy === 'price') return a.pricePaise - b.pricePaise;
-      return a.name.localeCompare(b.name);
-    });
+    .sort((a, b) => a.name.localeCompare(b.name));
 
   const load = useCallback(async () => {
     if (!id) return;
@@ -135,6 +444,30 @@ export default function MerchantProfileScreen() {
   }, [id]);
 
   useEffect(() => { load(); }, [load]);
+
+  const messageShop = async () => {
+    if (!userId) return;
+    const recipientId = merchant?.owner?.id ?? merchant?.ownerId;
+    if (!recipientId) {
+      Alert.alert('Chat unavailable', 'This shop has not enabled chat yet.');
+      return;
+    }
+    try {
+      const res = await fetch(`${BASE}/api/mobile/chat/threads`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, recipientId }),
+      });
+      const data = await res.json();
+      if (data.id) {
+        router.push(`/(chat)/thread/${data.id}` as never);
+      } else {
+        Alert.alert('Error', 'Could not start conversation — please try again.');
+      }
+    } catch {
+      Alert.alert('Error', 'Could not start conversation — please try again.');
+    }
+  };
 
   if (loading) {
     return (
@@ -165,224 +498,197 @@ export default function MerchantProfileScreen() {
     );
   }
 
+  const isOpen = merchant.acceptingOrders !== false;
+  const totalPaise = cartItems.reduce((sum, i) => sum + i.pricePaise * i.quantity, 0);
+
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
+      {/* Compact nav — shop name lives in the bar */}
       <HStack gap={3} align="center" style={styles.topBar}>
-        <Pressable onPress={() => router.back()} style={styles.backBtn} accessibilityRole="button">
+        <Pressable onPress={() => router.back()} style={styles.backBtn} accessibilityRole="button" accessibilityLabel="Go back" hitSlop={8}>
           <ArrowLeft size={20} color={colors.surface.heading} />
         </Pressable>
-        <Text variant="h3" style={{ flex: 1, color: colors.surface.heading }}>Provider Profile</Text>
+        <Text variant="h3" numberOfLines={1} style={{ flex: 1, color: colors.surface.heading }}>
+          {merchant.name}
+        </Text>
+        <Pressable onPress={messageShop} style={styles.backBtn} accessibilityRole="button" accessibilityLabel="Message shop" hitSlop={8}>
+          <MessageCircle size={18} color={colors.brand[600]} />
+        </Pressable>
       </HStack>
 
-      <ScrollView contentContainerStyle={{ paddingBottom: spacing[16] }}>
-        {/* Closed Alert */}
-        {merchant.acceptingOrders === false && (
-          <Card padding={3} style={{ margin: spacing[4], backgroundColor: '#FEF3C7', borderColor: '#F59E0B', borderWidth: 1 }}>
-            <HStack gap={2} align="center">
-              <AlertTriangle size={20} color="#D97706" />
-              <VStack gap={0} style={{ flex: 1 }}>
-                <Text variant="body" style={{ fontWeight: '600', color: '#92400E' }}>
-                  Currently Not Accepting Orders
+      <ScrollView
+        contentContainerStyle={{ paddingBottom: 120 }}
+        stickyHeaderIndices={[2]}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* [0] Identity card */}
+        <View style={styles.identityCard}>
+          <HStack gap={3} align="center">
+            <Avatar name={merchant.name} size="lg" />
+            <VStack gap={0.5} style={{ flex: 1 }}>
+              <HStack gap={1.5} align="center">
+                <Text variant="h3" numberOfLines={1} style={{ color: colors.surface.heading, flexShrink: 1 }}>
+                  {merchant.name}
                 </Text>
-                {merchant.closedReason && (
-                  <Text variant="caption" style={{ color: '#78350F' }}>
-                    Reason: {merchant.closedReason}
-                  </Text>
+                {merchant.verified && (
+                  <CheckCircle size={16} color={colors.semantic.success} />
                 )}
-                {merchant.closedUntil && (
-                  <Text variant="caption" style={{ color: '#78350F' }}>
-                    Reopens: {new Date(merchant.closedUntil).toLocaleString()}
-                  </Text>
-                )}
-              </VStack>
-            </HStack>
-          </Card>
-        )}
-
-        {/* Hero */}
-        <VStack gap={3} align="center" style={styles.hero}>
-          <Avatar name={merchant.name} size="xl" />
-          <Text variant="h3" style={{ color: colors.surface.heading, textAlign: 'center' }}>
-            {merchant.name}
-          </Text>
-          <Text variant="body" tone="secondary" style={{ textAlign: 'center' }}>
-            {merchant.priceLabel}
-          </Text>
-          <HStack gap={2} style={{ flexWrap: 'wrap', justifyContent: 'center' }}>
-            {merchant.verified && (
-              <Badge label="Verified" tone="success"
-                leftIcon={<CheckCircle size={11} color={colors.semantic.success} />} />
-            )}
-          </HStack>
-        </VStack>
-
-        {/* Stats row */}
-        <Card padding={4} elevation="sm" style={styles.statsCard}>
-          <HStack gap={0} style={{ justifyContent: 'space-around' }}>
-            <VStack gap={0} align="center">
-              <HStack gap={1} align="center">
-                <Star size={14} color="#F59E0B" fill="#F59E0B" />
-                <Text variant="h3" style={{ color: colors.surface.heading }}>{merchant.rating?.toFixed(1) ?? '—'}</Text>
               </HStack>
-              <Text variant="caption" tone="secondary">Rating</Text>
-            </VStack>
-            <View style={styles.statDivider} />
-            <VStack gap={0} align="center">
-              <Text variant="h3" style={{ color: colors.surface.heading }}>{merchant.reviewCount ?? 0}</Text>
-              <Text variant="caption" tone="secondary">Reviews</Text>
+              {!!merchant.bio && (
+                <Text variant="caption" tone="secondary" numberOfLines={1}>
+                  {merchant.bio}
+                </Text>
+              )}
+              <HStack gap={1} align="center">
+                <Star size={12} color={colors.accent[500]} fill={colors.accent[500]} />
+                <Text style={styles.ratingLine}>
+                  {merchant.rating?.toFixed(1) ?? '—'}
+                  <Text style={styles.ratingCount}> ({merchant.reviewCount ?? 0} reviews)</Text>
+                </Text>
+              </HStack>
             </VStack>
           </HStack>
-        </Card>
 
-        {/* About */}
-        <VStack gap={2} style={styles.section}>
-          <Text variant="body" style={{ fontWeight: '700', color: colors.surface.heading }}>About</Text>
-          <Text variant="body" style={{ color: colors.surface.heading, lineHeight: 22 }}>
-            {merchant.bio ?? `${merchant.name} is a trusted service provider in Kumar Sienna, verified by the community.`}
-          </Text>
-        </VStack>
-
-        {/* In-feed ad */}
-        <View style={{ marginHorizontal: spacing[4], marginTop: spacing[3] }}>
-          <AdSlot placement="marketplace" pinCode={pinCode ?? undefined} />
+          {/* Info strip: the 3 facts buyers care about */}
+          <View style={styles.infoStrip}>
+            <View style={styles.infoCell}>
+              <Text style={styles.infoValue}>
+                {merchant.estimatedDeliveryMins ? `${merchant.estimatedDeliveryMins} min` : '—'}
+              </Text>
+              <Text style={styles.infoLabel}>Delivery</Text>
+            </View>
+            <View style={styles.infoDivider} />
+            <View style={styles.infoCell}>
+              <Text style={[styles.infoValue, { color: isOpen ? colors.semantic.success : colors.semantic.danger }]}>
+                {isOpen ? 'Open' : 'Closed'}
+              </Text>
+              <Text style={styles.infoLabel}>
+                {merchant.businessHoursStart && merchant.businessHoursEnd
+                  ? `${merchant.businessHoursStart}–${merchant.businessHoursEnd}`
+                  : 'Status'}
+              </Text>
+            </View>
+            <View style={styles.infoDivider} />
+            <View style={styles.infoCell}>
+              <Text style={styles.infoValue}>{merchant.responseTime ?? '—'}</Text>
+              <Text style={styles.infoLabel}>Responds</Text>
+            </View>
+          </View>
         </View>
 
-        {/* Details */}
-        <VStack gap={2} style={styles.section}>
-          <HStack gap={2} align="center">
-              <Text variant="caption" tone="secondary" style={{ width: 100 }}>Starting at</Text>
-              <Text variant="body" style={{ fontWeight: '700', color: colors.brand[600] }}>
-                {merchant.priceLabel ?? 'Contact for price'}
-              </Text>
-            </HStack>
-          {(merchant.businessHoursStart && merchant.businessHoursEnd) && (
-            <HStack gap={2} align="center">
-              <Clock size={14} color={colors.gray[400]} />
-              <Text variant="caption" tone="secondary">
-                {merchant.businessHoursStart} - {merchant.businessHoursEnd}
-              </Text>
-            </HStack>
-          )}
-          {merchant.estimatedDeliveryMins && (
-            <HStack gap={2} align="center">
-              <Clock size={14} color={colors.brand[600]} />
-              <Text variant="caption" style={{ color: colors.brand[600], fontWeight: '600' }}>
-                Ready in ~{merchant.estimatedDeliveryMins} mins
-              </Text>
-            </HStack>
-          )}
-          {!!merchant.responseTime && (
-            <HStack gap={2} align="center">
-              <Clock size={14} color={colors.gray[400]} />
-              <Text variant="caption" tone="secondary">Responds in {merchant.responseTime}</Text>
-            </HStack>
-          )}
-          {merchant.societiesServed && merchant.societiesServed.length > 0 && (
-            <HStack gap={2} align="center">
-              <MapPin size={14} color={colors.gray[400]} />
-              <Text variant="caption" tone="secondary">{merchant.societiesServed.join(', ')}</Text>
-            </HStack>
-          )}
-        </VStack>
-
-        {/* Catalog Items */}
-        {catalogItems.length > 0 && (
-          <VStack gap={3} style={styles.section}>
-            <Text variant="body" style={{ fontWeight: '700', color: colors.surface.heading }}>
-              Products & Services
-            </Text>
-            
-            {/* Search Bar */}
-            <View style={styles.searchContainer}>
-              <Search size={18} color={colors.gray[400]} style={styles.searchIcon} />
-              <TextInput
-                style={styles.searchInput}
-                placeholder="Search items..."
-                placeholderTextColor={colors.gray[400]}
-                value={searchQuery}
-                onChangeText={setSearchQuery}
-              />
-            </View>
-
-            {/* Sort Options */}
-            <HStack gap={2}>
-              <Pressable
-                onPress={() => setSortBy('name')}
-                style={[styles.sortChip, sortBy === 'name' && styles.sortChipActive]}
-              >
-                <Text variant="caption" style={{ color: sortBy === 'name' ? colors.brand[600] : colors.gray[600], fontWeight: sortBy === 'name' ? '600' : '400' }}>
-                  Name
+        {/* [1] Closed banner */}
+        {!isOpen ? (
+          <View style={styles.closedBanner}>
+            <AlertTriangle size={18} color={colors.semantic.warning} />
+            <VStack gap={0} style={{ flex: 1 }}>
+              <Text style={styles.closedTitle}>Not accepting orders right now</Text>
+              {!!merchant.closedReason && (
+                <Text style={styles.closedBody}>{merchant.closedReason}</Text>
+              )}
+              {!!merchant.closedUntil && (
+                <Text style={styles.closedBody}>
+                  Reopens {new Date(merchant.closedUntil).toLocaleString()}
                 </Text>
-              </Pressable>
-              <Pressable
-                onPress={() => setSortBy('price')}
-                style={[styles.sortChip, sortBy === 'price' && styles.sortChipActive]}
-              >
-                <Text variant="caption" style={{ color: sortBy === 'price' ? colors.brand[600] : colors.gray[600], fontWeight: sortBy === 'price' ? '600' : '400' }}>
-                  Price
-                </Text>
-              </Pressable>
-            </HStack>
-
-            {filteredItems.map((item) => (
-              <Card key={item.id} padding={3} elevation="sm">
-                <HStack gap={3}>
-                  <View style={styles.itemImage}>
-                    <View style={styles.itemImagePlaceholder}>
-                      <Package size={24} color={colors.gray[400]} />
+              )}
+            </VStack>
+          </View>
+        ) : (
+          <View>
+            {/* Team strip — stylists / doctors */}
+            {(DEMO_PROVIDERS[merchant.id] ?? []).length > 0 && (
+              <View style={styles.teamSection}>
+                <Text style={styles.teamTitle}>Meet the team</Text>
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  style={{ flexGrow: 0 }}
+                  contentContainerStyle={{ gap: spacing[2.5], paddingRight: spacing[4] }}
+                >
+                  {(DEMO_PROVIDERS[merchant.id] ?? []).map((p) => (
+                    <View key={p.id} style={styles.teamCard}>
+                      <View style={styles.teamAvatar}>
+                        <Text style={styles.teamInitial}>{p.name.replace('Dr. ', '').charAt(0)}</Text>
+                      </View>
+                      <Text style={styles.teamName} numberOfLines={1}>{p.name}</Text>
+                      <Text style={styles.teamRole} numberOfLines={2}>{p.role}</Text>
+                      <HStack gap={1} align="center">
+                        <Star size={10} color={colors.accent[500]} fill={colors.accent[500]} />
+                        <Text style={styles.teamRating}>{p.rating.toFixed(1)} · {p.years} yrs</Text>
+                      </HStack>
                     </View>
-                  </View>
-                  <VStack gap={1} style={{ flex: 1 }}>
-                    <Text variant="body" style={{ fontWeight: '600', color: colors.surface.heading }}>
-                      {item.name}
-                    </Text>
+                  ))}
+                </ScrollView>
+              </View>
+            )}
+          </View>
+        )}
+
+        {/* [2] Sticky search */}
+        <View style={styles.searchWrap}>
+          <View style={styles.searchContainer}>
+            <Search size={18} color={colors.surface.textSecondary} />
+            <TextInput
+              style={styles.searchInput}
+              placeholder={`Search in ${merchant.name}...`}
+              placeholderTextColor={colors.surface.textDisabled}
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+              accessibilityLabel="Search items in this shop"
+            />
+          </View>
+        </View>
+
+        {/* [3] Catalog */}
+        <View style={styles.catalogSection}>
+          <Text style={styles.catalogTitle}>
+            All Items{filteredItems.length > 0 ? ` (${filteredItems.length})` : ''}
+          </Text>
+
+          {filteredItems.length === 0 && (
+            <View style={styles.emptyCatalog}>
+              <Package size={40} color={colors.gray[300]} />
+              <Text variant="body" tone="secondary" style={{ textAlign: 'center' }}>
+                {searchQuery ? `No items match "${searchQuery}"` : 'No items listed yet'}
+              </Text>
+            </View>
+          )}
+
+          {filteredItems.map((item, idx) => {
+            const qty = getItemQuantity(item.id);
+            const canBuy = item.isAvailable && isOpen;
+            return (
+              <View key={item.id}>
+                {idx > 0 && <View style={styles.rowDivider} />}
+                <HStack gap={3} style={styles.itemRow}>
+                  {/* Info left */}
+                  <VStack gap={0.5} style={{ flex: 1 }}>
+                    <Text style={styles.itemName} numberOfLines={2}>{item.name}</Text>
                     {!!item.description && (
-                      <Text variant="caption" tone="secondary" numberOfLines={2}>
+                      <Text variant="caption" tone="secondary" numberOfLines={1}>
                         {item.description}
                       </Text>
                     )}
-                    <HStack gap={2} align="center">
-                      <Text variant="body" style={{ fontWeight: '700', color: colors.brand[600] }}>
-                        ₹{(item.pricePaise / 100).toFixed(2)}
-                      </Text>
-                      {item.unit && (
-                        <Text variant="caption" tone="secondary">per {item.unit}</Text>
+                    <HStack gap={1.5} align="center">
+                      <Text style={styles.itemPrice}>{formatPrice(item.pricePaise)}</Text>
+                      {!!item.unit && (
+                        <Text variant="caption" tone="secondary">/ {item.unit}</Text>
                       )}
                     </HStack>
-                    {getItemQuantity(item.id) > 0 ? (
-                      <HStack gap={2} align="center" style={{ marginTop: spacing[2] }}>
-                        <Button
-                          label="-"
-                          size="sm"
-                          variant="secondary"
-                          onPress={() => {
-                            const qty = getItemQuantity(item.id);
-                            useCartStore.getState().updateQuantity(item.id, qty - 1);
-                          }}
-                          style={{ width: 40 }}
-                          disabled={merchant.acceptingOrders === false}
-                        />
-                        <Text variant="body" style={{ fontWeight: '600', minWidth: 30, textAlign: 'center' }}>
-                          {getItemQuantity(item.id)}
-                        </Text>
-                        <Button
-                          label="+"
-                          size="sm"
-                          onPress={() => {
-                            const qty = getItemQuantity(item.id);
-                            useCartStore.getState().updateQuantity(item.id, qty + 1);
-                          }}
-                          style={{ width: 40 }}
-                          disabled={merchant.acceptingOrders === false}
-                        />
-                      </HStack>
-                    ) : (
-                      <Button
-                        label={merchant.acceptingOrders === false ? "Currently Closed" : "Add to Cart"}
-                        size="sm"
-                        leftIcon={merchant.acceptingOrders !== false ? <ShoppingCart size={14} color="white" /> : undefined}
-                        onPress={() => {
-                          addToCart({
+                    {!item.isAvailable && (
+                      <Text style={styles.outOfStock}>Out of stock</Text>
+                    )}
+                  </VStack>
+
+                  {/* Image + ADD overlay right */}
+                  <View style={styles.itemImageWrap}>
+                    <View style={styles.itemImagePlaceholder}>
+                      <Text style={styles.itemInitial}>{item.name.charAt(0).toUpperCase()}</Text>
+                    </View>
+                    {canBuy && (
+                      qty === 0 ? (
+                        <Pressable
+                          style={styles.addBtn}
+                          onPress={() => addToCart({
                             id: item.id,
                             merchantId: merchant.id,
                             merchantName: merchant.name,
@@ -391,69 +697,68 @@ export default function MerchantProfileScreen() {
                             unit: item.unit,
                             imageUrl: item.imageUrl,
                             kind: item.kind,
-                          });
-                        }}
-                        style={{ marginTop: spacing[2], alignSelf: 'flex-start' }}
-                        disabled={!item.isAvailable || merchant.acceptingOrders === false}
-                      />
+                          })}
+                          accessibilityRole="button"
+                          accessibilityLabel={`Add ${item.name} to cart`}
+                        >
+                          <Plus size={13} color={colors.brand[600]} strokeWidth={2.5} />
+                          <Text style={styles.addBtnText}>ADD</Text>
+                        </Pressable>
+                      ) : (
+                        <View style={styles.stepper}>
+                          <Pressable
+                            style={styles.stepBtn}
+                            onPress={() => useCartStore.getState().updateQuantity(item.id, qty - 1)}
+                            accessibilityRole="button"
+                            accessibilityLabel="Decrease quantity"
+                            hitSlop={6}
+                          >
+                            <Minus size={13} color={colors.surface.background} strokeWidth={2.5} />
+                          </Pressable>
+                          <Text style={styles.stepQty}>{qty}</Text>
+                          <Pressable
+                            style={styles.stepBtn}
+                            onPress={() => useCartStore.getState().updateQuantity(item.id, qty + 1)}
+                            accessibilityRole="button"
+                            accessibilityLabel="Increase quantity"
+                            hitSlop={6}
+                          >
+                            <Plus size={13} color={colors.surface.background} strokeWidth={2.5} />
+                          </Pressable>
+                        </View>
+                      )
                     )}
-                  </VStack>
+                  </View>
                 </HStack>
-              </Card>
-            ))}
-          </VStack>
-        )}
+              </View>
+            );
+          })}
+        </View>
 
-        {/* CTA */}
-        <View style={styles.section}>
-          <VStack gap={3}>
-            <Button
-              label="Book Now"
-              onPress={() => router.push(`/(marketplace)/book/${merchant.id}` as never)}
-              fullWidth
-            />
-            <Button
-              label="Message Provider"
-              variant="secondary"
-              onPress={async () => {
-                if (!userId) return;
-                const recipientId = merchant.owner?.id ?? merchant.ownerId;
-                if (!recipientId) return;
-                try {
-                  const res = await fetch(`${BASE}/api/mobile/chat/threads`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ userId, recipientId }),
-                  });
-                  const data = await res.json();
-                  if (data.id) {
-                    router.push(`/(chat)/thread/${data.id}` as never);
-                  } else {
-                    Alert.alert('Error', 'Could not start conversation — please try again.');
-                  }
-                } catch {
-                  Alert.alert('Error', 'Could not start conversation — please try again.');
-                }
-              }}
-              fullWidth
-            />
-          </VStack>
+        {/* In-feed ad */}
+        <View style={{ marginHorizontal: spacing[4], marginTop: spacing[4] }}>
+          <AdSlot placement="marketplace" pinCode={pinCode ?? undefined} />
         </View>
       </ScrollView>
-      
-      {/* Floating Cart Button */}
-      {getTotalItems() > 0 && (
+
+      {/* Sticky cart bar */}
+      {totalCartItems > 0 && (
         <Pressable
+          style={[styles.cartBar, { bottom: insets.bottom + spacing[3] }]}
           onPress={() => router.push('/(marketplace)/cart' as never)}
-          style={styles.floatingCart}
           accessibilityRole="button"
+          accessibilityLabel={`View cart, ${totalCartItems} items, ${formatPrice(totalPaise)}`}
         >
-          <ShoppingCart size={24} color="white" />
-          <View style={styles.cartBadge}>
-            <Text variant="caption" style={{ color: 'white', fontSize: 10, fontWeight: '700' }}>
-              {getTotalItems()}
+          <HStack gap={2} align="center" style={{ flex: 1 }}>
+            <ShoppingCart size={18} color={colors.surface.background} />
+            <Text style={styles.cartBarText}>
+              {totalCartItems} item{totalCartItems > 1 ? 's' : ''} · {formatPrice(totalPaise)}
             </Text>
-          </View>
+          </HStack>
+          <HStack gap={1} align="center">
+            <Text style={styles.cartBarCta}>View Cart</Text>
+            <ArrowRight size={16} color={colors.surface.background} />
+          </HStack>
         </Pressable>
       )}
     </SafeAreaView>
@@ -463,67 +768,276 @@ export default function MerchantProfileScreen() {
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.surface.background },
   topBar: {
-    paddingHorizontal: spacing[4], paddingVertical: spacing[3],
-    borderBottomWidth: 0.5, borderBottomColor: colors.surface.border,
+    paddingHorizontal: spacing[4], paddingVertical: spacing[2.5],
+    borderBottomWidth: 1, borderBottomColor: colors.surface.border,
   },
   backBtn: {
-    width: 36, height: 36, borderRadius: 18,
-    backgroundColor: colors.gray[100], alignItems: 'center', justifyContent: 'center',
-  },
-  hero: {
-    paddingVertical: spacing[6], paddingHorizontal: spacing[5],
-    borderBottomWidth: 0.5, borderBottomColor: colors.surface.border,
-  },
-  statsCard: { marginHorizontal: spacing[4], marginTop: spacing[4] },
-  statDivider: { width: 0.5, height: '60%', backgroundColor: colors.surface.border, alignSelf: 'center' },
-  section: { paddingHorizontal: spacing[5], paddingTop: spacing[4] },
-  itemImage: { width: 80, height: 80, borderRadius: 8, overflow: 'hidden' },
-  itemImagePlaceholder: {
-    width: '100%', height: '100%', backgroundColor: colors.gray[100],
+    width: 36, height: 36, borderRadius: radius.full,
+    backgroundColor: colors.surface.surfaceMuted,
+    borderWidth: 1, borderColor: colors.surface.border,
     alignItems: 'center', justifyContent: 'center',
   },
-  floatingCart: {
-    position: 'absolute', bottom: spacing[6], right: spacing[4],
-    width: 56, height: 56, borderRadius: 28,
-    backgroundColor: colors.brand[600],
-    alignItems: 'center', justifyContent: 'center',
-    shadowColor: '#000', shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3, shadowRadius: 8, elevation: 8,
+  identityCard: {
+    margin: spacing[4],
+    marginBottom: 0,
+    padding: spacing[4],
+    backgroundColor: colors.surface.background,
+    borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: colors.surface.border,
+    gap: spacing[3],
   },
-  cartBadge: {
-    position: 'absolute', top: -4, right: -4,
-    width: 20, height: 20, borderRadius: 10,
-    backgroundColor: colors.semantic.danger,
-    alignItems: 'center', justifyContent: 'center',
+  ratingLine: {
+    fontSize: fontSize.sm,
+    fontWeight: '700',
+    color: colors.surface.heading,
+  },
+  ratingCount: {
+    fontSize: fontSize.xs,
+    fontWeight: '400',
+    color: colors.surface.textSecondary,
+  },
+  infoStrip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingTop: spacing[3],
+    borderTopWidth: 1,
+    borderTopColor: colors.surface.border,
+  },
+  infoCell: {
+    flex: 1,
+    alignItems: 'center',
+    gap: 2,
+  },
+  infoValue: {
+    fontSize: fontSize.sm,
+    fontWeight: '700',
+    color: colors.surface.heading,
+  },
+  infoLabel: {
+    fontSize: 11,
+    color: colors.surface.textSecondary,
+  },
+  infoDivider: {
+    width: 1,
+    height: 28,
+    backgroundColor: colors.surface.border,
+  },
+  closedBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing[2.5],
+    marginHorizontal: spacing[4],
+    marginTop: spacing[3],
+    padding: spacing[3],
+    backgroundColor: colors.semantic.warningBg,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.accent[200],
+  },
+  closedTitle: {
+    fontSize: fontSize.sm,
+    fontWeight: '700',
+    color: colors.semantic.warning,
+  },
+  closedBody: {
+    fontSize: fontSize.xs,
+    color: colors.semantic.warning,
+  },
+  teamSection: {
+    paddingLeft: spacing[4],
+    paddingTop: spacing[3],
+    gap: spacing[2],
+  },
+  teamTitle: {
+    fontSize: fontSize.base,
+    fontWeight: '700',
+    color: colors.surface.heading,
+  },
+  teamCard: {
+    width: 128,
+    padding: spacing[3],
+    backgroundColor: colors.surface.background,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.surface.border,
+    alignItems: 'center',
+    gap: spacing[1],
+  },
+  teamAvatar: {
+    width: 44,
+    height: 44,
+    borderRadius: radius.full,
+    backgroundColor: colors.brand[100],
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  teamInitial: {
+    fontSize: fontSize.lg,
+    fontWeight: '700',
+    color: colors.brand[600],
+  },
+  teamName: {
+    fontSize: fontSize.xs,
+    fontWeight: '700',
+    color: colors.surface.heading,
+    textAlign: 'center',
+  },
+  teamRole: {
+    fontSize: 10,
+    color: colors.surface.textSecondary,
+    textAlign: 'center',
+    lineHeight: 13,
+  },
+  teamRating: {
+    fontSize: 10,
+    fontWeight: '600',
+    color: colors.surface.heading,
+  },
+  searchWrap: {
+    backgroundColor: colors.surface.background,
+    paddingHorizontal: spacing[4],
+    paddingVertical: spacing[3],
   },
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.gray[50],
-    borderRadius: 8,
+    gap: spacing[2],
+    backgroundColor: colors.surface.surfaceMuted,
+    borderRadius: radius.md,
     borderWidth: 1,
     borderColor: colors.surface.border,
     paddingHorizontal: spacing[3],
-  },
-  searchIcon: {
-    marginRight: spacing[2],
+    height: 44,
   },
   searchInput: {
     flex: 1,
-    paddingVertical: spacing[2],
-    fontSize: 14,
+    fontSize: fontSize.sm,
     color: colors.surface.heading,
   },
-  sortChip: {
-    paddingHorizontal: spacing[3],
-    paddingVertical: spacing[1.5],
-    borderRadius: 16,
-    backgroundColor: colors.gray[100],
-    borderWidth: 1,
-    borderColor: 'transparent',
+  catalogSection: {
+    paddingHorizontal: spacing[4],
   },
-  sortChipActive: {
+  catalogTitle: {
+    fontSize: fontSize.base,
+    fontWeight: '700',
+    color: colors.surface.heading,
+    marginBottom: spacing[2],
+  },
+  emptyCatalog: {
+    alignItems: 'center',
+    gap: spacing[3],
+    paddingVertical: spacing[10],
+  },
+  rowDivider: {
+    height: 1,
+    backgroundColor: colors.surface.border,
+  },
+  itemRow: {
+    paddingVertical: spacing[3.5],
+  },
+  itemName: {
+    fontSize: fontSize.sm,
+    fontWeight: '600',
+    color: colors.surface.heading,
+    lineHeight: 20,
+  },
+  itemPrice: {
+    fontSize: fontSize.base,
+    fontWeight: '700',
+    color: colors.surface.heading,
+  },
+  outOfStock: {
+    fontSize: fontSize.xs,
+    fontWeight: '600',
+    color: colors.semantic.danger,
+  },
+  itemImageWrap: {
+    width: 88,
+    alignItems: 'center',
+  },
+  itemImagePlaceholder: {
+    width: 80,
+    height: 68,
+    borderRadius: radius.md,
     backgroundColor: colors.brand[50],
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  itemInitial: {
+    fontSize: fontSize.xl,
+    fontWeight: '700',
+    color: colors.brand[600],
+  },
+  addBtn: {
+    // Overlaps the image bottom edge, Swiggy-style
+    marginTop: -14,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 2,
+    width: 76,
+    height: 30,
+    backgroundColor: colors.brand[50],
+    borderWidth: 1,
     borderColor: colors.brand[600],
+    borderRadius: radius.sm,
+    ...shadows.xs.ios,
+    elevation: shadows.xs.android,
+  },
+  addBtnText: {
+    fontSize: fontSize.xs,
+    fontWeight: '700',
+    color: colors.brand[600],
+    letterSpacing: 0.5,
+  },
+  stepper: {
+    marginTop: -14,
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: 76,
+    height: 30,
+    backgroundColor: colors.brand[600],
+    borderRadius: radius.sm,
+    overflow: 'hidden',
+    ...shadows.xs.ios,
+    elevation: shadows.xs.android,
+  },
+  stepBtn: {
+    width: 26,
+    height: 30,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  stepQty: {
+    flex: 1,
+    textAlign: 'center',
+    fontSize: fontSize.xs,
+    fontWeight: '700',
+    color: colors.surface.background,
+  },
+  cartBar: {
+    position: 'absolute',
+    left: spacing[4],
+    right: spacing[4],
+    height: 52,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: spacing[4],
+    backgroundColor: colors.brand[600],
+    borderRadius: radius.lg,
+    ...shadows.md.ios,
+    elevation: shadows.md.android,
+  },
+  cartBarText: {
+    fontSize: fontSize.sm,
+    fontWeight: '700',
+    color: colors.surface.background,
+  },
+  cartBarCta: {
+    fontSize: fontSize.sm,
+    fontWeight: '700',
+    color: colors.surface.background,
   },
 });

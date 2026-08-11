@@ -10,11 +10,11 @@ const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 export function StickyCartBar() {
   const router = useRouter();
-  const getTotalItems = useCartStore((s) => s.getTotalItems);
-  const getTotalPrice = useCartStore((s) => s.getTotalPrice);
-  
-  const itemCount = getTotalItems();
-  const totalPaise = getTotalPrice();
+  // Subscribe to items so the bar updates (and hides) when the cart changes
+  const items = useCartStore((s) => s.items);
+
+  const itemCount = items.reduce((sum, i) => sum + i.quantity, 0);
+  const totalPaise = items.reduce((sum, i) => sum + i.pricePaise * i.quantity, 0);
   const total = (totalPaise / 100).toFixed(0);
   
   const animatedValue = useRef(new Animated.Value(0)).current;

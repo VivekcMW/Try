@@ -5,7 +5,7 @@ import { ArrowLeft, Search, ShoppingBag, Store } from 'lucide-react-native';
 import { useEffect, useMemo, useState } from 'react';
 import { Button, Card, HStack, Text, VStack } from '@/components/ui';
 import { SERVICE_CATEGORIES, ServiceCategory } from '@/data/community-seed';
-import { colors, spacing } from '@lokul/ui-tokens';
+import { colors, radius, spacing } from '@lokul/ui-tokens';
 import { useFeatureFlags } from '@/hooks/useFeatureFlags';
 
 const CATEGORY_COLORS: Record<ServiceCategory, string> = {
@@ -70,16 +70,10 @@ export default function MarketplaceIndexScreen() {
     }
   }, [loading, isEnabled, router]);
 
-  // Show nothing while checking feature flag
-  if (loading || !isEnabled('services')) {
-    return null;
-  }
-
-  const filtered = SERVICE_CATEGORIES.filter((c) =>
-    c.label.toLowerCase().includes(query.toLowerCase())
-  );
-
   const sections = useMemo(() => {
+    const filtered = SERVICE_CATEGORIES.filter((c) =>
+      c.label.toLowerCase().includes(query.toLowerCase())
+    );
     const map = new Map<string, typeof SERVICE_CATEGORIES>();
     filtered.forEach((cat) => {
       const list = map.get(cat.group) ?? [];
@@ -87,7 +81,12 @@ export default function MarketplaceIndexScreen() {
       map.set(cat.group, list);
     });
     return Array.from(map.entries()).map(([title, items]) => ({ title, items }));
-  }, [filtered]);
+  }, [query]);
+
+  // Show nothing while checking feature flag
+  if (loading || !isEnabled('services')) {
+    return null;
+  }
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>

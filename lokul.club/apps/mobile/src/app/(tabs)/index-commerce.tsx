@@ -10,7 +10,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { MapPin, Bell, ShoppingCart, ChevronDown, Search } from 'lucide-react-native';
-import { HStack, Text } from '@/components/ui';
+import { HStack, RadiusSelector, Text } from '@/components/ui';
 import { colors, radius, spacing, fontSize } from '@lokul/ui-tokens';
 import {
   CategoryPills,
@@ -70,6 +70,31 @@ const DUMMY_MERCHANTS = [
     isOpenNow: true,
     acceptingOrders: true,
     distanceKm: 1.2,
+  },
+  {
+    id: '5',
+    name: 'Glamour Touch Salon',
+    category: 'Salon · Grooming',
+    rating: 4.6,
+    reviewCount: 94,
+    offer: { type: 'percent_off' as const, value: 15 },
+    tags: ['Verified'],
+    isEndorsed: true,
+    isOpenNow: true,
+    acceptingOrders: true,
+    distanceKm: 0.6,
+  },
+  {
+    id: '7',
+    name: 'Sunrise Family Clinic',
+    category: 'Clinic · General Physician',
+    rating: 4.8,
+    reviewCount: 210,
+    tags: ['Verified', 'Walk-in'],
+    isEndorsed: true,
+    isOpenNow: true,
+    acceptingOrders: true,
+    distanceKm: 0.7,
   },
 ];
 
@@ -143,8 +168,9 @@ const DUMMY_PRODUCTS = [
 export default function HomeScreenCommerce() {
   const router = useRouter();
   const societyName = useOnboardingStore((s) => s.societyName) ?? 'Tower B-302';
-  const getTotalItems = useCartStore((s) => s.getTotalItems);
-  const itemCount = getTotalItems();
+  // Subscribe to items so the badge updates when the cart changes
+  const cartItems = useCartStore((s) => s.items);
+  const itemCount = cartItems.reduce((sum, i) => sum + i.quantity, 0);
   
   const [refreshing, setRefreshing] = useState(false);
   const [merchants, setMerchants] = useState(DUMMY_MERCHANTS);
@@ -198,7 +224,10 @@ export default function HomeScreenCommerce() {
             </View>
           </Pressable>
 
-          <HStack gap={2}>
+          <HStack gap={2} align="center">
+            {/* Discovery radius — taps cycle 200m → 500m → 2km → 5km */}
+            <RadiusSelector compact />
+
             {/* Notifications */}
             <Pressable
               style={styles.iconButton}

@@ -14,9 +14,15 @@ export default function CartScreen() {
   const clearCart = useCartStore((s) => s.clearCart);
   const getTotalPrice = useCartStore((s) => s.getTotalPrice);
   const merchantName = items[0]?.merchantName;
+  // Service carts book an appointment instead of delivery checkout
+  const isServiceCart = items.length > 0 && items.every((i) => i.kind === 'service');
 
   const handleCheckout = () => {
     if (items.length === 0) return;
+    if (isServiceCart) {
+      router.push('/(marketplace)/book-service' as never);
+      return;
+    }
     router.push('/(marketplace)/checkout' as never);
   };
 
@@ -154,7 +160,11 @@ export default function CartScreen() {
           {/* Checkout Button */}
           <View style={styles.checkoutBar}>
             <Button
-              label={`Proceed to Checkout (₹${(getTotalPrice() / 100).toFixed(2)})`}
+              label={
+                isServiceCart
+                  ? `Book Appointment (₹${(getTotalPrice() / 100).toFixed(0)})`
+                  : `Proceed to Checkout (₹${(getTotalPrice() / 100).toFixed(2)})`
+              }
               onPress={handleCheckout}
               fullWidth
             />

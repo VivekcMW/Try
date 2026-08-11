@@ -1,12 +1,14 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { ArrowLeft, Check, MapPin, Package, Wallet } from 'lucide-react-native';
+import * as Location from 'expo-location';
+import { ArrowLeft, Check, Crosshair, Home, MapPin, Package, Wallet } from 'lucide-react-native';
 import { Button, Card, HStack, Text, VStack } from '@/components/ui';
 import { useCartStore } from '@/store/cartStore';
 import { useWalletStore } from '@/store/walletStore';
-import { colors, spacing } from '@lokul/ui-tokens';
+import { useOnboardingStore } from '@/store/onboardingStore';
+import { colors, fontSize, radius, spacing } from '@lokul/ui-tokens';
 
 const BASE = process.env.EXPO_PUBLIC_API_BASE ?? '';
 
@@ -28,15 +30,58 @@ export default function CheckoutScreen() {
   const [address, setAddress] = useState('');
   const [notes, setNotes] = useState('');
   const [placing, setPlacing] = useState(false);
+  const [locating, setLocating] = useState(false);
+  const [orderPlaced, setOrderPlaced] = useState(false);
+
+  // Saved society address from onboarding
+  const { societyName, tower, flat, pin, city } = useOnboardingStore();
+  const savedAddress = [flat, tower ? `Tower ${tower}` : null, societyName, city, pin]
+    .filter(Boolean)
+    .join(', ');
+
+  const useSavedAddress = () => setAddress(savedAddress);
+
+  const useCurrentLocation = async () => {
+    setLocating(true);
+    try {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Location denied', 'Allow location access in Settings, or type your address.');
+        return;
+      }
+      const pos = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
+      const [place] = await Location.reverseGeocodeAsync({
+        latitude: pos.coords.latitude,
+        longitude: pos.coords.longitude,
+      });
+      if (place) {
+        const line = [place.name, place.street, place.district, place.city, place.postalCode]
+          .filter(Boolean)
+          .join(', ');
+        setAddress(line || savedAddress);
+      }
+    } catch {
+      Alert.alert('Location unavailable', 'Could not detect your location — please type your address.');
+    } finally {
+      setLocating(false);
+    }
+  };
 
   const completeDemoOrder = () => {
     const orderNumber = `LKL-${Math.floor(1000 + Math.random() * 9000)}`;
+    const totalPaise = getTotalPrice();
+    setOrderPlaced(true);
     clearCart();
-    Alert.alert(
-      'Order Placed! 🎉',
-      `Your order ${orderNumber} has been placed with ${merchantName}. The shop will confirm it shortly.`,
-      [{ text: 'Back to Home', onPress: () => router.replace('/(tabs)' as never) }]
-    );
+    router.replace({
+      pathname: '/(marketplace)/merchant-order/[id]',
+      params: {
+        id: `demo-${orderNumber}`,
+        mode: deliveryMode,
+        total: String(totalPaise),
+        merchant: merchantName ?? 'Local Shop',
+        address: deliveryMode === 'delivery' ? address : '',
+      },
+    } as never);
   };
 
   const handlePlaceOrder = async () => {
@@ -92,6 +137,7 @@ export default function CheckoutScreen() {
       }
 
       // Clear cart on success
+      setOrderPlaced(true);
       clearCart();
 
       Alert.alert(
@@ -112,8 +158,14 @@ export default function CheckoutScreen() {
     }
   };
 
+  // Navigate away in an effect — not during render; skip once an order was placed
+  useEffect(() => {
+    if (items.length === 0 && !orderPlaced) {
+      router.replace('/(marketplace)/cart' as never);
+    }
+  }, [items.length, orderPlaced, router]);
+
   if (items.length === 0) {
-    router.replace('/(marketplace)/cart' as never);
     return null;
   }
 
@@ -170,10 +222,42 @@ export default function CheckoutScreen() {
             <Text variant="body" style={{ fontWeight: '700', color: colors.surface.heading }}>
               Delivery Address *
             </Text>
+
+            {/* Quick fill: saved home + GPS */}
+            <HStack gap={2}>
+              {!!savedAddress && (
+                <Pressable
+                  onPress={useSavedAddress}
+                  style={[styles.addressChip, address === savedAddress && styles.addressChipActive]}
+                  accessibilityRole="button"
+                  accessibilityLabel="Use my home address"
+                >
+                  <Home size={14} color={colors.brand[600]} />
+                  <Text style={styles.addressChipText} numberOfLines={1}>
+                    Home · {flat || societyName}
+                  </Text>
+                </Pressable>
+              )}
+              <Pressable
+                onPress={useCurrentLocation}
+                style={styles.addressChip}
+                disabled={locating}
+                accessibilityRole="button"
+                accessibilityLabel="Use my current location"
+              >
+                {locating ? (
+                  <ActivityIndicator size="small" color={colors.brand[600]} />
+                ) : (
+                  <Crosshair size={14} color={colors.brand[600]} />
+                )}
+                <Text style={styles.addressChipText}>Locate me</Text>
+              </Pressable>
+            </HStack>
+
             <TextInput
               value={address}
               onChangeText={setAddress}
-              placeholder="Enter your complete address"
+              placeholder="Flat, tower, society, landmark…"
               placeholderTextColor={colors.gray[400]}
               multiline
               numberOfLines={3}
@@ -316,6 +400,27 @@ const styles = StyleSheet.create({
     padding: spacing[3], color: colors.surface.heading,
     fontSize: 14, backgroundColor: colors.surface.background,
     textAlignVertical: 'top',
+  },
+  addressChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing[1.5],
+    paddingHorizontal: spacing[3],
+    height: 36,
+    borderRadius: radius.full,
+    backgroundColor: colors.brand[50],
+    borderWidth: 1,
+    borderColor: colors.brand[200],
+    maxWidth: '60%',
+  },
+  addressChipActive: {
+    borderColor: colors.brand[600],
+    backgroundColor: colors.brand[100],
+  },
+  addressChipText: {
+    fontSize: fontSize.xs,
+    fontWeight: '600',
+    color: colors.brand[700],
   },
   paymentCard: {
     padding: spacing[3], borderRadius: 8,

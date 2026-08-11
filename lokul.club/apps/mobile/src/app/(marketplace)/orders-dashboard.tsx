@@ -22,6 +22,7 @@ import {
 } from 'lucide-react-native';
 import { Badge, HStack, Text, VStack } from '@/components/ui';
 import { useWalletStore } from '@/store/walletStore';
+import { useBookingStore, type BookingStatus } from '@/store/bookingStore';
 import { colors, radius, spacing } from '@lokul/ui-tokens';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -189,6 +190,34 @@ export default function OrdersDashboardScreen() {
   const router = useRouter();
   const userId = useWalletStore((s) => s.userId);
   const earningsPaise = useWalletStore((s) => s.earningsPaise);
+  const bookings = useBookingStore((s) => s.bookings);
+
+  const BOOKING_LABEL: Partial<Record<BookingStatus, string>> = {
+    requested: 'Requested',
+    confirmed: 'Confirmed',
+    checked_in: 'Checked in',
+    accepted: 'Accepted',
+    on_the_way: 'On the way',
+    arrived: 'Arrived',
+    quote_pending: 'Approve quote',
+    in_progress: 'In progress',
+    work_done: 'Confirm & pay',
+    visit_scheduled: 'Visit scheduled',
+    visit_done: 'Quote coming',
+    quote_shared: 'Quote ready',
+    quote_accepted: 'Pay advance',
+    scheduled: 'Scheduled',
+    completed: 'Completed',
+    cancelled: 'Cancelled',
+  };
+  const bookingTone = (st: BookingStatus): 'neutral' | 'brand' | 'success' | 'warning' | 'danger' | 'info' => {
+    if (st === 'completed') return 'success';
+    if (st === 'cancelled') return 'danger';
+    if (['quote_pending', 'quote_shared', 'quote_accepted', 'work_done'].includes(st)) return 'warning';
+    if (st === 'requested' || st === 'visit_scheduled') return 'neutral';
+    return 'brand';
+  };
+  const activeBookings = bookings.filter((b) => !['completed', 'cancelled'].includes(b.status));
 
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(false);
@@ -252,6 +281,35 @@ export default function OrdersDashboardScreen() {
 
   const ListHeader = (
     <View style={s.listHeader}>
+      {/* Service bookings — appointments, home visits & projects */}
+      {bookings.length > 0 && (
+        <View style={s.bookingsSection}>
+          <Text variant="body" style={{ fontWeight: '700', color: colors.surface.heading }}>
+            Appointments & Bookings
+          </Text>
+          {bookings.slice(0, 6).map((b) => (
+            <Pressable
+              key={b.id}
+              style={s.bookingRow}
+              onPress={() => router.push({ pathname: '/(marketplace)/booking/[id]', params: { id: b.id } } as never)}
+              accessibilityRole="button"
+              accessibilityLabel={`Booking with ${b.merchantName}`}
+            >
+              <VStack gap={0.5} style={{ flex: 1 }}>
+                <Text variant="body" style={{ fontWeight: '600', color: colors.surface.heading }} numberOfLines={1}>
+                  {b.merchantName}
+                </Text>
+                <Text variant="caption" tone="secondary" numberOfLines={1}>
+                  {b.services[0]?.name}{b.services.length > 1 ? ` +${b.services.length - 1}` : ''} · {b.date} · {b.slotLabel}
+                </Text>
+              </VStack>
+              <Badge label={BOOKING_LABEL[b.status] ?? b.status} tone={bookingTone(b.status)} />
+              <ChevronRight size={16} color={colors.surface.textSecondary} />
+            </Pressable>
+          ))}
+        </View>
+      )}
+
       {loading ? (
         <View style={s.loadingBox}>
           <ActivityIndicator size="small" color={colors.brand[600]} />
@@ -261,8 +319,8 @@ export default function OrdersDashboardScreen() {
           <KpiTile
             icon={<Zap size={20} color={colors.brand[700]} />}
             label="Active orders"
-            value={String(active.length)}
-            subLabel={active.length > 0 ? 'In progress' : undefined}
+            value={String(active.length + activeBookings.length)}
+            subLabel={active.length + activeBookings.length > 0 ? 'In progress' : undefined}
             accent
           />
           <KpiTile
@@ -372,6 +430,24 @@ const s = StyleSheet.create({
 
   flatContent: { paddingBottom: spacing[16] },
   listHeader: { backgroundColor: colors.surface.surfaceMuted, paddingBottom: spacing[2] },
+  bookingsSection: {
+    marginHorizontal: spacing[4],
+    marginTop: spacing[4],
+    padding: spacing[4],
+    backgroundColor: colors.surface.background,
+    borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: colors.surface.border,
+    gap: spacing[2.5],
+  },
+  bookingRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing[2],
+    paddingVertical: spacing[2],
+    borderTopWidth: 1,
+    borderTopColor: colors.surface.border,
+  },
 
   kpiGrid: {
     flexDirection: 'row',

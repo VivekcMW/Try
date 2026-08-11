@@ -1,15 +1,16 @@
-import { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, Linking, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { ActivityIndicator, Alert, AppState, Linking, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { ArrowLeft, CheckCircle, Clock, MapPin, Package, Phone, Star } from 'lucide-react-native';
 import { Avatar, Badge, Button, Card, HStack, Text, VStack } from '@/components/ui';
+import { OrderTracker, type TrackerStatus } from '@/components/commerce';
 import { useWalletStore } from '@/store/walletStore';
 import { colors, spacing } from '@lokul/ui-tokens';
 
 const BASE = process.env.EXPO_PUBLIC_API_BASE ?? '';
 
-type MerchantOrderStatus = 'pending' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled' | 'disputed';
+type MerchantOrderStatus = TrackerStatus;
 
 type MerchantOrderDetail = {
   id: string;
@@ -68,24 +69,76 @@ type MerchantOrderDetail = {
 
 const STATUS_LABELS: Record<MerchantOrderStatus, string> = {
   pending: 'Pending',
-  confirmed: 'Confirmed',
-  in_progress: 'In Progress',
+  confirmed: 'Accepted',
+  in_progress: 'Preparing',
+  out_for_delivery: 'On the way',
+  ready_for_pickup: 'Ready',
   completed: 'Completed',
   cancelled: 'Cancelled',
   disputed: 'Disputed',
 };
 
-const STATUS_COLORS: Record<MerchantOrderStatus, string> = {
-  pending: colors.gray[500],
-  confirmed: colors.semantic.info,
-  in_progress: colors.semantic.warning,
-  completed: colors.semantic.success,
-  cancelled: colors.semantic.danger,
-  disputed: colors.semantic.danger,
+type BadgeTone = 'neutral' | 'brand' | 'success' | 'warning' | 'danger' | 'info';
+const STATUS_TONE: Record<MerchantOrderStatus, BadgeTone> = {
+  pending: 'warning',
+  confirmed: 'info',
+  in_progress: 'brand',
+  out_for_delivery: 'brand',
+  ready_for_pickup: 'brand',
+  completed: 'success',
+  cancelled: 'danger',
+  disputed: 'danger',
 };
 
+// Demo order simulation — progresses through statuses on timers (id starts with "demo")
+const DEMO_STAGE_DELAYS: Array<{ status: MerchantOrderStatus; afterMs: number }> = [
+  { status: 'confirmed', afterMs: 8000 },
+  { status: 'in_progress', afterMs: 20000 },
+  { status: 'out_for_delivery', afterMs: 40000 },
+  { status: 'completed', afterMs: 70000 },
+];
+
+function buildDemoOrder(id: string, params: { mode?: string; total?: string; merchant?: string; address?: string }): MerchantOrderDetail {
+  const isPickup = params.mode === 'pickup';
+  const totalPaise = Number(params.total ?? 0) || 11500;
+  const now = new Date();
+  return {
+    id,
+    orderNumber: id.replace('demo-', ''),
+    status: 'pending',
+    subtotalPaise: totalPaise,
+    deliveryFeePaise: 0,
+    taxPaise: 0,
+    totalPaise,
+    paymentMethod: 'cod',
+    paymentStatus: 'pending',
+    deliveryMode: isPickup ? 'pickup' : 'delivery',
+    deliveryAddress: isPickup ? null : (params.address ?? 'Your saved address'),
+    customerNotes: null,
+    merchantNotes: null,
+    createdAt: now.toISOString(),
+    confirmedAt: null,
+    inProgressAt: null,
+    completedAt: null,
+    cancelledAt: null,
+    estimatedReadyAt: new Date(now.getTime() + 30 * 60 * 1000).toISOString(),
+    merchant: {
+      id: '1',
+      name: params.merchant ?? 'Amul Parlour',
+      category: 'grocery',
+      avatarUrl: null,
+      owner: { id: 'demo-owner', phone: '+919999999999' },
+    },
+    customer: { id: 'demo-user', name: 'You', phone: '', avatarUrl: null, kycTier: 'basic' },
+    orderItems: [],
+    statusHistory: [{ id: '1', status: 'pending', createdAt: now.toISOString() }],
+  };
+}
+
 export default function MerchantOrderDetailScreen() {
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id, mode, total, merchant: merchantParam, address } = useLocalSearchParams<{
+    id: string; mode?: string; total?: string; merchant?: string; address?: string;
+  }>();
   const router = useRouter();
   const userId = useWalletStore((s) => s.userId);
   const [order, setOrder] = useState<MerchantOrderDetail | null>(null);
@@ -94,9 +147,16 @@ export default function MerchantOrderDetailScreen() {
   const [rating, setRating] = useState(0);
   const [review, setReview] = useState('');
   const [submittingRating, setSubmittingRating] = useState(false);
+  const isDemo = !!id?.startsWith('demo');
+  const demoTimers = useRef<ReturnType<typeof setTimeout>[]>([]);
 
   const load = useCallback(async () => {
     if (!id) return;
+    if (isDemo) {
+      setOrder(buildDemoOrder(id, { mode, total, merchant: merchantParam, address }));
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     try {
       const res = await fetch(`${BASE}/api/mobile/merchant-orders/${id}`);
@@ -107,11 +167,43 @@ export default function MerchantOrderDetailScreen() {
     } finally {
       setLoading(false);
     }
-  }, [id]);
+  }, [id, isDemo, mode, total, merchantParam, address]);
 
   useEffect(() => {
     load();
   }, [load]);
+
+  // Demo: progress the order through statuses on timers
+  useEffect(() => {
+    if (!isDemo) return;
+    const isPickup = mode === 'pickup';
+    demoTimers.current = DEMO_STAGE_DELAYS.map(({ status, afterMs }) =>
+      setTimeout(() => {
+        setOrder((prev) => {
+          if (!prev || prev.status === 'cancelled') return prev;
+          const next = status === 'out_for_delivery' && isPickup ? 'ready_for_pickup' : status;
+          return {
+            ...prev,
+            status: next,
+            statusHistory: [
+              ...prev.statusHistory,
+              { id: String(prev.statusHistory.length + 1), status: next, createdAt: new Date().toISOString() },
+            ],
+          };
+        });
+      }, afterMs)
+    );
+    return () => demoTimers.current.forEach(clearTimeout);
+  }, [isDemo, mode]);
+
+  // Live orders: poll while the app is foregrounded and the order is active
+  useEffect(() => {
+    if (isDemo || !order || ['completed', 'cancelled', 'disputed'].includes(order.status)) return;
+    const interval = setInterval(() => {
+      if (AppState.currentState === 'active') load();
+    }, 15000);
+    return () => clearInterval(interval);
+  }, [isDemo, order, load]);
 
   const handleCall = () => {
     if (order?.merchant.owner.phone) {
@@ -119,49 +211,67 @@ export default function MerchantOrderDetailScreen() {
     }
   };
 
+  const CANCEL_REASONS = ['Ordered by mistake', 'Changed my mind', 'Taking too long', 'Other'];
+
+  const cancelWithReason = async (reason: string) => {
+    if (isDemo) {
+      demoTimers.current.forEach(clearTimeout);
+      setOrder((prev) => prev ? { ...prev, status: 'cancelled' } : prev);
+      return;
+    }
+    if (!userId || !id) return;
+    setCancelling(true);
+    try {
+      const res = await fetch(`${BASE}/api/mobile/merchant-orders/${id}/cancel`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ customerId: userId, reason }),
+      });
+
+      if (res.ok) {
+        Alert.alert('Order Cancelled', 'Any payment made will be refunded.');
+        load();
+      } else {
+        const error = await res.json();
+        Alert.alert('Error', error.error || 'Failed to cancel order');
+      }
+    } catch {
+      Alert.alert('Error', 'Failed to cancel order');
+    } finally {
+      setCancelling(false);
+    }
+  };
+
   const handleCancelOrder = () => {
     Alert.alert(
-      'Cancel Order',
-      'Are you sure you want to cancel this order? This action cannot be undone.',
+      'Cancel Order?',
+      'Tell us why — this helps the shop improve.',
       [
-        { text: 'No', style: 'cancel' },
-        {
-          text: 'Yes, Cancel',
-          style: 'destructive',
-          onPress: async () => {
-            if (!userId || !id) return;
-            setCancelling(true);
-            try {
-              const res = await fetch(`${BASE}/api/mobile/merchant-orders/${id}/cancel`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  customerId: userId,
-                  reason: 'Cancelled by customer',
-                }),
-              });
-              
-              if (res.ok) {
-                Alert.alert('Success', 'Order cancelled successfully');
-                load(); // Reload order to show updated status
-              } else {
-                const error = await res.json();
-                Alert.alert('Error', error.error || 'Failed to cancel order');
-              }
-            } catch (e) {
-              Alert.alert('Error', 'Failed to cancel order');
-            } finally {
-              setCancelling(false);
-            }
-          },
-        },
+        ...CANCEL_REASONS.map((reason) => ({
+          text: reason,
+          onPress: () => cancelWithReason(reason),
+        })),
+        { text: 'Keep my order', style: 'cancel' as const },
       ]
     );
   };
 
   const handleSubmitRating = async () => {
-    if (!userId || !id || rating === 0) return;
-    
+    if (rating === 0) return;
+
+    const applyLocalRating = () => {
+      setOrder((prev) =>
+        prev ? { ...prev, rating: { id: 'local', score: rating, review: review.trim() || null } } : prev
+      );
+      Alert.alert('Thank you! ⭐', 'Your rating helps this local shop grow.');
+    };
+
+    // Demo orders (or missing session): store the rating locally
+    if (isDemo || !userId || !id) {
+      applyLocalRating();
+      return;
+    }
+
     setSubmittingRating(true);
     try {
       const res = await fetch(`${BASE}/api/mobile/merchant-orders/${id}/rate`, {
@@ -173,16 +283,17 @@ export default function MerchantOrderDetailScreen() {
           review: review.trim() || undefined,
         }),
       });
-      
+
       if (res.ok) {
-        Alert.alert('Success', 'Thank you for your feedback!');
+        Alert.alert('Thank you! ⭐', 'Your rating helps this local shop grow.');
         load(); // Reload order to show rating
       } else {
         const error = await res.json();
         Alert.alert('Error', error.error || 'Failed to submit rating');
       }
-    } catch (e) {
-      Alert.alert('Error', 'Failed to submit rating');
+    } catch {
+      // Backend unreachable — keep the rating locally so the user isn't blocked
+      applyLocalRating();
     } finally {
       setSubmittingRating(false);
     }
@@ -232,12 +343,23 @@ export default function MerchantOrderDetailScreen() {
         </VStack>
         <Badge
           label={STATUS_LABELS[order.status]}
-          tone="neutral"
-          style={{ backgroundColor: STATUS_COLORS[order.status] }}
+          tone={STATUS_TONE[order.status]}
         />
       </HStack>
 
       <ScrollView contentContainerStyle={{ paddingBottom: spacing[16] }}>
+        {/* Live order tracker */}
+        <OrderTracker
+          status={order.status}
+          deliveryMode={order.deliveryMode}
+          estimatedReadyAt={order.estimatedReadyAt}
+          deliveryAddress={order.deliveryAddress}
+          merchantName={order.merchant.name}
+          shopAddress={`${order.merchant.name}, Kumar Sienna`}
+          pickupCode={order.orderNumber.replace(/\D/g, '').slice(-4).padStart(4, '0')}
+          onCallShop={handleCall}
+        />
+
         {/* Merchant Info */}
         <Card padding={4} elevation="sm" style={styles.card}>
           <VStack gap={3}>
@@ -381,17 +503,19 @@ export default function MerchantOrderDetailScreen() {
           </VStack>
         </Card>
 
-        {/* Cancel Order Button */}
-        {(order.status === 'pending' || order.status === 'confirmed') && (
-          <Card padding={4} elevation="sm" style={styles.card}>
-            <Button
-              label={cancelling ? 'Cancelling...' : 'Cancel Order'}
-              variant="secondary"
-              onPress={handleCancelOrder}
-              disabled={cancelling}
-              style={{ backgroundColor: colors.semantic.dangerBg, borderColor: colors.semantic.danger }}
-            />
-          </Card>
+        {/* Cancel — only before the shop accepts (or if payment isn't captured yet) */}
+        {(order.status === 'pending' || (order.status === 'confirmed' && order.paymentStatus !== 'paid')) && (
+          <Pressable
+            onPress={handleCancelOrder}
+            disabled={cancelling}
+            style={styles.cancelBtn}
+            accessibilityRole="button"
+            accessibilityLabel="Cancel order"
+          >
+            <Text style={styles.cancelBtnText}>
+              {cancelling ? 'Cancelling…' : 'Cancel Order'}
+            </Text>
+          </Pressable>
         )}
 
         {/* Rating Section */}
@@ -399,19 +523,24 @@ export default function MerchantOrderDetailScreen() {
           <Card padding={4} elevation="sm" style={styles.card}>
             <VStack gap={3}>
               <Text variant="body" style={{ fontWeight: '700', color: colors.surface.heading }}>
-                Rate Your Experience
+                How was your order?
               </Text>
-              <HStack gap={2} style={{ justifyContent: 'center', marginVertical: spacing[2] }}>
+              <Text variant="caption" tone="secondary">
+                Your rating helps {order.merchant.name} serve the society better
+              </Text>
+              <HStack gap={3} style={{ justifyContent: 'center', marginVertical: spacing[2] }}>
                 {[1, 2, 3, 4, 5].map((star) => (
                   <Pressable
                     key={star}
                     onPress={() => setRating(star)}
                     accessibilityRole="button"
+                    accessibilityLabel={`Rate ${star} star${star > 1 ? 's' : ''}`}
+                    hitSlop={6}
                   >
                     <Star
-                      size={32}
-                      color={star <= rating ? '#F59E0B' : colors.gray[300]}
-                      fill={star <= rating ? '#F59E0B' : 'transparent'}
+                      size={36}
+                      color={star <= rating ? colors.accent[500] : colors.gray[300]}
+                      fill={star <= rating ? colors.accent[500] : 'transparent'}
                     />
                   </Pressable>
                 ))}
@@ -447,8 +576,8 @@ export default function MerchantOrderDetailScreen() {
                   <Star
                     key={star}
                     size={20}
-                    color={star <= (order.rating?.score || 0) ? '#F59E0B' : colors.gray[300]}
-                    fill={star <= (order.rating?.score || 0) ? '#F59E0B' : 'transparent'}
+                    color={star <= (order.rating?.score || 0) ? colors.accent[500] : colors.gray[300]}
+                    fill={star <= (order.rating?.score || 0) ? colors.accent[500] : 'transparent'}
                   />
                 ))}
               </HStack>
@@ -501,6 +630,22 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   card: { marginHorizontal: spacing[4], marginTop: spacing[4] },
+  cancelBtn: {
+    marginHorizontal: spacing[4],
+    marginTop: spacing[4],
+    height: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: colors.semantic.danger,
+    backgroundColor: colors.surface.background,
+  },
+  cancelBtnText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: colors.semantic.danger,
+  },
   phoneBtn: {
     width: 36,
     height: 36,

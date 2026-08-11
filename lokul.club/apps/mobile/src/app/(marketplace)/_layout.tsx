@@ -14,6 +14,8 @@ export default function MarketplaceLayout() {
       <Stack.Screen name="merchant/[id]" />
       <Stack.Screen name="merchant-order/[id]" />
       <Stack.Screen name="book/[id]" />
+      <Stack.Screen name="book-service" />
+      <Stack.Screen name="booking/[id]" />
       <Stack.Screen name="order/[id]" />
     </Stack>
   );

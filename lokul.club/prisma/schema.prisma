@@ -81,6 +81,9 @@ enum PostType {
   sell
   rwa_notice
   sos
+  recommendation // "Ask a neighbor" — replies can link real merchants
+  outage         // power / water / lift / internet civic reports
+  help_request   // short-lived micro-request with "I can help"
 }
 
 enum PostVisibility {
@@ -598,6 +601,8 @@ model Post {
   reactionCount  Int            @default(0)
   commentCount   Int            @default(0)
   viewCount      Int            @default(0)
+  meta           Json?          // type-specific: { recCategory } | { outageKind } | { urgency }
+  expiresAt      DateTime?      // help_request auto-expiry
   createdAt      DateTime       @default(now())
   updatedAt      DateTime       @updatedAt
   deletedAt      DateTime?
@@ -663,6 +668,7 @@ model Comment {
   body      String
   parentId  String?
   status    ContentStatus @default(active)
+  recommendedMerchantId String? // recommendation replies link a real merchant
   createdAt DateTime      @default(now())
   updatedAt DateTime      @updatedAt
   deletedAt DateTime?
@@ -671,6 +677,7 @@ model Comment {
   author  User      @relation(fields: [authorId], references: [id])
   parent  Comment?  @relation("CommentReplies", fields: [parentId], references: [id])
   replies Comment[] @relation("CommentReplies")
+  recommendedMerchant Merchant? @relation("CommentMerchantRecs", fields: [recommendedMerchantId], references: [id], onDelete: SetNull)
 
   @@index([postId])
   @@index([authorId])
@@ -790,6 +797,7 @@ model Merchant {
   // Service bookings
   staff           MerchantStaff[]
   serviceBookings ServiceBooking[]  @relation("MerchantServiceBookings")
+  commentRecommendations Comment[]  @relation("CommentMerchantRecs")
 
   @@index([pinCode])
   @@index([city])

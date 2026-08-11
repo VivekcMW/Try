@@ -24,6 +24,7 @@ import { OfflineBanner } from '@/components/OfflineBanner';
 
 const { width: SCREEN_W } = Dimensions.get('window');
 const PRODUCT_CARD_WIDTH = (SCREEN_W - 44) / 2;  // 2 columns: paddingH(32px) + gap(12px)
+const BASE = process.env.EXPO_PUBLIC_API_BASE ?? '';
 
 // Dummy data - replace with actual API calls
 const DUMMY_MERCHANTS = [
@@ -168,6 +169,7 @@ const DUMMY_PRODUCTS = [
 export default function HomeScreenCommerce() {
   const router = useRouter();
   const societyName = useOnboardingStore((s) => s.societyName) ?? 'Tower B-302';
+  const pin = useOnboardingStore((s) => s.pin);
   // Subscribe to items so the badge updates when the cart changes
   const cartItems = useCartStore((s) => s.items);
   const itemCount = cartItems.reduce((sum, i) => sum + i.quantity, 0);
@@ -175,6 +177,15 @@ export default function HomeScreenCommerce() {
   const [refreshing, setRefreshing] = useState(false);
   const [merchants, setMerchants] = useState(DUMMY_MERCHANTS);
   const [products, setProducts] = useState(DUMMY_PRODUCTS);
+  const [digest, setDigest] = useState<{ total: number; highlights: { snippet: string }[] } | null>(null);
+
+  useEffect(() => {
+    if (!pin) return;
+    fetch(`${BASE}/api/mobile/feed/digest?pinCode=${pin}`)
+      .then((r) => r.json())
+      .then((d) => { if (d && typeof d.total === 'number') setDigest(d); })
+      .catch(() => {});
+  }, [pin]);
 
   // Load data from API
   const loadData = useCallback(async () => {
@@ -369,7 +380,7 @@ export default function HomeScreenCommerce() {
               <Text style={styles.sectionSubtitle}>Updates from your society</Text>
             </View>
             <Pressable
-              onPress={() => router.push('/(tabs)/explore' as any)}
+              onPress={() => router.push('/(feed)' as any)}
               hitSlop={12}
               accessibilityRole="button"
               accessibilityLabel="See all community updates"
@@ -380,7 +391,7 @@ export default function HomeScreenCommerce() {
 
           <Pressable
             style={styles.communityCard}
-            onPress={() => router.push('/(tabs)/explore' as any)}
+            onPress={() => router.push('/(feed)' as any)}
             accessibilityRole="button"
           >
             <View style={styles.communityIcon}>
@@ -388,8 +399,10 @@ export default function HomeScreenCommerce() {
             </View>
             <View style={{ flex: 1 }}>
               <Text style={styles.communityTitle}>Community Updates</Text>
-              <Text style={styles.communityBody}>
-                3 new posts from your neighbors — tap to catch up
+              <Text style={styles.communityBody} numberOfLines={2}>
+                {digest && digest.total > 0
+                  ? `${digest.total} new ${digest.total === 1 ? 'post' : 'posts'} — ${digest.highlights[0]?.snippet ?? 'tap to catch up'}`
+                  : 'Ask neighbors, report outages & get help — tap to explore'}
               </Text>
             </View>
           </Pressable>

@@ -81,6 +81,8 @@ const { width: SCREEN_W } = Dimensions.get('window');
 type ApiFeedPost = {
   id: string; type: string; body: string; pinned: boolean;
   createdAt: string; reactionCount: number; commentCount: number;
+  meta?: { recCategory?: string; outageKind?: string } | null;
+  expiresAt?: string | null;
   author: { id: string; name: string; avatarUrl: string | null; kycTier: string };
   media: { kind: string; url: string }[];
   tags: string[];
@@ -102,7 +104,8 @@ export default function HomeScreen() {
   return <HomeScreenFeed />;
 }
 
-function HomeScreenFeed() {
+// Community feed — also mounted at /(feed)/ so the commerce home can link to it
+export function HomeScreenFeed() {
   const router = useRouter();
   const seniorMode = useAccessibilityStore((s) => s.seniorMode);
   const societyName = useOnboardingStore((s) => s.societyName) ?? 'your locality';
@@ -304,6 +307,7 @@ function HomeScreenFeed() {
               />
             ))}
             <DigestCard />
+            <SeasonalCard />
             {/* Alert news injects right below pinned/digest */}
             {newsItems
               .filter((n) => n.isAlert)
@@ -562,6 +566,28 @@ function FilterSheet({
 }
 
 function DigestCard() {
+  const pin = useOnboardingStore((s) => s.pin);
+  const [digest, setDigest] = useState<{
+    total: number;
+    counts: { label: string; count: number }[];
+    highlights: { id: string; snippet: string }[];
+  } | null>(null);
+
+  useEffect(() => {
+    if (!pin) return;
+    fetch(`${BASE}/api/mobile/feed/digest?pinCode=${pin}`)
+      .then((r) => r.json())
+      .then((d) => { if (d && typeof d.total === 'number') setDigest(d); })
+      .catch(() => {});
+  }, [pin]);
+
+  if (!digest || digest.total === 0) return null;
+
+  const summary = digest.counts
+    .slice(0, 3)
+    .map((c) => `${c.count} ${c.label}${c.count > 1 ? 's' : ''}`)
+    .join(' · ');
+
   return (
     <Card padding={4} elevation="none" style={styles.digest}>
       <HStack gap={3} align="center">
@@ -570,15 +596,49 @@ function DigestCard() {
         </View>
         <VStack gap={0.5} style={{ flex: 1 }}>
           <Text variant="body" style={{ fontWeight: '700', color: colors.surface.heading }}>
-            3 things you missed
+            {digest.total} {digest.total === 1 ? 'thing' : 'things'} while you were away
           </Text>
-          <Text variant="caption" tone="secondary">
-            Water cleaning · Garba night · new chai stall near Gate 2
+          <Text variant="caption" tone="secondary" numberOfLines={2}>
+            {digest.highlights[0]?.snippet ?? summary}
           </Text>
         </VStack>
-        <Badge label="AI" tone="brand" />
+        <Badge label="24h" tone="brand" />
       </HStack>
     </Card>
+  );
+}
+
+// Month-driven seasonal service nudge — links straight into Discover
+const SEASONAL_BY_MONTH: Record<number, { emoji: string; title: string; body: string; cta: string }> = {
+  2: { emoji: '🌼', title: 'Holi prep', body: 'Deep-cleaning & water-proof covers are filling fast', cta: 'Book cleaning' },
+  3: { emoji: '☀️', title: 'Summer is coming', body: 'AC service slots fill up by April — beat the rush', cta: 'Book AC service' },
+  4: { emoji: '☀️', title: 'Peak summer', body: 'AC repair & cold-pressed juice subscriptions nearby', cta: 'Explore' },
+  5: { emoji: '🌧️', title: 'Monsoon prep', body: 'Pest control & water-proofing before the rains hit', cta: 'Book pest control' },
+  6: { emoji: '🌧️', title: 'Monsoon season', body: 'Laundry pickup & plumber slots for leaky season', cta: 'Explore services' },
+  7: { emoji: '🌧️', title: 'Monsoon season', body: 'Rain delays? Laundry pickup & AC dry-service nearby', cta: 'Explore services' },
+  9: { emoji: '🪔', title: 'Festive season', body: 'Diwali cleaning & salon slots are filling fast', cta: 'Book now' },
+  10: { emoji: '🪔', title: 'Diwali prep', body: 'Home cleaning, mithai orders & decor — all nearby', cta: 'Book now' },
+};
+
+function SeasonalCard() {
+  const router = useRouter();
+  const season = SEASONAL_BY_MONTH[new Date().getMonth()];
+  if (!season) return null;
+  return (
+    <Pressable onPress={() => router.push('/(discover)/catalog' as never)}>
+      <Card padding={4} elevation="none" style={styles.seasonal}>
+        <HStack gap={3} align="center">
+          <Text style={{ fontSize: 28 }}>{season.emoji}</Text>
+          <VStack gap={0.5} style={{ flex: 1 }}>
+            <Text variant="body" style={{ fontWeight: '700', color: colors.surface.heading }}>{season.title}</Text>
+            <Text variant="caption" tone="secondary">{season.body}</Text>
+          </VStack>
+          <View style={styles.seasonalCta}>
+            <Text variant="caption" style={{ color: '#fff', fontWeight: '700' }}>{season.cta}</Text>
+          </View>
+        </HStack>
+      </Card>
+    </Pressable>
   );
 }
 
@@ -914,7 +974,24 @@ function PromoCarousel() {
   );
 }
 
+const OUTAGE_META: Record<string, { label: string; emoji: string }> = {
+  power: { label: 'Power outage', emoji: '⚡' },
+  water: { label: 'Water outage', emoji: '💧' },
+  lift: { label: 'Lift down', emoji: '🛧' },
+  internet: { label: 'Internet down', emoji: '📶' },
+  other: { label: 'Outage report', emoji: '❗' },
+};
+
+function expiresLabel(expiresAt: string): string {
+  const ms = new Date(expiresAt).getTime() - Date.now();
+  if (ms <= 0) return 'expired';
+  const mins = Math.round(ms / 60000);
+  if (mins < 60) return `${mins} min left`;
+  return `${Math.round(mins / 60)} hr left`;
+}
+
 function ApiPostCard({ post }: { post: ApiFeedPost }) {
+  const router = useRouter();
   const userId = useWalletStore((s) => s.userId);
   const [liked,        setLiked]        = useState(false);
   const [reactionCount, setReactionCount] = useState(post.reactionCount);
@@ -946,8 +1023,32 @@ function ApiPostCard({ post }: { post: ApiFeedPost }) {
     }
   }
 
+  const outage = post.type === 'outage' ? (OUTAGE_META[post.meta?.outageKind ?? 'other'] ?? OUTAGE_META.other) : null;
+  const openDetail = () => router.push({ pathname: '/(feed)/post/[id]', params: { id: post.id } } as never);
+
   return (
     <Card padding={4} elevation="sm" style={{ gap: spacing[3] }}>
+      {post.type === 'recommendation' && (
+        <View style={[styles.typeBanner, { backgroundColor: colors.brand[50] }]}>
+          <Text variant="caption" style={{ color: colors.brand[700], fontWeight: '700' }}>
+            🙋 Asking neighbors{post.meta?.recCategory ? ` · ${post.meta.recCategory}` : ''}
+          </Text>
+        </View>
+      )}
+      {outage && (
+        <View style={[styles.typeBanner, { backgroundColor: '#FEF3C7' }]}>
+          <Text variant="caption" style={{ color: '#92400E', fontWeight: '700' }}>
+            {outage.emoji} {outage.label}
+          </Text>
+        </View>
+      )}
+      {post.type === 'help_request' && (
+        <View style={[styles.typeBanner, { backgroundColor: '#FEE2E2' }]}>
+          <Text variant="caption" style={{ color: '#991B1B', fontWeight: '700' }}>
+            🤝 Needs help{post.expiresAt ? ` · ${expiresLabel(post.expiresAt)}` : ''}
+          </Text>
+        </View>
+      )}
       {post.pinned && (
         <HStack gap={1.5} align="center">
           <Pin size={12} color={colors.brand[600]} />
@@ -1015,7 +1116,25 @@ function ApiPostCard({ post }: { post: ApiFeedPost }) {
           </Text>
         </Pressable>
         <Text variant="caption" tone="secondary">· {post.commentCount} comments</Text>
-        {post.tags.length > 0 && <Badge label={post.tags[0].toUpperCase()} tone="neutral" />}
+        <View style={{ flex: 1 }} />
+        {post.type === 'recommendation' && (
+          <Pressable style={styles.postCta} onPress={openDetail} accessibilityRole="button">
+            <Text variant="caption" style={{ color: '#fff', fontWeight: '700' }}>Suggest a place</Text>
+          </Pressable>
+        )}
+        {post.type === 'help_request' && (
+          <Pressable style={[styles.postCta, { backgroundColor: colors.semantic.danger }]} onPress={openDetail} accessibilityRole="button">
+            <Text variant="caption" style={{ color: '#fff', fontWeight: '700' }}>I can help</Text>
+          </Pressable>
+        )}
+        {post.type === 'outage' && (
+          <Pressable style={styles.actionBtn} onPress={handleLike} accessibilityRole="button">
+            <Text variant="caption" style={{ color: colors.semantic.warning, fontWeight: '700' }}>Affected too</Text>
+          </Pressable>
+        )}
+        {!['recommendation', 'help_request', 'outage'].includes(post.type) && post.tags.length > 0 && (
+          <Badge label={post.tags[0].toUpperCase()} tone="neutral" />
+        )}
       </HStack>
     </Card>
   );
@@ -1171,6 +1290,29 @@ const styles = StyleSheet.create({
     backgroundColor: colors.brand[100],
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  seasonal: {
+    backgroundColor: '#FFF7ED',
+    borderWidth: 1,
+    borderColor: '#FED7AA',
+  },
+  seasonalCta: {
+    backgroundColor: colors.brand[600],
+    paddingHorizontal: spacing[3],
+    paddingVertical: spacing[1.5],
+    borderRadius: radius.full,
+  },
+  typeBanner: {
+    alignSelf: 'flex-start',
+    paddingHorizontal: spacing[2.5],
+    paddingVertical: spacing[1],
+    borderRadius: radius.sm,
+  },
+  postCta: {
+    backgroundColor: colors.brand[600],
+    paddingHorizontal: spacing[3],
+    paddingVertical: spacing[1.5],
+    borderRadius: radius.full,
   },
   fab: {
     position: 'absolute',

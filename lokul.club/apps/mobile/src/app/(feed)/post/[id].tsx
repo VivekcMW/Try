@@ -5,6 +5,7 @@ import {
   Alert,
   Clipboard,
   FlatList,
+  Modal,
   Pressable,
   StyleSheet,
   TextInput,
@@ -19,6 +20,9 @@ import {
   MessageCircle,
   MoreHorizontal,
   Send,
+  Star,
+  Store,
+  X,
 } from 'lucide-react-native';
 import { Avatar, Badge, HStack, Text, VStack } from '@/components/ui';
 import { POST_TYPE_META, relativeTime } from '@/data/feed-seed';
@@ -36,9 +40,11 @@ type ApiPost = {
   media: { kind: string; url: string }[];
   tags: string[];
 };
+type RecMerchant = { id: string; name: string; category: string; ratingAvg?: number | null; ratingCount?: number | null };
 type ApiComment = {
   id: string; body: string; createdAt: string;
   author: { id: string; name: string; avatarUrl: string | null; kycTier: string };
+  recommendedMerchant?: RecMerchant | null;
   replies: ApiComment[];
 };
 
@@ -55,6 +61,7 @@ export default function PostDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router  = useRouter();
   const userId  = useWalletStore((s) => s.userId);
+  const pinCode = useOnboardingStore((s) => s.pin);
 
   const [post,     setPost]     = useState<ApiPost | null>(null);
   const [comments, setComments] = useState<ApiComment[]>([]);
@@ -62,6 +69,8 @@ export default function PostDetailScreen() {
   const [liked,    setLiked]    = useState(false);
   const [comment,  setComment]  = useState('');
   const [posting,  setPosting]  = useState(false);
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const [pickerMerchants, setPickerMerchants] = useState<RecMerchant[]>([]);
   const savedIds   = useSavedPostsStore((s) => s.savedIds);
   const toggleSaved = useSavedPostsStore((s) => s.toggleSaved);
   const saved = !!id && savedIds.includes(id);
@@ -139,6 +148,50 @@ export default function PostDetailScreen() {
         body: JSON.stringify({ userId, text: comment.trim() }),
       });
       if (res.ok) { setComment(''); load(); }
+    } catch { /* noop */ } finally { setPosting(false); }
+  }
+
+  async function openMerchantPicker() {
+    setPickerOpen(true);
+    if (pickerMerchants.length > 0 || !pinCode) return;
+    try {
+      const res = await fetch(`${BASE}/api/mobile/merchants?pinCode=${pinCode}&limit=30`);
+      const data = await res.json();
+      setPickerMerchants(Array.isArray(data?.items) ? data.items : []);
+    } catch { /* keep empty */ }
+  }
+
+  async function recommendMerchant(m: RecMerchant) {
+    if (!userId || !id) return;
+    setPickerOpen(false);
+    setPosting(true);
+    try {
+      const res = await fetch(`${BASE}/api/mobile/posts/${id}/comments`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId,
+          text: comment.trim() || `I recommend ${m.name} 👍`,
+          recommendedMerchantId: m.id,
+        }),
+      });
+      if (res.ok) { setComment(''); load(); }
+    } catch { /* noop */ } finally { setPosting(false); }
+  }
+
+  async function offerHelp() {
+    if (!userId || !id || !post) return;
+    setPosting(true);
+    try {
+      const res = await fetch(`${BASE}/api/mobile/posts/${id}/comments`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, text: 'I can help 🤝 — message me!' }),
+      });
+      if (res.ok) {
+        load();
+        Alert.alert('Thank you! 🤝', `${post.author.name} has been notified. You can also DM them directly.`);
+      }
     } catch { /* noop */ } finally { setPosting(false); }
   }
 
@@ -240,6 +293,19 @@ export default function PostDetailScreen() {
             </HStack>
             <View style={styles.divider} />
 
+            {/* Contextual actions for new post types */}
+            {post.type === 'recommendation' && (
+              <Pressable style={styles.recommendBtn} onPress={openMerchantPicker} accessibilityRole="button">
+                <Store size={16} color="#fff" />
+                <Text variant="body" style={{ color: '#fff', fontWeight: '700' }}>Recommend a business</Text>
+              </Pressable>
+            )}
+            {post.type === 'help_request' && (
+              <Pressable style={[styles.recommendBtn, { backgroundColor: '#DC2626' }]} onPress={offerHelp} accessibilityRole="button">
+                <Text variant="body" style={{ color: '#fff', fontWeight: '700' }}>🤝 I can help</Text>
+              </Pressable>
+            )}
+
             <HStack gap={2} align="center" style={{ paddingTop: spacing[4], paddingBottom: spacing[2] }}>
               <MessageCircle size={16} color={colors.brand[600]} />
               <Text variant="body" style={{ fontWeight: '700', color: colors.surface.heading }}>
@@ -263,10 +329,66 @@ export default function PostDetailScreen() {
               <Text variant="body" style={{ color: colors.surface.heading, lineHeight: 20 }}>
                 {item.body}
               </Text>
+              {item.recommendedMerchant && (
+                <Pressable
+                  style={styles.merchantChip}
+                  onPress={() => router.push({ pathname: '/(marketplace)/merchant/[id]', params: { id: item.recommendedMerchant!.id } } as never)}
+                  accessibilityRole="button"
+                >
+                  <Store size={14} color={colors.brand[600]} />
+                  <VStack gap={0} style={{ flex: 1 }}>
+                    <Text variant="caption" style={{ fontWeight: '700', color: colors.surface.heading }}>
+                      {item.recommendedMerchant.name}
+                    </Text>
+                    <Text variant="caption" tone="secondary">{item.recommendedMerchant.category}</Text>
+                  </VStack>
+                  {item.recommendedMerchant.ratingAvg != null && (
+                    <HStack gap={0.5} align="center">
+                      <Star size={11} color="#F59E0B" fill="#F59E0B" />
+                      <Text variant="caption" style={{ fontWeight: '700' }}>{item.recommendedMerchant.ratingAvg.toFixed(1)}</Text>
+                    </HStack>
+                  )}
+                </Pressable>
+              )}
             </VStack>
           </HStack>
         )}
       />
+
+      {/* Merchant picker for recommendations */}
+      <Modal visible={pickerOpen} animationType="slide" transparent onRequestClose={() => setPickerOpen(false)}>
+        <View style={styles.pickerBackdrop}>
+          <View style={styles.pickerSheet}>
+            <HStack gap={2} align="center" style={{ marginBottom: spacing[3] }}>
+              <Text variant="h3" style={{ flex: 1, color: colors.surface.heading }}>Recommend a business</Text>
+              <Pressable onPress={() => setPickerOpen(false)} accessibilityRole="button">
+                <X size={22} color={colors.surface.textSecondary} />
+              </Pressable>
+            </HStack>
+            <FlatList
+              data={pickerMerchants}
+              keyExtractor={(m) => m.id}
+              style={{ maxHeight: 420 }}
+              ListEmptyComponent={<ActivityIndicator color={colors.brand[600]} style={{ marginTop: spacing[6] }} />}
+              renderItem={({ item: m }) => (
+                <Pressable style={styles.pickerRow} onPress={() => recommendMerchant(m)} accessibilityRole="button">
+                  <Store size={18} color={colors.brand[600]} />
+                  <VStack gap={0} style={{ flex: 1 }}>
+                    <Text variant="body" style={{ fontWeight: '600', color: colors.surface.heading }}>{m.name}</Text>
+                    <Text variant="caption" tone="secondary">{m.category}</Text>
+                  </VStack>
+                  {m.ratingAvg != null && (
+                    <HStack gap={0.5} align="center">
+                      <Star size={12} color="#F59E0B" fill="#F59E0B" />
+                      <Text variant="caption" style={{ fontWeight: '700' }}>{m.ratingAvg.toFixed(1)}</Text>
+                    </HStack>
+                  )}
+                </Pressable>
+              )}
+            />
+          </View>
+        </View>
+      </Modal>
 
       <View style={styles.inputRow}>
         <Avatar name="You" size="sm" />
@@ -336,5 +458,46 @@ const styles = StyleSheet.create({
     backgroundColor: colors.brand[600],
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  recommendBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing[2],
+    backgroundColor: colors.brand[600],
+    borderRadius: 12,
+    paddingVertical: spacing[3],
+    marginVertical: spacing[3],
+  },
+  merchantChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing[2],
+    marginTop: spacing[2],
+    padding: spacing[2.5],
+    backgroundColor: colors.surface.background,
+    borderWidth: 1,
+    borderColor: colors.brand[200],
+    borderRadius: 10,
+  },
+  pickerBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    justifyContent: 'flex-end',
+  },
+  pickerSheet: {
+    backgroundColor: colors.surface.background,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    padding: spacing[5],
+    paddingBottom: spacing[8],
+  },
+  pickerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing[3],
+    paddingVertical: spacing[3],
+    borderBottomWidth: 0.5,
+    borderBottomColor: colors.surface.border,
   },
 });

@@ -40,6 +40,9 @@ const BASE = process.env.EXPO_PUBLIC_API_BASE ?? '';
 
 async function registerPushToken(userId: string) {
   try {
+    // Push tokens need a real device — the simulator lacks ExpoPushTokenManager
+    const Device = await import('expo-device');
+    if (!Device.isDevice) return;
     // Dynamically import to avoid crashing when expo-notifications is not linked
     // @ts-expect-error: expo-notifications is optional and may not be installed
     const Notifications = await import('expo-notifications');

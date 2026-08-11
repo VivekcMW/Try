@@ -37,7 +37,10 @@ export type PostType =
   | 'weather'
   | 'carpool'
   | 'appreciation'
-  | 'poll';
+  | 'poll'
+  | 'recommendation'
+  | 'outage'
+  | 'help_request';
 
 export type ReactionKind = 'like' | 'love' | 'thanks' | 'support' | 'concern';
 
@@ -528,6 +531,9 @@ export const POST_TYPE_META: Record<
   carpool: { label: 'Ride pool', tone: 'success', Icon: Car },
   appreciation: { label: 'Appreciation', tone: 'warning', Icon: Star },
   poll: { label: 'Poll', tone: 'brand', Icon: BarChart2 },
+  recommendation: { label: 'Asking neighbors', tone: 'brand', Icon: MessageSquare },
+  outage: { label: 'Outage', tone: 'warning', Icon: AlertOctagon },
+  help_request: { label: 'Needs help', tone: 'danger', Icon: Shield },
 };
 
 // ─── Promo Carousel slides ────────────────────────────────────────────────────

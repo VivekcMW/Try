@@ -70,10 +70,15 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { userId, type, postBody, visibility, pinCode, societyId, tags, media, lat, lng } = body;
+    const { userId, type, postBody, visibility, pinCode, societyId, tags, media, lat, lng, meta, expiresAt } = body;
 
     if (!userId || !postBody?.trim() || !pinCode) {
       return NextResponse.json({ error: "userId, postBody, pinCode required" }, { status: 400 });
+    }
+
+    const VALID_TYPES = new Set(['update','safety','lost','event','poll','sell','rwa_notice','sos','recommendation','outage','help_request']);
+    if (type && !VALID_TYPES.has(type)) {
+      return NextResponse.json({ error: "Invalid post type" }, { status: 400 });
     }
 
     // Moderation check
@@ -98,6 +103,8 @@ export async function POST(req: NextRequest) {
         societyId:  societyId ?? null,
         lat:        typeof lat === "number" ? lat : null,
         lng:        typeof lng === "number" ? lng : null,
+        meta:       meta ?? undefined,
+        expiresAt:  expiresAt ? new Date(expiresAt) : null,
         tags: tags?.length
           ? { create: (tags as string[]).map((tag: string) => ({ tag })) }
           : undefined,

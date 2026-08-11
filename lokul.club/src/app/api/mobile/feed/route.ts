@@ -20,9 +20,11 @@ export async function GET(req: NextRequest) {
     pinCode,
     status: "active",
     deletedAt: null,
+    // Hide expired help requests
+    OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }],
   };
 
-  const VALID_POST_TYPES = new Set(['update','safety','lost','event','poll','sell','rwa_notice','sos']);
+  const VALID_POST_TYPES = new Set(['update','safety','lost','event','poll','sell','rwa_notice','sos','recommendation','outage','help_request']);
   if (type && type !== 'all' && VALID_POST_TYPES.has(type)) {
     where.type = type;
   }
@@ -61,6 +63,8 @@ export async function GET(req: NextRequest) {
       createdAt:    p.createdAt,
       reactionCount: p._count.reactions,
       commentCount:  p._count.comments,
+      meta:         p.meta,
+      expiresAt:    p.expiresAt,
       author: p.author,
       media:  p.media.map((m) => ({ kind: m.kind, url: m.storageKey })),
       tags:   p.tags.map((t) => t.tag),

@@ -29,12 +29,35 @@ type PostTypeOption = {
 
 const POST_TYPES: PostTypeOption[] = [
   { id: 'update', label: 'Update', tone: 'neutral' },
+  { id: 'recommendation', label: 'Ask Neighbors', tone: 'brand' },
+  { id: 'outage', label: 'Outage', tone: 'warning' },
+  { id: 'help_request', label: 'Need Help', tone: 'danger' },
   { id: 'safety', label: 'Safety', tone: 'warning' },
   { id: 'lost', label: 'Lost / Found', tone: 'info' },
   { id: 'event', label: 'Event', tone: 'success' },
   { id: 'sell', label: 'Sell', tone: 'neutral' },
   { id: 'rwa_notice', label: 'RWA Notice', tone: 'brand' },
 ];
+
+const REC_CATEGORIES = ['Doctor', 'Maid', 'Cook', 'Tiffin', 'Tutor', 'Electrician', 'Plumber', 'Salon', 'Other'];
+const OUTAGE_KINDS = [
+  { id: 'power', label: '⚡ Power' },
+  { id: 'water', label: '💧 Water' },
+  { id: 'lift', label: '🛧 Lift' },
+  { id: 'internet', label: '📶 Internet' },
+  { id: 'other', label: '❗ Other' },
+];
+const HELP_EXPIRY = [
+  { id: '30m', label: '30 min', ms: 30 * 60 * 1000 },
+  { id: '2h', label: '2 hours', ms: 2 * 60 * 60 * 1000 },
+  { id: 'today', label: 'Today', ms: 24 * 60 * 60 * 1000 },
+];
+
+const BODY_PLACEHOLDER: Record<string, string> = {
+  recommendation: 'Who do you recommend? e.g. “Looking for a good paediatrician near Gate 2…”',
+  outage: 'What’s down and since when? e.g. “No water in Tower B since 7 AM”',
+  help_request: 'What do you need? e.g. “Need paracetamol urgently, can pay via UPI”',
+};
 
 const VISIBILITY: { key: string; label: string }[] = [
   { key: 'society', label: 'Society' },
@@ -54,6 +77,9 @@ export default function ComposeScreen() {
   const [locationTag, setLocationTag] = useState<string | null>(null);
   const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [locating, setLocating] = useState(false);
+  const [recCategory, setRecCategory] = useState<string | null>(null);
+  const [outageKind, setOutageKind] = useState<string | null>(null);
+  const [helpExpiry, setHelpExpiry] = useState('2h');
   const MAX = 2000;
 
   async function handleCamera() {
@@ -103,6 +129,14 @@ export default function ComposeScreen() {
     if (!body.trim() || !userId || !pinCode) return;
     setSubmitting(true);
     try {
+      let meta: Record<string, string> | undefined;
+      let expiresAt: string | undefined;
+      if (postType === 'recommendation' && recCategory) meta = { recCategory };
+      if (postType === 'outage') meta = { outageKind: outageKind ?? 'other' };
+      if (postType === 'help_request') {
+        const opt = HELP_EXPIRY.find((e) => e.id === helpExpiry) ?? HELP_EXPIRY[1];
+        expiresAt = new Date(Date.now() + opt.ms).toISOString();
+      }
       const res = await fetch(`${BASE}/api/mobile/posts`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -112,6 +146,8 @@ export default function ComposeScreen() {
           type: postType,
           visibility,
           pinCode,
+          meta,
+          expiresAt,
           media: mediaUri ? [mediaUri] : undefined,
           tags: locationTag ? [locationTag] : undefined,
           lat: coords?.lat,
@@ -177,11 +213,66 @@ export default function ComposeScreen() {
           </ScrollView>
         </VStack>
 
+        {/* Type-specific pickers */}
+        {postType === 'recommendation' && (
+          <VStack gap={2} style={{ marginTop: spacing[3] }}>
+            <Text variant="caption" style={{ color: colors.gray[500], fontWeight: '600' }}>LOOKING FOR</Text>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+              <HStack gap={2}>
+                {REC_CATEGORIES.map((c) => (
+                  <Pressable
+                    key={c}
+                    onPress={() => setRecCategory(recCategory === c ? null : c)}
+                    style={[styles.typeChip, recCategory === c && styles.typeChipActive]}
+                  >
+                    <Text variant="caption" style={{ fontWeight: '700', color: recCategory === c ? '#fff' : colors.surface.foreground }}>{c}</Text>
+                  </Pressable>
+                ))}
+              </HStack>
+            </ScrollView>
+          </VStack>
+        )}
+        {postType === 'outage' && (
+          <VStack gap={2} style={{ marginTop: spacing[3] }}>
+            <Text variant="caption" style={{ color: colors.gray[500], fontWeight: '600' }}>WHAT’S DOWN</Text>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+              <HStack gap={2}>
+                {OUTAGE_KINDS.map((k) => (
+                  <Pressable
+                    key={k.id}
+                    onPress={() => setOutageKind(k.id)}
+                    style={[styles.typeChip, outageKind === k.id && styles.typeChipActive]}
+                  >
+                    <Text variant="caption" style={{ fontWeight: '700', color: outageKind === k.id ? '#fff' : colors.surface.foreground }}>{k.label}</Text>
+                  </Pressable>
+                ))}
+              </HStack>
+            </ScrollView>
+          </VStack>
+        )}
+        {postType === 'help_request' && (
+          <VStack gap={2} style={{ marginTop: spacing[3] }}>
+            <Text variant="caption" style={{ color: colors.gray[500], fontWeight: '600' }}>NEEDED WITHIN</Text>
+            <HStack gap={2}>
+              {HELP_EXPIRY.map((e) => (
+                <Pressable
+                  key={e.id}
+                  onPress={() => setHelpExpiry(e.id)}
+                  style={[styles.typeChip, helpExpiry === e.id && styles.typeChipActive]}
+                >
+                  <Text variant="caption" style={{ fontWeight: '700', color: helpExpiry === e.id ? '#fff' : colors.surface.foreground }}>{e.label}</Text>
+                </Pressable>
+              ))}
+            </HStack>
+            <Text variant="caption" tone="secondary">The request disappears from the feed after this time.</Text>
+          </VStack>
+        )}
+
         {/* Body text */}
         <VStack gap={2} style={{ marginTop: spacing[4] }}>
           <TextInput
             style={styles.textArea}
-            placeholder="What's happening in your neighborhood?"
+            placeholder={BODY_PLACEHOLDER[postType] ?? "What's happening in your neighborhood?"}
             placeholderTextColor={colors.surface.textSecondary}
             multiline
             maxLength={MAX}

@@ -19,6 +19,7 @@ export async function GET(
       take: limit,
       include: {
         author: { select: { id: true, name: true, avatarUrl: true, kycTier: true } },
+        recommendedMerchant: { select: { id: true, name: true, category: true, ratingAvg: true, ratingCount: true } },
         replies: {
           where: { status: "active", deletedAt: null },
           orderBy: { createdAt: "asc" },
@@ -41,7 +42,7 @@ export async function POST(
 
   try {
     const body = await req.json();
-    const { userId, text, parentId } = body;
+    const { userId, text, parentId, recommendedMerchantId } = body;
 
     if (!userId || !text?.trim()) {
       return NextResponse.json({ error: "userId and text required" }, { status: 400 });
@@ -53,9 +54,11 @@ export async function POST(
         authorId: userId,
         body:     text.trim(),
         parentId: parentId ?? null,
+        recommendedMerchantId: recommendedMerchantId ?? null,
       },
       include: {
         author: { select: { id: true, name: true, avatarUrl: true, kycTier: true } },
+        recommendedMerchant: { select: { id: true, name: true, category: true, ratingAvg: true, ratingCount: true } },
       },
     });
 

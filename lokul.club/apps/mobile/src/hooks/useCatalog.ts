@@ -58,7 +58,8 @@ export function useCatalog(options: UseCatalogOptions = {}) {
       setLocation(coords);
       return coords;
     } catch (err) {
-      console.error('[useCatalog] Location error:', err);
+      // Handled: permission state drives the UI — warn keeps LogBox red-box away
+      console.warn('[useCatalog] Location error:', err);
       setLocationPermission('denied');
       return null;
     }
@@ -83,7 +84,7 @@ export function useCatalog(options: UseCatalogOptions = {}) {
 
       setNearbyMerchants(response.data);
     } catch (err) {
-      console.error('[useCatalog] Nearby fetch error:', err);
+      console.warn('[useCatalog] Nearby fetch error:', err);
       setError('Failed to load nearby merchants');
     } finally {
       setLoading(false);
@@ -109,7 +110,7 @@ export function useCatalog(options: UseCatalogOptions = {}) {
 
       setTrendingMerchants(response.data);
     } catch (err) {
-      console.error('[useCatalog] Trending fetch error:', err);
+      console.warn('[useCatalog] Trending fetch error:', err);
       setError('Failed to load trending merchants');
     } finally {
       setLoading(false);
@@ -136,7 +137,7 @@ export function useCatalog(options: UseCatalogOptions = {}) {
 
       setRecommendations(response.data);
     } catch (err) {
-      console.error('[useCatalog] Recommendations fetch error:', err);
+      console.warn('[useCatalog] Recommendations fetch error:', err);
       setError('Failed to load recommendations');
     } finally {
       setLoading(false);

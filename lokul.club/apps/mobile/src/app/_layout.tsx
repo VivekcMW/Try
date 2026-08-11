@@ -24,15 +24,19 @@ import '../i18n';
 // Keep the splash screen visible while we fetch resources
 SplashScreen.preventAutoHideAsync();
 
-// Suppress specific warnings in production (keep in dev for debugging)
+// Suppress noisy overlays: all in prod, expected dev noise in dev
 if (!__DEV__) {
   LogBox.ignoreAllLogs();
 } else {
-  // Suppress expected push notification errors in development (needs APNs entitlements)
   LogBox.ignoreLogs([
     '[PushToken]',
     'aps-environment',
     'expo-notifications',
+    // Handled network noise — screens show their own error states
+    '[useCatalog]',
+    'fetch failed',
+    'Network request failed',
+    'Could not connect to the server',
   ]);
 }
 
@@ -44,7 +48,6 @@ async function registerPushToken(userId: string) {
     const Device = await import('expo-device');
     if (!Device.isDevice) return;
     // Dynamically import to avoid crashing when expo-notifications is not linked
-    // @ts-expect-error: expo-notifications is optional and may not be installed
     const Notifications = await import('expo-notifications');
     const { status } = await Notifications.requestPermissionsAsync();
     if (status !== 'granted') return;

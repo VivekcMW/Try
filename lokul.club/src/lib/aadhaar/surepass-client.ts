@@ -24,7 +24,9 @@ class SurepassAadhaarClient implements AadhaarProvider {
   constructor(apiKey?: string, baseUrl?: string) {
     this.apiKey = apiKey || SUREPASS_CONFIG.apiKey
     this.baseUrl = baseUrl || SUREPASS_CONFIG.baseUrl
+  }
 
+  private ensureConfigured() {
     if (!this.apiKey) {
       throw new Error('Surepass API key is required')
     }
@@ -34,6 +36,7 @@ class SurepassAadhaarClient implements AadhaarProvider {
    * Send OTP to Aadhaar-linked mobile
    */
   async sendOTP(aadhaarNumber: string): Promise<AadhaarOTPResponse> {
+    this.ensureConfigured()
     // Validate Aadhaar number (12 digits)
     if (!/^\d{12}$/.test(aadhaarNumber)) {
       throw new Error('Invalid Aadhaar number format')

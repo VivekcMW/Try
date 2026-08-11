@@ -11,7 +11,7 @@ type AppointmentRow = {
   serviceLabel: string;
   scheduledAt: string;
   createdAt: string;
-  user: { id: string; name: string; phone: string };
+  user: { id: string; name: string; phone: string | null };
   merchant: { id: string; name: string };
 };
 

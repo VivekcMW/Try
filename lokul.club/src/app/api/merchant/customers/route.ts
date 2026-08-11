@@ -36,7 +36,7 @@ export async function GET() {
       {
         id: string;
         name: string;
-        phone: string;
+        phone: string | null;
         avatarUrl: string | null;
         kycTier: string;
         orderCount: number;

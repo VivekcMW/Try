@@ -39,7 +39,9 @@ export async function POST(req: NextRequest) {
       data:  { used: true },
     });
 
-    await prisma.otpVerification.create({ data: { phone, code, expiresAt } });
+    await prisma.otpVerification.create({
+      data: { phone, code, expiresAt, transactionId: crypto.randomUUID() },
+    });
 
     if (!isProd) {
       console.log(`[OTP] ${phone} → ${code}`);

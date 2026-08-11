@@ -9,7 +9,7 @@ export const metadata = { title: "Integrations | Lokul Admin" };
 
 export default async function IntegrationsPage() {
   const user = await getServerUser();
-  if ((session?.user as { role?: string } | undefined)?.role !== "admin") {
+  if ((user as { role?: string } | null)?.role !== "admin") {
     redirect("/admin/login");
   }
 

@@ -50,7 +50,7 @@ export async function GET(request: NextRequest) {
     const diglockerUser = await getDigiLockerUser(tokenData.access_token)
 
     // Create Supabase admin client
-    const supabase = createServerSupabaseClient()
+    const supabase = await createServerSupabaseClient()
 
     // Check if user with this DigiLocker ID already exists
     let supabaseUser: any
@@ -126,7 +126,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Set session cookie and redirect to home
-    const cookieStore = cookies()
+    const cookieStore = await cookies()
     
     // Store DigiLocker access token for document requests
     cookieStore.set('digilocker_token', tokenData.access_token, {

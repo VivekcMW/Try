@@ -14,7 +14,7 @@ type ListingRow = {
   ratingAvg: number;
   ratingCount: number;
   createdAt: string;
-  user: { id: string; name: string; phone: string; kycTier: string };
+  user: { id: string; name: string; phone: string | null; kycTier: string };
   _count: { orders: number; ratings: number };
 };
 

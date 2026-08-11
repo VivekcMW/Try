@@ -8,7 +8,7 @@ import { AdSlot } from '@/components/AdSlot';
 import { useWalletStore } from '@/store/walletStore';
 import { useOnboardingStore } from '@/store/onboardingStore';
 import { useCartStore } from '@/store/cartStore';
-import { DEMO_PROVIDERS } from '@/store/bookingStore';
+import { DEMO_PROVIDERS, type Provider } from '@/store/bookingStore';
 import { colors, fontSize, radius, shadows, spacing } from '@lokul/ui-tokens';
 
 const BASE = process.env.EXPO_PUBLIC_API_BASE ?? '';
@@ -406,6 +406,7 @@ export default function MerchantProfileScreen() {
   const totalCartItems = cartItems.reduce((sum, i) => sum + i.quantity, 0);
   const [merchant, setMerchant] = useState<ApiMerchant | null>(null);
   const [catalogItems, setCatalogItems] = useState<CatalogItem[]>([]);
+  const [staff, setStaff] = useState<Provider[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [loading,  setLoading]  = useState(true);
   const insets = useSafeAreaInsets();
@@ -444,6 +445,22 @@ export default function MerchantProfileScreen() {
   }, [id]);
 
   useEffect(() => { load(); }, [load]);
+
+  useEffect(() => {
+    if (!id) return;
+    let alive = true;
+    fetch(`${BASE}/api/mobile/merchants/${id}/staff`)
+      .then((r) => r.json())
+      .then((data: { items?: { id: string; name: string; role: string; rating?: number; years?: number }[] }) => {
+        if (!alive) return;
+        const items = (data.items ?? []).map((s) => ({
+          id: s.id, name: s.name, role: s.role, rating: s.rating ?? 0, years: s.years ?? 0,
+        }));
+        setStaff(items.length > 0 ? items : (DEMO_PROVIDERS[id] ?? []));
+      })
+      .catch(() => { if (alive) setStaff(DEMO_PROVIDERS[id] ?? []); });
+    return () => { alive = false; };
+  }, [id]);
 
   const messageShop = async () => {
     if (!userId) return;
@@ -595,7 +612,7 @@ export default function MerchantProfileScreen() {
         ) : (
           <View>
             {/* Team strip — stylists / doctors */}
-            {(DEMO_PROVIDERS[merchant.id] ?? []).length > 0 && (
+            {staff.length > 0 && (
               <View style={styles.teamSection}>
                 <Text style={styles.teamTitle}>Meet the team</Text>
                 <ScrollView
@@ -604,7 +621,7 @@ export default function MerchantProfileScreen() {
                   style={{ flexGrow: 0 }}
                   contentContainerStyle={{ gap: spacing[2.5], paddingRight: spacing[4] }}
                 >
-                  {(DEMO_PROVIDERS[merchant.id] ?? []).map((p) => (
+                  {staff.map((p) => (
                     <View key={p.id} style={styles.teamCard}>
                       <View style={styles.teamAvatar}>
                         <Text style={styles.teamInitial}>{p.name.replace('Dr. ', '').charAt(0)}</Text>

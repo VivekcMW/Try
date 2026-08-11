@@ -12,7 +12,7 @@ import { createServerSupabaseClient } from '@/lib/supabase/server'
 export async function POST(request: NextRequest) {
   try {
     // Get DigiLocker access token from cookie
-    const cookieStore = cookies()
+    const cookieStore = await cookies()
     const diglockerToken = cookieStore.get('digilocker_token')?.value
 
     if (!diglockerToken) {
@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
     )
 
     // Get current user
-    const supabase = createServerSupabaseClient()
+    const supabase = await createServerSupabaseClient()
     const { data: { session } } = await supabase.auth.getSession()
 
     if (!session) {
@@ -99,7 +99,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Get DigiLocker access token
-    const cookieStore = cookies()
+    const cookieStore = await cookies()
     const diglockerToken = cookieStore.get('digilocker_token')?.value
 
     if (!diglockerToken) {
@@ -113,7 +113,7 @@ export async function GET(request: NextRequest) {
     const document = await fetchDocument(diglockerToken, documentUri)
 
     // Get current user
-    const supabase = createServerSupabaseClient()
+    const supabase = await createServerSupabaseClient()
     const { data: { session } } = await supabase.auth.getSession()
 
     if (!session) {

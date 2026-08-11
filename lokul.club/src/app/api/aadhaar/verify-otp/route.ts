@@ -61,7 +61,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Update user record with Aadhaar verification
-    const supabase = createServerSupabaseClient()
+    const supabase = await createServerSupabaseClient()
     
     const { error: updateError } = await supabase
       .from('User')

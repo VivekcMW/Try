@@ -27,7 +27,9 @@ class APISetuAadhaarClient implements AadhaarProvider {
     this.clientId = clientId || API_SETU_CONFIG.clientId
     this.clientSecret = clientSecret || API_SETU_CONFIG.clientSecret
     this.baseUrl = baseUrl || API_SETU_CONFIG.baseUrl
+  }
 
+  private ensureConfigured() {
     if (!this.clientId || !this.clientSecret) {
       throw new Error('API Setu credentials are required')
     }
@@ -37,6 +39,7 @@ class APISetuAadhaarClient implements AadhaarProvider {
    * Get access token for API Setu
    */
   private async getAccessToken(): Promise<string> {
+    this.ensureConfigured()
     const response = await fetch(`${this.baseUrl}/oauth/token`, {
       method: 'POST',
       headers: {

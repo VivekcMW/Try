@@ -197,8 +197,8 @@ function OnboardingChecklist() {
           <Link
             key={item.id}
             href={item.href}
-            className="flex items-start gap-3 rounded-md p-3 transition"
-            style={{ background: "var(--color-surface)", ":hover": { background: "var(--color-warning-50)" } }}
+            className="flex items-start gap-3 rounded-md p-3 transition hover:bg-amber-50"
+            style={{ background: "var(--color-surface)" }}
           >
             <div className="mt-0.5 h-4 w-4 shrink-0 rounded-full border-2" style={{ borderColor: "var(--color-warning-400)" }} />
             <div>

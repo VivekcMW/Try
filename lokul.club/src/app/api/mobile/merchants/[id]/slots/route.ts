@@ -17,6 +17,7 @@ export async function GET(
   const { id: merchantId } = await params;
   const { searchParams }   = req.nextUrl;
   const date = searchParams.get("date");
+  const staffId = searchParams.get("staffId");
 
   if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
     return NextResponse.json({ error: "date (YYYY-MM-DD) required" }, { status: 400 });
@@ -28,7 +29,7 @@ export async function GET(
 
   try {
     const slots = await prisma.serviceSlot.findMany({
-      where: { merchantId, date },
+      where: { merchantId, date, ...(staffId ? { staffId } : {}) },
       orderBy: { startTime: "asc" },
     });
     return NextResponse.json({ slots });
@@ -53,7 +54,7 @@ export async function POST(
 
   try {
     const { slots } = await req.json() as {
-      slots: Array<{ date: string; startTime: string; endTime: string; capacity?: number }>;
+      slots: Array<{ date: string; startTime: string; endTime: string; capacity?: number; staffId?: string }>;
     };
 
     if (!Array.isArray(slots) || slots.length === 0) {
@@ -74,6 +75,7 @@ export async function POST(
         startTime: s.startTime,
         endTime:   s.endTime,
         capacity:  s.capacity ?? 1,
+        staffId:   s.staffId ?? null,
       })),
       skipDuplicates: true,
     });

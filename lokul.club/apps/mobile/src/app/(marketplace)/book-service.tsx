@@ -1,5 +1,5 @@
 // Unified service booking flow — slots (salon/clinic), windows (trades), site visits (projects)
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Alert, Image, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -8,7 +8,7 @@ import { ArrowLeft, Camera, Home as HomeIcon, MapPin, Star, Store, Zap } from 'l
 import { HStack, Text, VStack } from '@/components/ui';
 import { useCartStore } from '@/store/cartStore';
 import { useOnboardingStore } from '@/store/onboardingStore';
-import { useBookingStore, bookingKindForCategory, DEMO_PROVIDERS, type BookingKind } from '@/store/bookingStore';
+import { useBookingStore, bookingKindForCategory, DEMO_PROVIDERS, type BookingKind, type Provider } from '@/store/bookingStore';
 import { colors, fontSize, radius, spacing } from '@lokul/ui-tokens';
 
 const DAY_COUNT = 7;
@@ -122,7 +122,21 @@ export default function BookServiceScreen() {
   const [tiffinMeals, setTiffinMeals] = useState<string[]>(['Lunch']);
   const [consultMode, setConsultMode] = useState<'online' | 'office'>('online');
 
-  const providers = DEMO_PROVIDERS[merchantId] ?? [];
+  const [providers, setProviders] = useState<Provider[]>(DEMO_PROVIDERS[merchantId] ?? []);
+  useEffect(() => {
+    let alive = true;
+    fetch(`${process.env.EXPO_PUBLIC_API_BASE ?? ''}/api/mobile/merchants/${merchantId}/staff`)
+      .then((r) => r.json())
+      .then((data: { items?: { id: string; name: string; role: string; rating?: number; years?: number }[] }) => {
+        if (alive && data.items && data.items.length > 0) {
+          setProviders(data.items.map((s) => ({
+            id: s.id, name: s.name, role: s.role, rating: s.rating ?? 0, years: s.years ?? 0,
+          })));
+        }
+      })
+      .catch(() => {});
+    return () => { alive = false; };
+  }, [merchantId]);
   const selectedProvider = providers.find((p) => p.id === providerId) ?? null;
 
   const savedAddress = [flat, tower ? `Tower ${tower}` : null, societyName, city, pin].filter(Boolean).join(', ');
@@ -177,6 +191,7 @@ export default function BookServiceScreen() {
       locationType: isPet ? locationType : undefined,
       providerName: selectedProvider?.name,
       providerRole: selectedProvider?.role,
+      staffId: selectedProvider?.id,
       fromAddress: isMovers ? savedAddress : undefined,
       toAddress: isMovers ? toAddress.trim() : undefined,
       inventory: isMovers ? inventory ?? undefined : undefined,

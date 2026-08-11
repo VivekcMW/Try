@@ -11,7 +11,7 @@ const E2E = process.env.E2E_TEST === "1" || noRealDb;
 
 export type AdminUser = {
   id: string;
-  phone: string;
+  phone: string | null;
   name: string;
   role: string;
   status: string;
@@ -249,7 +249,7 @@ export async function getUsers({
     if (status) list = list.filter(u => u.status === status);
     if (search) {
       const s = search.toLowerCase();
-      list = list.filter(u => u.name.toLowerCase().includes(s) || u.phone.includes(s));
+      list = list.filter(u => u.name.toLowerCase().includes(s) || u.phone?.includes(s));
     }
     const start = (page - 1) * pageSize;
     return { users: list.slice(start, start + pageSize), total: list.length, pages: Math.max(1, Math.ceil(list.length / pageSize)) };
@@ -721,8 +721,8 @@ export async function globalAdminSearch(q: string): Promise<SearchResult[]> {
   if (E2E) {
     const results: SearchResult[] = [];
     const lq = q.toLowerCase();
-    FIXTURE_USERS.filter(u => u.name.toLowerCase().includes(lq) || u.phone.includes(lq))
-      .forEach(u => results.push({ kind: "User", id: u.id, label: u.name, sub: u.phone, href: `/admin/users?search=${encodeURIComponent(u.name)}` }));
+    FIXTURE_USERS.filter(u => u.name.toLowerCase().includes(lq) || u.phone?.includes(lq))
+      .forEach(u => results.push({ kind: "User", id: u.id, label: u.name, sub: u.phone ?? "", href: `/admin/users?search=${encodeURIComponent(u.name)}` }));
     FIXTURE_SOCIETIES.filter(s => s.name.toLowerCase().includes(lq) || s.pinCode.includes(lq))
       .forEach(s => results.push({ kind: "Society", id: s.id, label: s.name, sub: s.city, href: `/admin/societies?search=${encodeURIComponent(s.name)}` }));
     FIXTURE_MERCHANTS.filter(m => m.name.toLowerCase().includes(lq))
@@ -738,7 +738,7 @@ export async function globalAdminSearch(q: string): Promise<SearchResult[]> {
       select: { id: true, name: true, city: true } }),
   ]);
   return [
-    ...users.map(u => ({ kind: "User", id: u.id, label: u.name, sub: u.phone, href: `/admin/users?search=${encodeURIComponent(u.name)}` })),
+    ...users.map(u => ({ kind: "User", id: u.id, label: u.name, sub: u.phone ?? "", href: `/admin/users?search=${encodeURIComponent(u.name)}` })),
     ...societies.map(s => ({ kind: "Society", id: s.id, label: s.name, sub: s.city, href: `/admin/societies?search=${encodeURIComponent(s.name)}` })),
     ...merchants.map(m => ({ kind: "Merchant", id: m.id, label: m.name, sub: m.city, href: `/admin/merchants?search=${encodeURIComponent(m.name)}` })),
   ].slice(0, 8);
@@ -750,7 +750,7 @@ export async function globalAdminSearch(q: string): Promise<SearchResult[]> {
 
 export type AdminAppointment = {
   id: string; status: string; serviceLabel: string; scheduledAt: Date; createdAt: Date;
-  user: { id: string; name: string; phone: string };
+  user: { id: string; name: string; phone: string | null };
   merchant: { id: string; name: string };
 };
 
@@ -797,7 +797,7 @@ export async function getAppointments({
 export type AdminQuote = {
   id: string; status: string; serviceDescription: string; budgetPaise: number | null;
   quotedPaise: number | null; createdAt: Date;
-  user: { id: string; name: string; phone: string };
+  user: { id: string; name: string; phone: string | null };
   merchant: { id: string; name: string };
 };
 
@@ -892,7 +892,7 @@ export async function getSosIncidents({
 
 export type AdminSafetyContact = {
   id: string; name: string; phone: string; relation: string | null; createdAt: Date;
-  user: { id: string; name: string; phone: string };
+  user: { id: string; name: string; phone: string | null };
 };
 
 export async function getSafetyContacts({
@@ -928,7 +928,7 @@ export async function getSafetyContacts({
 export type AdminSafetyJourney = {
   id: string; destination: string; status: string; expectedArrival: Date;
   lastCheckInAt: Date | null; checkInIntervalMin: number; createdAt: Date;
-  user: { id: string; name: string; phone: string };
+  user: { id: string; name: string; phone: string | null };
 };
 
 export async function getSafetyJourneys({
@@ -968,7 +968,7 @@ export async function getSafetyJourneys({
 
 export type AdminVolunteer = {
   id: string; skills: string[]; pinCode: string; active: boolean; updatedAt: Date;
-  user: { id: string; name: string; phone: string };
+  user: { id: string; name: string; phone: string | null };
 };
 
 export async function getVolunteers({
@@ -1010,7 +1010,7 @@ export async function getVolunteers({
 export type AdminMedicalProfile = {
   id: string; bloodGroup: string | null; allergies: string[]; conditions: string[];
   medications: string[]; doctorPhone: string | null; updatedAt: Date;
-  user: { id: string; name: string; phone: string };
+  user: { id: string; name: string; phone: string | null };
 };
 
 export async function getMedicalProfiles({

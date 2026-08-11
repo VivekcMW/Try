@@ -17,7 +17,7 @@ type GroupBuyRow = {
   currentQty: number;
   closesAt: string;
   createdAt: string;
-  organizer: { id: string; name: string; phone: string };
+  organizer: { id: string; name: string; phone: string | null };
   _count: { commits: number };
 };
 

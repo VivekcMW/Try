@@ -318,6 +318,8 @@ model User {
   // Business hub
   appointments  Appointment[]  @relation("UserAppointments")
   quoteRequests QuoteRequest[] @relation("UserQuotes")
+  serviceBookings ServiceBooking[] @relation("UserServiceBookings")
+  radiusKm      Float?         // preferred discovery radius (home header pill)
 
   // Wallet
   walletBalancePaise  Int             @default(0)
@@ -763,6 +765,7 @@ model Merchant {
   businessLicense    String?            // Generic business license / reg number
   closedWeekdays     Json?              // e.g. [0,7] where 0=Sun,7=recurring holidays
   paymentMethods     Json?              // e.g. ["cash","upi","card"]
+  visitFeePaise      Int?               // Home-visit inspection fee (trades)
   createdAt          DateTime       @default(now())
   updatedAt          DateTime       @updatedAt
 
@@ -783,6 +786,10 @@ model Merchant {
   // Catalog feed system
   catalogActivity   UserCatalogActivity[]
   promotedListings  PromotedListing[]
+
+  // Service bookings
+  staff           MerchantStaff[]
+  serviceBookings ServiceBooking[]  @relation("MerchantServiceBookings")
 
   @@index([pinCode])
   @@index([city])
@@ -1819,6 +1826,7 @@ enum QuoteRequestStatus {
 model ServiceSlot {
   id         String   @id @default(cuid())
   merchantId String
+  staffId    String?  // per-provider capacity
   date       String // YYYY-MM-DD
   startTime  String // HH:MM (24h)
   endTime    String // HH:MM (24h)
@@ -1826,7 +1834,8 @@ model ServiceSlot {
   booked     Int      @default(0)
   createdAt  DateTime @default(now())
 
-  merchant     Merchant      @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+  merchant     Merchant       @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+  staff        MerchantStaff? @relation(fields: [staffId], references: [id], onDelete: SetNull)
   appointments Appointment[]
 
   @@index([merchantId, date])
@@ -3332,4 +3341,194 @@ model AdImpression {
   @@index([promotedListingId, action])
   @@index([userId])
   @@index([createdAt])
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SERVICE BOOKINGS — unified slot / home-visit window / project-quote flows
+// ─────────────────────────────────────────────────────────────────────────────
+
+enum BookingKind {
+  slot    // salon, clinic, pet care, tutors, consults — venue appointment
+  window  // trades / lab / laundry — provider comes in a time window
+  project // movers, painter, interior, events — site visit → quote → milestones
+}
+
+enum BookingStatus {
+  // shared
+  requested
+  cancelled
+  completed
+  // slot
+  confirmed
+  checked_in
+  // window
+  accepted
+  on_the_way
+  arrived
+  quote_pending
+  in_progress
+  work_done
+  // project
+  visit_scheduled
+  visit_done
+  quote_shared
+  quote_accepted
+  scheduled
+}
+
+// Real staff per merchant — stylists, doctors, groomers, technicians
+model MerchantStaff {
+  id         String   @id @default(cuid())
+  merchantId String
+  name       String
+  role       String   // "Senior Stylist" | "General Physician · MBBS, MD"
+  avatarUrl  String?
+  rating     Float?
+  years      Int?     // years of experience
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  merchant Merchant         @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+  slots    ServiceSlot[]
+  bookings ServiceBooking[]
+
+  @@index([merchantId, isActive])
+}
+
+model ServiceBooking {
+  id           String        @id @default(cuid())
+  customerId   String
+  merchantId   String
+  staffId      String?
+  kind         BookingKind
+  status       BookingStatus @default(requested)
+  category     String        // merchant category snapshot
+
+  // Scheduling
+  date         String        // YYYY-MM-DD
+  slotLabel    String        // '5:00 PM' | '12–3 PM' | '10:00 AM (site visit)'
+  slotId       String?       // optional link to ServiceSlot capacity
+
+  // Location
+  address      String?
+  locationType String?       // home | clinic
+  fromAddress  String?       // movers pickup
+  toAddress    String?       // movers drop
+
+  // Variant fields
+  bookingFor      String?
+  petName         String?
+  inventory       String?    // movers home-size preset
+  fastingRequired Boolean    @default(false)
+  roomCount       String?    // pest control sizing
+  recurrence      Json?      // { plan, meals? } for tiffin/fitness/tutor
+  consultMode     String?    // online | office
+  problem         String?
+  problemPhotoUrl String?
+  urgency         String?    // normal | emergency
+
+  // Money
+  visitFeePaise Int?
+  totalPaise    Int          @default(0)
+  advancePaise  Int?
+  advancePaid   Boolean      @default(false)
+
+  // Work verification
+  otp          String
+  cancellationReason String?
+  rating       Int?
+  review       String?
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  completedAt  DateTime?
+  cancelledAt  DateTime?
+
+  customer      User                    @relation("UserServiceBookings", fields: [customerId], references: [id])
+  merchant      Merchant                @relation("MerchantServiceBookings", fields: [merchantId], references: [id], onDelete: Cascade)
+  staff         MerchantStaff?          @relation(fields: [staffId], references: [id], onDelete: SetNull)
+  items         BookingItem[]
+  quotes        BookingQuote[]
+  milestones    BookingMilestone[]
+  legs          BookingLeg[]
+  statusHistory BookingStatusHistory[]
+
+  @@index([customerId, createdAt])
+  @@index([merchantId, status])
+  @@index([status])
+  @@index([date])
+}
+
+// Snapshot of services chosen at booking time
+model BookingItem {
+  id           String  @id @default(cuid())
+  bookingId    String
+  name         String
+  pricePaise   Int
+  durationMins Int?
+
+  booking ServiceBooking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  @@index([bookingId])
+}
+
+// On-site extra-work quotes AND full project quotes
+model BookingQuote {
+  id           String   @id @default(cuid())
+  bookingId    String
+  type         String   // onsite | project
+  label        String?  // onsite quote description
+  lineItems    Json?    // [{ label, pricePaise }] for project quotes
+  totalPaise   Int
+  counterPaise Int?     // customer counter-offer
+  status       String   @default("pending") // pending | approved | countered | accepted | declined
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  booking ServiceBooking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  @@index([bookingId])
+}
+
+model BookingMilestone {
+  id        String  @id @default(cuid())
+  bookingId String
+  label     String
+  sortOrder Int     @default(0)
+  done      Boolean @default(false)
+  doneAt    DateTime?
+
+  booking ServiceBooking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  @@index([bookingId])
+}
+
+// Laundry pickup/return legs (extensible to any two-leg service)
+model BookingLeg {
+  id        String   @id @default(cuid())
+  bookingId String
+  legType   String   // pickup | return
+  date      String   // YYYY-MM-DD
+  slotLabel String
+  status    String   @default("pending") // pending | done
+  doneAt    DateTime?
+
+  booking ServiceBooking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  @@index([bookingId])
+}
+
+model BookingStatusHistory {
+  id         String        @id @default(cuid())
+  bookingId  String
+  fromStatus BookingStatus?
+  toStatus   BookingStatus
+  changedBy  String        // userId
+  reason     String?
+  createdAt  DateTime      @default(now())
+
+  booking ServiceBooking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  @@index([bookingId])
 }

@@ -30,7 +30,7 @@ export async function POST(req: NextRequest) {
       let user = await prisma.user.findUnique({ where: { phone } });
       if (!user) {
         user = await prisma.user.create({
-          data: { phone, status: "active", role: "resident" },
+          data: { phone, name: "Neighbour", status: "active", role: "resident" },
         });
       }
       const token = sign({ userId: user.id, phone: user.phone }, JWT_SECRET, { expiresIn: "30d" });
@@ -65,7 +65,7 @@ export async function POST(req: NextRequest) {
     let user = await prisma.user.findUnique({ where: { phone } });
     if (!user) {
       user = await prisma.user.create({
-        data: { phone, status: "active", role: "resident" },
+        data: { phone, name: "Neighbour", status: "active", role: "resident" },
       });
     }
 

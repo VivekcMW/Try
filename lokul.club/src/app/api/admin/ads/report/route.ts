@@ -8,7 +8,7 @@ const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 
 export async function GET(req: NextRequest) {
   const user = await getServerUser();
-  if ((session?.user as { role?: string } | undefined)?.role !== "admin") {
+  if ((user as { role?: string } | null)?.role !== "admin") {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

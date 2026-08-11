@@ -9,9 +9,9 @@ const E2E = process.env.E2E_TEST === "1" || noRealDb;
 
 async function requireAdmin() {
   const user = await getServerUser();
-  const role = (session?.user as { role?: string } | undefined)?.role;
+  const role = (user as { role?: string } | null)?.role;
   if (role !== "admin") throw new Error("Unauthorized");
-  return session;
+  return user;
 }
 
 export async function takeModAction(formData: FormData) {

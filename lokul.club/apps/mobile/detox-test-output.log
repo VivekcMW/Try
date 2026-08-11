@@ -1,0 +1,923 @@
+
+> @lokul/mobile@0.1.0 test:e2e
+> detox test --configuration ios.sim.debug
+
+00:49:11.711 detox[70035] B jest --config e2e/jest.config.js
+FAIL e2e/catalog.test.ts
+  ● Test suite failed to run
+
+    [96me2e/catalog.test.ts[0m:[93m5[0m:[93m3[0m - [91merror[0m[90m TS2304: [0mCannot find name 'beforeAll'.
+
+    [7m5[0m   beforeAll(async () => {
+    [7m [0m [91m  ~~~~~~~~~[0m
+    [96me2e/catalog.test.ts[0m:[93m8[0m:[93m11[0m - [91merror[0m[90m TS2552: [0mCannot find name 'element'. Did you mean 'Element'?
+
+    [7m8[0m     await element(by.text('Discover')).tap();
+    [7m [0m [91m          ~~~~~~~[0m
+
+      [96mnode_modules/typescript/lib/lib.dom.d.ts[0m:[93m13921[0m:[93m13[0m
+        [7m13921[0m declare var Element: {
+        [7m     [0m [96m            ~~~~~~~[0m
+        'Element' is declared here.
+    [96me2e/catalog.test.ts[0m:[93m8[0m:[93m19[0m - [91merror[0m[90m TS2304: [0mCannot find name 'by'.
+
+    [7m8[0m     await element(by.text('Discover')).tap();
+    [7m [0m [91m                  ~~[0m
+    [96me2e/catalog.test.ts[0m:[93m13[0m:[93m20[0m - [91merror[0m[90m TS2552: [0mCannot find name 'element'. Did you mean 'Element'?
+
+    [7m13[0m       await expect(element(by.text('Nearby'))).toBeVisible();
+    [7m  [0m [91m                   ~~~~~~~[0m
+
+      [96mnode_modules/typescript/lib/lib.dom.d.ts[0m:[93m13921[0m:[93m13[0m
+        [7m13921[0m declare var Element: {
+        [7m     [0m [96m            ~~~~~~~[0m
+        'Element' is declared here.
+    [96me2e/catalog.test.ts[0m:[93m13[0m:[93m28[0m - [91merror[0m[90m TS2304: [0mCannot find name 'by'.
+
+    [7m13[0m       await expect(element(by.text('Nearby'))).toBeVisible();
+    [7m  [0m [91m                           ~~[0m
+    [96me2e/catalog.test.ts[0m:[93m13[0m:[93m48[0m - [91merror[0m[90m TS2339: [0mProperty 'toBeVisible' does not exist on type 'Matchers<void, any> & SnapshotMatchers<void, any> & Inverse<JestMatchers<void, any>> & PromiseMatchers<any>'.
+
+    [7m13[0m       await expect(element(by.text('Nearby'))).toBeVisible();
+    [7m  [0m [91m                                               ~~~~~~~~~~~[0m
+    [96me2e/catalog.test.ts[0m:[93m14[0m:[93m20[0m - [91merror[0m[90m TS2552: [0mCannot find name 'element'. Did you mean 'Element'?
+
+    [7m14[0m       await expect(element(by.text('Trending'))).toBeVisible();
+    [7m  [0m [91m                   ~~~~~~~[0m
+
+      [96mnode_modules/typescript/lib/lib.dom.d.ts[0m:[93m13921[0m:[93m13[0m
+        [7m13921[0m declare var Element: {
+        [7m     [0m [96m            ~~~~~~~[0m
+        'Element' is declared here.
+    [96me2e/catalog.test.ts[0m:[93m14[0m:[93m28[0m - [91merror[0m[90m TS2304: [0mCannot find name 'by'.
+
+    [7m14[0m       await expect(element(by.text('Trending'))).toBeVisible();
+    [7m  [0m [91m                           ~~[0m
+    [96me2e/catalog.test.ts[0m:[93m14[0m:[93m50[0m - [91merror[0m[90m TS2339: [0mProperty 'toBeVisible' does not exist on type 'Matchers<void, any> & SnapshotMatchers<void, any> & Inverse<JestMatchers<void, any>> & PromiseMatchers<any>'.
+
+    [7m14[0m       await expect(element(by.text('Trending'))).toBeVisible();
+    [7m  [0m [91m                                                 ~~~~~~~~~~~[0m
+    [96me2e/catalog.test.ts[0m:[93m15[0m:[93m20[0m - [91merror[0m[90m TS2552: [0mCannot find name 'element'. Did you mean 'Element'?
+
+    [7m15[0m       await expect(element(by.text('For You'))).toBeVisible();
+    [7m  [0m [91m                   ~~~~~~~[0m
+
+      [96mnode_modules/typescript/lib/lib.dom.d.ts[0m:[93m13921[0m:[93m13[0m
+        [7m13921[0m declare var Element: {
+        [7m     [0m [96m            ~~~~~~~[0m
+        'Element' is declared here.
+    [96me2e/catalog.test.ts[0m:[93m15[0m:[93m28[0m - [91merror[0m[90m TS2304: [0mCannot find name 'by'.
+
+    [7m15[0m       await expect(element(by.text('For You'))).toBeVisible();
+    [7m  [0m [91m                           ~~[0m
+    [96me2e/catalog.test.ts[0m:[93m15[0m:[93m49[0m - [91merror[0m[90m TS2339: [0mProperty 'toBeVisible' does not exist on type 'Matchers<void, any> & SnapshotMatchers<void, any> & Inverse<JestMatchers<void, any>> & PromiseMatchers<any>'.
+
+    [7m15[0m       await expect(element(by.text('For You'))).toBeVisible();
+    [7m  [0m [91m                                                ~~~~~~~~~~~[0m
+    [96me2e/catalog.test.ts[0m:[93m20[0m:[93m20[0m - [91merror[0m[90m TS2552: [0mCannot find name 'element'. Did you mean 'Element'?
+
+    [7m20[0m       await expect(element(by.text('Nearby'))).toBeVisible();
+    [7m  [0m [91m                   ~~~~~~~[0m
+
+      [96mnode_modules/typescript/lib/lib.dom.d.ts[0m:[93m13921[0m:[93m13[0m
+        [7m13921[0m declare var Element: {
+        [7m     [0m [96m            ~~~~~~~[0m
+        'Element' is declared here.
+    [96me2e/catalog.test.ts[0m:[93m20[0m:[93m28[0m - [91merror[0m[90m TS2304: [0mCannot find name 'by'.
+
+    [7m20[0m       await expect(element(by.text('Nearby'))).toBeVisible();
+    [7m  [0m [91m                           ~~[0m
+    [96me2e/catalog.test.ts[0m:[93m20[0m:[93m48[0m - [91merror[0m[90m TS2339: [0mProperty 'toBeVisible' does not exist on type 'Matchers<void, any> & SnapshotMatchers<void, any> & Inverse<JestMatchers<void, any>> & PromiseMatchers<any>'.
+
+    [7m20[0m       await expect(element(by.text('Nearby'))).toBeVisible();
+    [7m  [0m [91m                                               ~~~~~~~~~~~[0m
+    [96me2e/catalog.test.ts[0m:[93m24[0m:[93m13[0m - [91merror[0m[90m TS2304: [0mCannot find name 'element'.
+
+    [7m24[0m       await element(by.text('Trending')).tap();
+    [7m  [0m [91m            ~~~~~~~[0m
+    [96me2e/catalog.test.ts[0m:[93m24[0m:[93m21[0m - [91merror[0m[90m TS2304: [0mCannot find name 'by'.
+
+    [7m24[0m       await element(by.text('Trending')).tap();
+    [7m  [0m [91m                    ~~[0m
+    [96me2e/catalog.test.ts[0m:[93m25[0m:[93m20[0m - [91merror[0m[90m TS2304: [0mCannot find name 'element'.
+
+    [7m25[0m       await expect(element(by.text('Trending'))).toBeVisible();
+    [7m  [0m [91m                   ~~~~~~~[0m
+    [96me2e/catalog.test.ts[0m:[93m25[0m:[93m28[0m - [91merror[0m[90m TS2304: [0mCannot find name 'by'.
+
+    [7m25[0m       await expect(element(by.text('Trending'))).toBeVisible();
+    [7m  [0m [91m                           ~~[0m
+    [96me2e/catalog.test.ts[0m:[93m25[0m:[93m50[0m - [91merror[0m[90m TS2339: [0mProperty 'toBeVisible' does not exist on type 'Matchers<void, any> & SnapshotMatchers<void, any> & Inverse<JestMatchers<void, any>> & PromiseMatchers<any>'.
+
+    [7m25[0m       await expect(element(by.text('Trending'))).toBeVisible();
+    [7m  [0m [91m                                                 ~~~~~~~~~~~[0m
+    [96me2e/catalog.test.ts[0m:[93m29[0m:[93m13[0m - [91merror[0m[90m TS2304: [0mCannot find name 'element'.
+
+    [7m29[0m       await element(by.text('For You')).tap();
+    [7m  [0m [91m            ~~~~~~~[0m
+    [96me2e/catalog.test.ts[0m:[93m29[0m:[93m21[0m - [91merror[0m[90m TS2304: [0mCannot find name 'by'.
+
+    [7m29[0m       await element(by.text('For You')).tap();
+    [7m  [0m [91m                    ~~[0m
+    [96me2e/catalog.test.ts[0m:[93m30[0m:[93m20[0m - [91merror[0m[90m TS2304: [0mCannot find name 'element'.
+
+    [7m30[0m       await expect(element(by.text('For You'))).toBeVisible();
+    [7m  [0m [91m                   ~~~~~~~[0m
+    [96me2e/catalog.test.ts[0m:[93m30[0m:[93m28[0m - [91merror[0m[90m TS2304: [0mCannot find name 'by'.
+
+    [7m30[0m       await expect(element(by.text('For You'))).toBeVisible();
+    [7m  [0m [91m                           ~~[0m
+    [96me2e/catalog.test.ts[0m:[93m30[0m:[93m49[0m - [91merror[0m[90m TS2339: [0mProperty 'toBeVisible' does not exist on type 'Matchers<void, any> & SnapshotMatchers<void, any> & Inverse<JestMatchers<void, any>> & PromiseMatchers<any>'.
+
+    [7m30[0m       await expect(element(by.text('For You'))).toBeVisible();
+    [7m  [0m [91m                                                ~~~~~~~~~~~[0m
+    [96me2e/catalog.test.ts[0m:[93m34[0m:[93m13[0m - [91merror[0m[90m TS2304: [0mCannot find name 'element'.
+
+    [7m34[0m       await element(by.text('Nearby')).tap();
+    [7m  [0m [91m            ~~~~~~~[0m
+    [96me2e/catalog.test.ts[0m:[93m34[0m:[93m21[0m - [91merror[0m[90m TS2304: [0mCannot find name 'by'.
+
+    [7m34[0m       await element(by.text('Nearby')).tap();
+    [7m  [0m [91m                    ~~[0m
+    [96me2e/catalog.test.ts[0m:[93m35[0m:[93m20[0m - [91merror[0m[90m TS2304: [0mCannot find name 'element'.
+
+    [7m35[0m       await expect(element(by.text('Nearby'))).toBeVisible();
+    [7m  [0m [91m                   ~~~~~~~[0m
+    [96me2e/catalog.test.ts[0m:[93m35[0m:[93m28[0m - [91merror[0m[90m TS2304: [0mCannot find name 'by'.
+
+    [7m35[0m       await expect(element(by.text('Nearby'))).toBeVisible();
+    [7m  [0m [91m                           ~~[0m
+    [96me2e/catalog.test.ts[0m:[93m35[0m:[93m48[0m - [91merror[0m[90m TS2339: [0mProperty 'toBeVisible' does not exist on type 'Matchers<void, any> & SnapshotMatchers<void, any> & Inverse<JestMatchers<void, any>> & PromiseMatchers<any>'.
+
+    [7m35[0m       await expect(element(by.text('Nearby'))).toBeVisible();
+    [7m  [0m [91m                                               ~~~~~~~~~~~[0m
+    [96me2e/catalog.test.ts[0m:[93m42[0m:[93m20[0m - [91merror[0m[90m TS2304: [0mCannot find name 'element'.
+
+    [7m42[0m       await expect(element(by.text('Nearby'))).toBeVisible();
+    [7m  [0m [91m                   ~~~~~~~[0m
+    [96me2e/catalog.test.ts[0m:[93m42[0m:[93m28[0m - [91merror[0m[90m TS2304: [0mCannot find name 'by'.
+
+    [7m42[0m       await expect(element(by.text('Nearby'))).toBeVisible();
+    [7m  [0m [91m                           ~~[0m
+    [96me2e/catalog.test.ts[0m:[93m42[0m:[93m48[0m - [91merror[0m[90m TS2339: [0mProperty 'toBeVisible' does not exist on type 'Matchers<void, any> & SnapshotMatchers<void, any> & Inverse<JestMatchers<void, any>> & PromiseMatchers<any>'.
+
+    [7m42[0m       await expect(element(by.text('Nearby'))).toBeVisible();
+    [7m  [0m [91m                                               ~~~~~~~~~~~[0m
+    [96me2e/catalog.test.ts[0m:[93m43[0m:[93m20[0m - [91merror[0m[90m TS2304: [0mCannot find name 'element'.
+
+    [7m43[0m       await expect(element(by.text('Trending'))).toBeVisible();
+    [7m  [0m [91m                   ~~~~~~~[0m
+    [96me2e/catalog.test.ts[0m:[93m43[0m:[93m28[0m - [91merror[0m[90m TS2304: [0mCannot find name 'by'.
+
+    [7m43[0m       await expect(element(by.text('Trending'))).toBeVisible();
+    [7m  [0m [91m                           ~~[0m
+    [96me2e/catalog.test.ts[0m:[93m43[0m:[93m50[0m - [91merror[0m[90m TS2339: [0mProperty 'toBeVisible' does not exist on type 'Matchers<void, any> & SnapshotMatchers<void, any> & Inverse<JestMatchers<void, any>> & PromiseMatchers<any>'.
+
+    [7m43[0m       await expect(element(by.text('Trending'))).toBeVisible();
+    [7m  [0m [91m                                                 ~~~~~~~~~~~[0m
+    [96me2e/catalog.test.ts[0m:[93m50[0m:[93m20[0m - [91merror[0m[90m TS2304: [0mCannot find name 'element'.
+
+    [7m50[0m       await expect(element(by.text('Nearby'))).toBeVisible();
+    [7m  [0m [91m                   ~~~~~~~[0m
+    [96me2e/catalog.test.ts[0m:[93m50[0m:[93m28[0m - [91merror[0m[90m TS2304: [0mCannot find name 'by'.
+
+    [7m50[0m       await expect(element(by.text('Nearby'))).toBeVisible();
+    [7m  [0m [91m                           ~~[0m
+    [96me2e/catalog.test.ts[0m:[93m50[0m:[93m48[0m - [91merror[0m[90m TS2339: [0mProperty 'toBeVisible' does not exist on type 'Matchers<void, any> & SnapshotMatchers<void, any> & Inverse<JestMatchers<void, any>> & PromiseMatchers<any>'.
+
+    [7m50[0m       await expect(element(by.text('Nearby'))).toBeVisible();
+    [7m  [0m [91m                                               ~~~~~~~~~~~[0m
+    [96me2e/catalog.test.ts[0m:[93m56[0m:[93m20[0m - [91merror[0m[90m TS2304: [0mCannot find name 'element'.
+
+    [7m56[0m       await expect(element(by.text('All'))).toBeVisible();
+    [7m  [0m [91m                   ~~~~~~~[0m
+    [96me2e/catalog.test.ts[0m:[93m56[0m:[93m28[0m - [91merror[0m[90m TS2304: [0mCannot find name 'by'.
+
+    [7m56[0m       await expect(element(by.text('All'))).toBeVisible();
+    [7m  [0m [91m                           ~~[0m
+    [96me2e/catalog.test.ts[0m:[93m56[0m:[93m45[0m - [91merror[0m[90m TS2339: [0mProperty 'toBeVisible' does not exist on type 'Matchers<void, any> & SnapshotMatchers<void, any> & Inverse<JestMatchers<void, any>> & PromiseMatchers<any>'.
+
+    [7m56[0m       await expect(element(by.text('All'))).toBeVisible();
+    [7m  [0m [91m                                            ~~~~~~~~~~~[0m
+    [96me2e/catalog.test.ts[0m:[93m57[0m:[93m20[0m - [91merror[0m[90m TS2304: [0mCannot find name 'element'.
+
+    [7m57[0m       await expect(element(by.text('Food'))).toBeVisible();
+    [7m  [0m [91m                   ~~~~~~~[0m
+    [96me2e/catalog.test.ts[0m:[93m57[0m:[93m28[0m - [91merror[0m[90m TS2304: [0mCannot find name 'by'.
+
+    [7m57[0m       await expect(element(by.text('Food'))).toBeVisible();
+    [7m  [0m [91m                           ~~[0m
+    [96me2e/catalog.test.ts[0m:[93m57[0m:[93m46[0m - [91merror[0m[90m TS2339: [0mProperty 'toBeVisible' does not exist on type 'Matchers<void, any> & SnapshotMatchers<void, any> & Inverse<JestMatchers<void, any>> & PromiseMatchers<any>'.
+
+    [7m57[0m       await expect(element(by.text('Food'))).toBeVisible();
+    [7m  [0m [91m                                             ~~~~~~~~~~~[0m
+    [96me2e/catalog.test.ts[0m:[93m58[0m:[93m20[0m - [91merror[0m[90m TS2304: [0mCannot find name 'element'.
+
+    [7m58[0m       await expect(element(by.text('Grocery'))).toBeVisible();
+    [7m  [0m [91m                   ~~~~~~~[0m
+    [96me2e/catalog.test.ts[0m:[93m58[0m:[93m28[0m - [91merror[0m[90m TS2304: [0mCannot find name 'by'.
+
+    [7m58[0m       await expect(element(by.text('Grocery'))).toBeVisible();
+    [7m  [0m [91m                           ~~[0m
+    [96me2e/catalog.test.ts[0m:[93m58[0m:[93m49[0m - [91merror[0m[90m TS2339: [0mProperty 'toBeVisible' does not exist on type 'Matchers<void, any> & SnapshotMatchers<void, any> & Inverse<JestMatchers<void, any>> & PromiseMatchers<any>'.
+
+    [7m58[0m       await expect(element(by.text('Grocery'))).toBeVisible();
+    [7m  [0m [91m                                                ~~~~~~~~~~~[0m
+    [96me2e/catalog.test.ts[0m:[93m59[0m:[93m20[0m - [91merror[0m[90m TS2304: [0mCannot find name 'element'.
+
+    [7m59[0m       await expect(element(by.text('Pharmacy'))).toBeVisible();
+    [7m  [0m [91m                   ~~~~~~~[0m
+    [96me2e/catalog.test.ts[0m:[93m59[0m:[93m28[0m - [91merror[0m[90m TS2304: [0mCannot find name 'by'.
+
+    [7m59[0m       await expect(element(by.text('Pharmacy'))).toBeVisible();
+    [7m  [0m [91m                           ~~[0m
+    [96me2e/catalog.test.ts[0m:[93m59[0m:[93m50[0m - [91merror[0m[90m TS2339: [0mProperty 'toBeVisible' does not exist on type 'Matchers<void, any> & SnapshotMatchers<void, any> & Inverse<JestMatchers<void, any>> & PromiseMatchers<any>'.
+
+    [7m59[0m       await expect(element(by.text('Pharmacy'))).toBeVisible();
+    [7m  [0m [91m                                                 ~~~~~~~~~~~[0m
+    [96me2e/catalog.test.ts[0m:[93m63[0m:[93m20[0m - [91merror[0m[90m TS2304: [0mCannot find name 'element'.
+
+    [7m63[0m       await expect(element(by.text('All'))).toBeVisible();
+    [7m  [0m [91m                   ~~~~~~~[0m
+    [96me2e/catalog.test.ts[0m:[93m63[0m:[93m28[0m - [91merror[0m[90m TS2304: [0mCannot find name 'by'.
+
+    [7m63[0m       await expect(element(by.text('All'))).toBeVisible();
+    [7m  [0m [91m                           ~~[0m
+    [96me2e/catalog.test.ts[0m:[93m63[0m:[93m45[0m - [91merror[0m[90m TS2339: [0mProperty 'toBeVisible' does not exist on type 'Matchers<void, any> & SnapshotMatchers<void, any> & Inverse<JestMatchers<void, any>> & PromiseMatchers<any>'.
+
+    [7m63[0m       await expect(element(by.text('All'))).toBeVisible();
+    [7m  [0m [91m                                            ~~~~~~~~~~~[0m
+    [96me2e/catalog.test.ts[0m:[93m67[0m:[93m13[0m - [91merror[0m[90m TS2304: [0mCannot find name 'element'.
+
+    [7m67[0m       await element(by.text('Food')).tap();
+    [7m  [0m [91m            ~~~~~~~[0m
+    [96me2e/catalog.test.ts[0m:[93m67[0m:[93m21[0m - [91merror[0m[90m TS2304: [0mCannot find name 'by'.
+
+    [7m67[0m       await element(by.text('Food')).tap();
+    [7m  [0m [91m                    ~~[0m
+    [96me2e/catalog.test.ts[0m:[93m68[0m:[93m13[0m - [91merror[0m[90m TS2304: [0mCannot find name 'waitFor'.
+
+    [7m68[0m       await waitFor(element(by.text('Food'))).toBeVisible().withTimeout(2000);
+    [7m  [0m [91m            ~~~~~~~[0m
+    [96me2e/catalog.test.ts[0m:[93m68[0m:[93m21[0m - [91merror[0m[90m TS2304: [0mCannot find name 'element'.
+
+    [7m68[0m       await waitFor(element(by.text('Food'))).toBeVisible().withTimeout(2000);
+    [7m  [0m [91m                    ~~~~~~~[0m
+    [96me2e/catalog.test.ts[0m:[93m68[0m:[93m29[0m - [91merror[0m[90m TS2304: [0mCannot find name 'by'.
+
+    [7m68[0m       await waitFor(element(by.text('Food'))).toBeVisible().withTimeout(2000);
+    [7m  [0m [91m                            ~~[0m
+    [96me2e/catalog.test.ts[0m:[93m71[0m:[93m13[0m - [91merror[0m[90m TS2304: [0mCannot find name 'element'.
+
+    [7m71[0m       await element(by.text('All')).tap();
+    [7m  [0m [91m            ~~~~~~~[0m
+    [96me2e/catalog.test.ts[0m:[93m71[0m:[93m21[0m - [91merror[0m[90m TS2304: [0mCannot find name 'by'.
+
+    [7m71[0m       await element(by.text('All')).tap();
+    [7m  [0m [91m                    ~~[0m
+    [96me2e/catalog.test.ts[0m:[93m72[0m:[93m13[0m - [91merror[0m[90m TS2304: [0mCannot find name 'waitFor'.
+
+    [7m72[0m       await waitFor(element(by.text('All'))).toBeVisible().withTimeout(2000);
+    [7m  [0m [91m            ~~~~~~~[0m
+    [96me2e/catalog.test.ts[0m:[93m72[0m:[93m21[0m - [91merror[0m[90m TS2304: [0mCannot find name 'element'.
+
+    [7m72[0m       await waitFor(element(by.text('All'))).toBeVisible().withTimeout(2000);
+    [7m  [0m [91m                    ~~~~~~~[0m
+    [96me2e/catalog.test.ts[0m:[93m72[0m:[93m29[0m - [91merror[0m[90m TS2304: [0mCannot find name 'by'.
+
+    [7m72[0m       await waitFor(element(by.text('All'))).toBeVisible().withTimeout(2000);
+    [7m  [0m [91m                            ~~[0m
+    [96me2e/catalog.test.ts[0m:[93m77[0m:[93m13[0m - [91merror[0m[90m TS2304: [0mCannot find name 'element'.
+
+    [7m77[0m       await element(by.text('Pets')).swipe('left', 'fast', 0.5);
+    [7m  [0m [91m            ~~~~~~~[0m
+    [96me2e/catalog.test.ts[0m:[93m77[0m:[93m21[0m - [91merror[0m[90m TS2304: [0mCannot find name 'by'.
+
+    [7m77[0m       await element(by.text('Pets')).swipe('left', 'fast', 0.5);
+    [7m  [0m [91m                    ~~[0m
+    [96me2e/catalog.test.ts[0m:[93m83[0m:[93m20[0m - [91merror[0m[90m TS2304: [0mCannot find name 'element'.
+
+    [7m83[0m       await expect(element(by.text('Discover'))).toBeVisible();
+    [7m  [0m [91m                   ~~~~~~~[0m
+    [96me2e/catalog.test.ts[0m:[93m83[0m:[93m28[0m - [91merror[0m[90m TS2304: [0mCannot find name 'by'.
+
+    [7m83[0m       await expect(element(by.text('Discover'))).toBeVisible();
+    [7m  [0m [91m                           ~~[0m
+    [96me2e/catalog.test.ts[0m:[93m83[0m:[93m50[0m - [91merror[0m[90m TS2339: [0mProperty 'toBeVisible' does not exist on type 'Matchers<void, any> & SnapshotMatchers<void, any> & Inverse<JestMatchers<void, any>> & PromiseMatchers<any>'.
+
+    [7m83[0m       await expect(element(by.text('Discover'))).toBeVisible();
+    [7m  [0m [91m                                                 ~~~~~~~~~~~[0m
+    [96me2e/catalog.test.ts[0m:[93m88[0m:[93m20[0m - [91merror[0m[90m TS2304: [0mCannot find name 'element'.
+
+    [7m88[0m       await expect(element(by.id('location-text'))).toExist();
+    [7m  [0m [91m                   ~~~~~~~[0m
+    [96me2e/catalog.test.ts[0m:[93m88[0m:[93m28[0m - [91merror[0m[90m TS2304: [0mCannot find name 'by'.
+
+    [7m88[0m       await expect(element(by.id('location-text'))).toExist();
+    [7m  [0m [91m                           ~~[0m
+    [96me2e/catalog.test.ts[0m:[93m88[0m:[93m53[0m - [91merror[0m[90m TS2339: [0mProperty 'toExist' does not exist on type 'Matchers<void, any> & SnapshotMatchers<void, any> & Inverse<JestMatchers<void, any>> & PromiseMatchers<any>'.
+
+    [7m88[0m       await expect(element(by.id('location-text'))).toExist();
+    [7m  [0m [91m                                                    ~~~~~~~[0m
+    [96me2e/catalog.test.ts[0m:[93m92[0m:[93m20[0m - [91merror[0m[90m TS2304: [0mCannot find name 'element'.
+
+    [7m92[0m       await expect(element(by.id('filter-button'))).toExist();
+    [7m  [0m [91m                   ~~~~~~~[0m
+    [96me2e/catalog.test.ts[0m:[93m92[0m:[93m28[0m - [91merror[0m[90m TS2304: [0mCannot find name 'by'.
+
+    [7m92[0m       await expect(element(by.id('filter-button'))).toExist();
+    [7m  [0m [91m                           ~~[0m
+    [96me2e/catalog.test.ts[0m:[93m92[0m:[93m53[0m - [91merror[0m[90m TS2339: [0mProperty 'toExist' does not exist on type 'Matchers<void, any> & SnapshotMatchers<void, any> & Inverse<JestMatchers<void, any>> & PromiseMatchers<any>'.
+
+    [7m92[0m       await expect(element(by.id('filter-button'))).toExist();
+    [7m  [0m [91m                                                    ~~~~~~~[0m
+    [96me2e/catalog.test.ts[0m:[93m98[0m:[93m20[0m - [91merror[0m[90m TS2304: [0mCannot find name 'element'.
+
+    [7m98[0m       await expect(element(by.text('No merchants found in this area'))).toBeVisible();
+    [7m  [0m [91m                   ~~~~~~~[0m
+    [96me2e/catalog.test.ts[0m:[93m98[0m:[93m28[0m - [91merror[0m[90m TS2304: [0mCannot find name 'by'.
+
+    [7m98[0m       await expect(element(by.text('No merchants found in this area'))).toBeVisible();
+    [7m  [0m [91m                           ~~[0m
+    [96me2e/catalog.test.ts[0m:[93m98[0m:[93m73[0m - [91merror[0m[90m TS2339: [0mProperty 'toBeVisible' does not exist on type 'Matchers<void, any> & SnapshotMatchers<void, any> & Inverse<JestMatchers<void, any>> & PromiseMatchers<any>'.
+
+    [7m98[0m       await expect(element(by.text('No merchants found in this area'))).toBeVisible();
+    [7m  [0m [91m                                                                        ~~~~~~~~~~~[0m
+
+FAIL e2e/navigation.test.ts
+  ● Test suite failed to run
+
+    [96me2e/navigation.test.ts[0m:[93m7[0m:[93m20[0m - [91merror[0m[90m TS2552: [0mCannot find name 'element'. Did you mean 'Element'?
+
+    [7m7[0m       await expect(element(by.text('Home'))).toBeVisible();
+    [7m [0m [91m                   ~~~~~~~[0m
+
+      [96mnode_modules/typescript/lib/lib.dom.d.ts[0m:[93m13921[0m:[93m13[0m
+        [7m13921[0m declare var Element: {
+        [7m     [0m [96m            ~~~~~~~[0m
+        'Element' is declared here.
+    [96me2e/navigation.test.ts[0m:[93m7[0m:[93m28[0m - [91merror[0m[90m TS2304: [0mCannot find name 'by'.
+
+    [7m7[0m       await expect(element(by.text('Home'))).toBeVisible();
+    [7m [0m [91m                           ~~[0m
+    [96me2e/navigation.test.ts[0m:[93m7[0m:[93m46[0m - [91merror[0m[90m TS2339: [0mProperty 'toBeVisible' does not exist on type 'Matchers<void, any> & SnapshotMatchers<void, any> & Inverse<JestMatchers<void, any>> & PromiseMatchers<any>'.
+
+    [7m7[0m       await expect(element(by.text('Home'))).toBeVisible();
+    [7m [0m [91m                                             ~~~~~~~~~~~[0m
+    [96me2e/navigation.test.ts[0m:[93m8[0m:[93m20[0m - [91merror[0m[90m TS2552: [0mCannot find name 'element'. Did you mean 'Element'?
+
+    [7m8[0m       await expect(element(by.text('Discover'))).toBeVisible();
+    [7m [0m [91m                   ~~~~~~~[0m
+
+      [96mnode_modules/typescript/lib/lib.dom.d.ts[0m:[93m13921[0m:[93m13[0m
+        [7m13921[0m declare var Element: {
+        [7m     [0m [96m            ~~~~~~~[0m
+        'Element' is declared here.
+    [96me2e/navigation.test.ts[0m:[93m8[0m:[93m28[0m - [91merror[0m[90m TS2304: [0mCannot find name 'by'.
+
+    [7m8[0m       await expect(element(by.text('Discover'))).toBeVisible();
+    [7m [0m [91m                           ~~[0m
+    [96me2e/navigation.test.ts[0m:[93m8[0m:[93m50[0m - [91merror[0m[90m TS2339: [0mProperty 'toBeVisible' does not exist on type 'Matchers<void, any> & SnapshotMatchers<void, any> & Inverse<JestMatchers<void, any>> & PromiseMatchers<any>'.
+
+    [7m8[0m       await expect(element(by.text('Discover'))).toBeVisible();
+    [7m [0m [91m                                                 ~~~~~~~~~~~[0m
+    [96me2e/navigation.test.ts[0m:[93m9[0m:[93m20[0m - [91merror[0m[90m TS2552: [0mCannot find name 'element'. Did you mean 'Element'?
+
+    [7m9[0m       await expect(element(by.text('Create'))).toBeVisible();
+    [7m [0m [91m                   ~~~~~~~[0m
+
+      [96mnode_modules/typescript/lib/lib.dom.d.ts[0m:[93m13921[0m:[93m13[0m
+        [7m13921[0m declare var Element: {
+        [7m     [0m [96m            ~~~~~~~[0m
+        'Element' is declared here.
+    [96me2e/navigation.test.ts[0m:[93m9[0m:[93m28[0m - [91merror[0m[90m TS2304: [0mCannot find name 'by'.
+
+    [7m9[0m       await expect(element(by.text('Create'))).toBeVisible();
+    [7m [0m [91m                           ~~[0m
+    [96me2e/navigation.test.ts[0m:[93m9[0m:[93m48[0m - [91merror[0m[90m TS2339: [0mProperty 'toBeVisible' does not exist on type 'Matchers<void, any> & SnapshotMatchers<void, any> & Inverse<JestMatchers<void, any>> & PromiseMatchers<any>'.
+
+    [7m9[0m       await expect(element(by.text('Create'))).toBeVisible();
+    [7m [0m [91m                                               ~~~~~~~~~~~[0m
+    [96me2e/navigation.test.ts[0m:[93m10[0m:[93m20[0m - [91merror[0m[90m TS2552: [0mCannot find name 'element'. Did you mean 'Element'?
+
+    [7m10[0m       await expect(element(by.text('Chats'))).toBeVisible();
+    [7m  [0m [91m                   ~~~~~~~[0m
+
+      [96mnode_modules/typescript/lib/lib.dom.d.ts[0m:[93m13921[0m:[93m13[0m
+        [7m13921[0m declare var Element: {
+        [7m     [0m [96m            ~~~~~~~[0m
+        'Element' is declared here.
+    [96me2e/navigation.test.ts[0m:[93m10[0m:[93m28[0m - [91merror[0m[90m TS2304: [0mCannot find name 'by'.
+
+    [7m10[0m       await expect(element(by.text('Chats'))).toBeVisible();
+    [7m  [0m [91m                           ~~[0m
+    [96me2e/navigation.test.ts[0m:[93m10[0m:[93m47[0m - [91merror[0m[90m TS2339: [0mProperty 'toBeVisible' does not exist on type 'Matchers<void, any> & SnapshotMatchers<void, any> & Inverse<JestMatchers<void, any>> & PromiseMatchers<any>'.
+
+    [7m10[0m       await expect(element(by.text('Chats'))).toBeVisible();
+    [7m  [0m [91m                                              ~~~~~~~~~~~[0m
+    [96me2e/navigation.test.ts[0m:[93m11[0m:[93m20[0m - [91merror[0m[90m TS2552: [0mCannot find name 'element'. Did you mean 'Element'?
+
+    [7m11[0m       await expect(element(by.text('Profile'))).toBeVisible();
+    [7m  [0m [91m                   ~~~~~~~[0m
+
+      [96mnode_modules/typescript/lib/lib.dom.d.ts[0m:[93m13921[0m:[93m13[0m
+        [7m13921[0m declare var Element: {
+        [7m     [0m [96m            ~~~~~~~[0m
+        'Element' is declared here.
+    [96me2e/navigation.test.ts[0m:[93m11[0m:[93m28[0m - [91merror[0m[90m TS2304: [0mCannot find name 'by'.
+
+    [7m11[0m       await expect(element(by.text('Profile'))).toBeVisible();
+    [7m  [0m [91m                           ~~[0m
+    [96me2e/navigation.test.ts[0m:[93m11[0m:[93m49[0m - [91merror[0m[90m TS2339: [0mProperty 'toBeVisible' does not exist on type 'Matchers<void, any> & SnapshotMatchers<void, any> & Inverse<JestMatchers<void, any>> & PromiseMatchers<any>'.
+
+    [7m11[0m       await expect(element(by.text('Profile'))).toBeVisible();
+    [7m  [0m [91m                                                ~~~~~~~~~~~[0m
+    [96me2e/navigation.test.ts[0m:[93m15[0m:[93m13[0m - [91merror[0m[90m TS2304: [0mCannot find name 'element'.
+
+    [7m15[0m       await element(by.text('Home')).tap();
+    [7m  [0m [91m            ~~~~~~~[0m
+    [96me2e/navigation.test.ts[0m:[93m15[0m:[93m21[0m - [91merror[0m[90m TS2304: [0mCannot find name 'by'.
+
+    [7m15[0m       await element(by.text('Home')).tap();
+    [7m  [0m [91m                    ~~[0m
+    [96me2e/navigation.test.ts[0m:[93m16[0m:[93m13[0m - [91merror[0m[90m TS2304: [0mCannot find name 'waitFor'.
+
+    [7m16[0m       await waitFor(element(by.id('home-screen'))).toBeVisible().withTimeout(3000);
+    [7m  [0m [91m            ~~~~~~~[0m
+    [96me2e/navigation.test.ts[0m:[93m16[0m:[93m21[0m - [91merror[0m[90m TS2304: [0mCannot find name 'element'.
+
+    [7m16[0m       await waitFor(element(by.id('home-screen'))).toBeVisible().withTimeout(3000);
+    [7m  [0m [91m                    ~~~~~~~[0m
+    [96me2e/navigation.test.ts[0m:[93m16[0m:[93m29[0m - [91merror[0m[90m TS2304: [0mCannot find name 'by'.
+
+    [7m16[0m       await waitFor(element(by.id('home-screen'))).toBeVisible().withTimeout(3000);
+    [7m  [0m [91m                            ~~[0m
+    [96me2e/navigation.test.ts[0m:[93m20[0m:[93m13[0m - [91merror[0m[90m TS2304: [0mCannot find name 'element'.
+
+    [7m20[0m       await element(by.text('Discover')).tap();
+    [7m  [0m [91m            ~~~~~~~[0m
+    [96me2e/navigation.test.ts[0m:[93m20[0m:[93m21[0m - [91merror[0m[90m TS2304: [0mCannot find name 'by'.
+
+    [7m20[0m       await element(by.text('Discover')).tap();
+    [7m  [0m [91m                    ~~[0m
+    [96me2e/navigation.test.ts[0m:[93m21[0m:[93m13[0m - [91merror[0m[90m TS2304: [0mCannot find name 'waitFor'.
+
+    [7m21[0m       await waitFor(element(by.text('Nearby'))).toBeVisible().withTimeout(3000);
+    [7m  [0m [91m            ~~~~~~~[0m
+    [96me2e/navigation.test.ts[0m:[93m21[0m:[93m21[0m - [91merror[0m[90m TS2304: [0mCannot find name 'element'.
+
+    [7m21[0m       await waitFor(element(by.text('Nearby'))).toBeVisible().withTimeout(3000);
+    [7m  [0m [91m                    ~~~~~~~[0m
+    [96me2e/navigation.test.ts[0m:[93m21[0m:[93m29[0m - [91merror[0m[90m TS2304: [0mCannot find name 'by'.
+
+    [7m21[0m       await waitFor(element(by.text('Nearby'))).toBeVisible().withTimeout(3000);
+    [7m  [0m [91m                            ~~[0m
+    [96me2e/navigation.test.ts[0m:[93m25[0m:[93m13[0m - [91merror[0m[90m TS2304: [0mCannot find name 'element'.
+
+    [7m25[0m       await element(by.text('Create')).tap();
+    [7m  [0m [91m            ~~~~~~~[0m
+    [96me2e/navigation.test.ts[0m:[93m25[0m:[93m21[0m - [91merror[0m[90m TS2304: [0mCannot find name 'by'.
+
+    [7m25[0m       await element(by.text('Create')).tap();
+    [7m  [0m [91m                    ~~[0m
+    [96me2e/navigation.test.ts[0m:[93m26[0m:[93m13[0m - [91merror[0m[90m TS2304: [0mCannot find name 'waitFor'.
+
+    [7m26[0m       await waitFor(element(by.id('create-screen'))).toBeVisible().withTimeout(3000);
+    [7m  [0m [91m            ~~~~~~~[0m
+    [96me2e/navigation.test.ts[0m:[93m26[0m:[93m21[0m - [91merror[0m[90m TS2304: [0mCannot find name 'element'.
+
+    [7m26[0m       await waitFor(element(by.id('create-screen'))).toBeVisible().withTimeout(3000);
+    [7m  [0m [91m                    ~~~~~~~[0m
+    [96me2e/navigation.test.ts[0m:[93m26[0m:[93m29[0m - [91merror[0m[90m TS2304: [0mCannot find name 'by'.
+
+    [7m26[0m       await waitFor(element(by.id('create-screen'))).toBeVisible().withTimeout(3000);
+    [7m  [0m [91m                            ~~[0m
+    [96me2e/navigation.test.ts[0m:[93m30[0m:[93m13[0m - [91merror[0m[90m TS2304: [0mCannot find name 'element'.
+
+    [7m30[0m       await element(by.text('Chats')).tap();
+    [7m  [0m [91m            ~~~~~~~[0m
+    [96me2e/navigation.test.ts[0m:[93m30[0m:[93m21[0m - [91merror[0m[90m TS2304: [0mCannot find name 'by'.
+
+    [7m30[0m       await element(by.text('Chats')).tap();
+    [7m  [0m [91m                    ~~[0m
+    [96me2e/navigation.test.ts[0m:[93m31[0m:[93m13[0m - [91merror[0m[90m TS2304: [0mCannot find name 'waitFor'.
+
+    [7m31[0m       await waitFor(element(by.id('chats-screen'))).toBeVisible().withTimeout(3000);
+    [7m  [0m [91m            ~~~~~~~[0m
+    [96me2e/navigation.test.ts[0m:[93m31[0m:[93m21[0m - [91merror[0m[90m TS2304: [0mCannot find name 'element'.
+
+    [7m31[0m       await waitFor(element(by.id('chats-screen'))).toBeVisible().withTimeout(3000);
+    [7m  [0m [91m                    ~~~~~~~[0m
+    [96me2e/navigation.test.ts[0m:[93m31[0m:[93m29[0m - [91merror[0m[90m TS2304: [0mCannot find name 'by'.
+
+    [7m31[0m       await waitFor(element(by.id('chats-screen'))).toBeVisible().withTimeout(3000);
+    [7m  [0m [91m                            ~~[0m
+    [96me2e/navigation.test.ts[0m:[93m35[0m:[93m13[0m - [91merror[0m[90m TS2304: [0mCannot find name 'element'.
+
+    [7m35[0m       await element(by.text('Profile')).tap();
+    [7m  [0m [91m            ~~~~~~~[0m
+    [96me2e/navigation.test.ts[0m:[93m35[0m:[93m21[0m - [91merror[0m[90m TS2304: [0mCannot find name 'by'.
+
+    [7m35[0m       await element(by.text('Profile')).tap();
+    [7m  [0m [91m                    ~~[0m
+    [96me2e/navigation.test.ts[0m:[93m36[0m:[93m13[0m - [91merror[0m[90m TS2304: [0mCannot find name 'waitFor'.
+
+    [7m36[0m       await waitFor(element(by.id('profile-screen'))).toBeVisible().withTimeout(3000);
+    [7m  [0m [91m            ~~~~~~~[0m
+    [96me2e/navigation.test.ts[0m:[93m36[0m:[93m21[0m - [91merror[0m[90m TS2304: [0mCannot find name 'element'.
+
+    [7m36[0m       await waitFor(element(by.id('profile-screen'))).toBeVisible().withTimeout(3000);
+    [7m  [0m [91m                    ~~~~~~~[0m
+    [96me2e/navigation.test.ts[0m:[93m36[0m:[93m29[0m - [91merror[0m[90m TS2304: [0mCannot find name 'by'.
+
+    [7m36[0m       await waitFor(element(by.id('profile-screen'))).toBeVisible().withTimeout(3000);
+    [7m  [0m [91m                            ~~[0m
+    [96me2e/navigation.test.ts[0m:[93m43[0m:[93m13[0m - [91merror[0m[90m TS2304: [0mCannot find name 'element'.
+
+    [7m43[0m       await element(by.text('Discover')).tap();
+    [7m  [0m [91m            ~~~~~~~[0m
+    [96me2e/navigation.test.ts[0m:[93m43[0m:[93m21[0m - [91merror[0m[90m TS2304: [0mCannot find name 'by'.
+
+    [7m43[0m       await element(by.text('Discover')).tap();
+    [7m  [0m [91m                    ~~[0m
+    [96me2e/navigation.test.ts[0m:[93m44[0m:[93m13[0m - [91merror[0m[90m TS2304: [0mCannot find name 'element'.
+
+    [7m44[0m       await element(by.text('Trending')).tap();
+    [7m  [0m [91m            ~~~~~~~[0m
+    [96me2e/navigation.test.ts[0m:[93m44[0m:[93m21[0m - [91merror[0m[90m TS2304: [0mCannot find name 'by'.
+
+    [7m44[0m       await element(by.text('Trending')).tap();
+    [7m  [0m [91m                    ~~[0m
+    [96me2e/navigation.test.ts[0m:[93m47[0m:[93m13[0m - [91merror[0m[90m TS2304: [0mCannot find name 'element'.
+
+    [7m47[0m       await element(by.text('Home')).tap();
+    [7m  [0m [91m            ~~~~~~~[0m
+    [96me2e/navigation.test.ts[0m:[93m47[0m:[93m21[0m - [91merror[0m[90m TS2304: [0mCannot find name 'by'.
+
+    [7m47[0m       await element(by.text('Home')).tap();
+    [7m  [0m [91m                    ~~[0m
+    [96me2e/navigation.test.ts[0m:[93m48[0m:[93m13[0m - [91merror[0m[90m TS2304: [0mCannot find name 'element'.
+
+    [7m48[0m       await element(by.text('Discover')).tap();
+    [7m  [0m [91m            ~~~~~~~[0m
+    [96me2e/navigation.test.ts[0m:[93m48[0m:[93m21[0m - [91merror[0m[90m TS2304: [0mCannot find name 'by'.
+
+    [7m48[0m       await element(by.text('Discover')).tap();
+    [7m  [0m [91m                    ~~[0m
+    [96me2e/navigation.test.ts[0m:[93m51[0m:[93m20[0m - [91merror[0m[90m TS2304: [0mCannot find name 'element'.
+
+    [7m51[0m       await expect(element(by.text('Trending'))).toBeVisible();
+    [7m  [0m [91m                   ~~~~~~~[0m
+    [96me2e/navigation.test.ts[0m:[93m51[0m:[93m28[0m - [91merror[0m[90m TS2304: [0mCannot find name 'by'.
+
+    [7m51[0m       await expect(element(by.text('Trending'))).toBeVisible();
+    [7m  [0m [91m                           ~~[0m
+    [96me2e/navigation.test.ts[0m:[93m51[0m:[93m50[0m - [91merror[0m[90m TS2339: [0mProperty 'toBeVisible' does not exist on type 'Matchers<void, any> & SnapshotMatchers<void, any> & Inverse<JestMatchers<void, any>> & PromiseMatchers<any>'.
+
+    [7m51[0m       await expect(element(by.text('Trending'))).toBeVisible();
+    [7m  [0m [91m                                                 ~~~~~~~~~~~[0m
+    [96me2e/navigation.test.ts[0m:[93m58[0m:[93m13[0m - [91merror[0m[90m TS2304: [0mCannot find name 'element'.
+
+    [7m58[0m       await element(by.text('Home')).tap();
+    [7m  [0m [91m            ~~~~~~~[0m
+    [96me2e/navigation.test.ts[0m:[93m58[0m:[93m21[0m - [91merror[0m[90m TS2304: [0mCannot find name 'by'.
+
+    [7m58[0m       await element(by.text('Home')).tap();
+    [7m  [0m [91m                    ~~[0m
+
+FAIL e2e/home-feed.test.ts
+  ● Test suite failed to run
+
+    [96me2e/home-feed.test.ts[0m:[93m5[0m:[93m3[0m - [91merror[0m[90m TS2304: [0mCannot find name 'beforeAll'.
+
+    [7m5[0m   beforeAll(async () => {
+    [7m [0m [91m  ~~~~~~~~~[0m
+    [96me2e/home-feed.test.ts[0m:[93m7[0m:[93m11[0m - [91merror[0m[90m TS2552: [0mCannot find name 'element'. Did you mean 'Element'?
+
+    [7m7[0m     await element(by.text('Home')).tap();
+    [7m [0m [91m          ~~~~~~~[0m
+
+      [96mnode_modules/typescript/lib/lib.dom.d.ts[0m:[93m13921[0m:[93m13[0m
+        [7m13921[0m declare var Element: {
+        [7m     [0m [96m            ~~~~~~~[0m
+        'Element' is declared here.
+    [96me2e/home-feed.test.ts[0m:[93m7[0m:[93m19[0m - [91merror[0m[90m TS2304: [0mCannot find name 'by'.
+
+    [7m7[0m     await element(by.text('Home')).tap();
+    [7m [0m [91m                  ~~[0m
+    [96me2e/home-feed.test.ts[0m:[93m12[0m:[93m20[0m - [91merror[0m[90m TS2552: [0mCannot find name 'element'. Did you mean 'Element'?
+
+    [7m12[0m       await expect(element(by.id('home-screen'))).toBeVisible();
+    [7m  [0m [91m                   ~~~~~~~[0m
+
+      [96mnode_modules/typescript/lib/lib.dom.d.ts[0m:[93m13921[0m:[93m13[0m
+        [7m13921[0m declare var Element: {
+        [7m     [0m [96m            ~~~~~~~[0m
+        'Element' is declared here.
+    [96me2e/home-feed.test.ts[0m:[93m12[0m:[93m28[0m - [91merror[0m[90m TS2304: [0mCannot find name 'by'.
+
+    [7m12[0m       await expect(element(by.id('home-screen'))).toBeVisible();
+    [7m  [0m [91m                           ~~[0m
+    [96me2e/home-feed.test.ts[0m:[93m12[0m:[93m51[0m - [91merror[0m[90m TS2339: [0mProperty 'toBeVisible' does not exist on type 'Matchers<void, any> & SnapshotMatchers<void, any> & Inverse<JestMatchers<void, any>> & PromiseMatchers<any>'.
+
+    [7m12[0m       await expect(element(by.id('home-screen'))).toBeVisible();
+    [7m  [0m [91m                                                  ~~~~~~~~~~~[0m
+    [96me2e/home-feed.test.ts[0m:[93m16[0m:[93m20[0m - [91merror[0m[90m TS2552: [0mCannot find name 'element'. Did you mean 'Element'?
+
+    [7m16[0m       await expect(element(by.id('stories-row'))).toExist();
+    [7m  [0m [91m                   ~~~~~~~[0m
+
+      [96mnode_modules/typescript/lib/lib.dom.d.ts[0m:[93m13921[0m:[93m13[0m
+        [7m13921[0m declare var Element: {
+        [7m     [0m [96m            ~~~~~~~[0m
+        'Element' is declared here.
+    [96me2e/home-feed.test.ts[0m:[93m16[0m:[93m28[0m - [91merror[0m[90m TS2304: [0mCannot find name 'by'.
+
+    [7m16[0m       await expect(element(by.id('stories-row'))).toExist();
+    [7m  [0m [91m                           ~~[0m
+    [96me2e/home-feed.test.ts[0m:[93m16[0m:[93m51[0m - [91merror[0m[90m TS2339: [0mProperty 'toExist' does not exist on type 'Matchers<void, any> & SnapshotMatchers<void, any> & Inverse<JestMatchers<void, any>> & PromiseMatchers<any>'.
+
+    [7m16[0m       await expect(element(by.id('stories-row'))).toExist();
+    [7m  [0m [91m                                                  ~~~~~~~[0m
+    [96me2e/home-feed.test.ts[0m:[93m21[0m:[93m20[0m - [91merror[0m[90m TS2552: [0mCannot find name 'element'. Did you mean 'Element'?
+
+    [7m21[0m       await expect(element(by.id('feed-list'))).toExist();
+    [7m  [0m [91m                   ~~~~~~~[0m
+
+      [96mnode_modules/typescript/lib/lib.dom.d.ts[0m:[93m13921[0m:[93m13[0m
+        [7m13921[0m declare var Element: {
+        [7m     [0m [96m            ~~~~~~~[0m
+        'Element' is declared here.
+    [96me2e/home-feed.test.ts[0m:[93m21[0m:[93m28[0m - [91merror[0m[90m TS2304: [0mCannot find name 'by'.
+
+    [7m21[0m       await expect(element(by.id('feed-list'))).toExist();
+    [7m  [0m [91m                           ~~[0m
+    [96me2e/home-feed.test.ts[0m:[93m21[0m:[93m49[0m - [91merror[0m[90m TS2339: [0mProperty 'toExist' does not exist on type 'Matchers<void, any> & SnapshotMatchers<void, any> & Inverse<JestMatchers<void, any>> & PromiseMatchers<any>'.
+
+    [7m21[0m       await expect(element(by.id('feed-list'))).toExist();
+    [7m  [0m [91m                                                ~~~~~~~[0m
+    [96me2e/home-feed.test.ts[0m:[93m25[0m:[93m13[0m - [91merror[0m[90m TS2552: [0mCannot find name 'element'. Did you mean 'Element'?
+
+    [7m25[0m       await element(by.id('feed-list')).scroll(300, 'down');
+    [7m  [0m [91m            ~~~~~~~[0m
+
+      [96mnode_modules/typescript/lib/lib.dom.d.ts[0m:[93m13921[0m:[93m13[0m
+        [7m13921[0m declare var Element: {
+        [7m     [0m [96m            ~~~~~~~[0m
+        'Element' is declared here.
+    [96me2e/home-feed.test.ts[0m:[93m25[0m:[93m21[0m - [91merror[0m[90m TS2304: [0mCannot find name 'by'.
+
+    [7m25[0m       await element(by.id('feed-list')).scroll(300, 'down');
+    [7m  [0m [91m                    ~~[0m
+    [96me2e/home-feed.test.ts[0m:[93m26[0m:[93m13[0m - [91merror[0m[90m TS2304: [0mCannot find name 'element'.
+
+    [7m26[0m       await element(by.id('feed-list')).scroll(300, 'up');
+    [7m  [0m [91m            ~~~~~~~[0m
+    [96me2e/home-feed.test.ts[0m:[93m26[0m:[93m21[0m - [91merror[0m[90m TS2304: [0mCannot find name 'by'.
+
+    [7m26[0m       await element(by.id('feed-list')).scroll(300, 'up');
+    [7m  [0m [91m                    ~~[0m
+    [96me2e/home-feed.test.ts[0m:[93m33[0m:[93m20[0m - [91merror[0m[90m TS2304: [0mCannot find name 'element'.
+
+    [7m33[0m       await expect(element(by.id('feed-list'))).toBeVisible();
+    [7m  [0m [91m                   ~~~~~~~[0m
+    [96me2e/home-feed.test.ts[0m:[93m33[0m:[93m28[0m - [91merror[0m[90m TS2304: [0mCannot find name 'by'.
+
+    [7m33[0m       await expect(element(by.id('feed-list'))).toBeVisible();
+    [7m  [0m [91m                           ~~[0m
+    [96me2e/home-feed.test.ts[0m:[93m33[0m:[93m49[0m - [91merror[0m[90m TS2339: [0mProperty 'toBeVisible' does not exist on type 'Matchers<void, any> & SnapshotMatchers<void, any> & Inverse<JestMatchers<void, any>> & PromiseMatchers<any>'.
+
+    [7m33[0m       await expect(element(by.id('feed-list'))).toBeVisible();
+    [7m  [0m [91m                                                ~~~~~~~~~~~[0m
+    [96me2e/home-feed.test.ts[0m:[93m66[0m:[93m13[0m - [91merror[0m[90m TS2304: [0mCannot find name 'element'.
+
+    [7m66[0m       await element(by.id('feed-list')).swipe('down', 'slow', 0.9);
+    [7m  [0m [91m            ~~~~~~~[0m
+    [96me2e/home-feed.test.ts[0m:[93m66[0m:[93m21[0m - [91merror[0m[90m TS2304: [0mCannot find name 'by'.
+
+    [7m66[0m       await element(by.id('feed-list')).swipe('down', 'slow', 0.9);
+    [7m  [0m [91m                    ~~[0m
+    [96me2e/home-feed.test.ts[0m:[93m68[0m:[93m13[0m - [91merror[0m[90m TS2304: [0mCannot find name 'waitFor'.
+
+    [7m68[0m       await waitFor(element(by.id('feed-list'))).toBeVisible().withTimeout(5000);
+    [7m  [0m [91m            ~~~~~~~[0m
+    [96me2e/home-feed.test.ts[0m:[93m68[0m:[93m21[0m - [91merror[0m[90m TS2304: [0mCannot find name 'element'.
+
+    [7m68[0m       await waitFor(element(by.id('feed-list'))).toBeVisible().withTimeout(5000);
+    [7m  [0m [91m                    ~~~~~~~[0m
+    [96me2e/home-feed.test.ts[0m:[93m68[0m:[93m29[0m - [91merror[0m[90m TS2304: [0mCannot find name 'by'.
+
+    [7m68[0m       await waitFor(element(by.id('feed-list'))).toBeVisible().withTimeout(5000);
+    [7m  [0m [91m                            ~~[0m
+    [96me2e/home-feed.test.ts[0m:[93m75[0m:[93m20[0m - [91merror[0m[90m TS2304: [0mCannot find name 'element'.
+
+    [7m75[0m       await expect(element(by.text('Kumar Sienna'))).toExist();
+    [7m  [0m [91m                   ~~~~~~~[0m
+    [96me2e/home-feed.test.ts[0m:[93m75[0m:[93m28[0m - [91merror[0m[90m TS2304: [0mCannot find name 'by'.
+
+    [7m75[0m       await expect(element(by.text('Kumar Sienna'))).toExist();
+    [7m  [0m [91m                           ~~[0m
+    [96me2e/home-feed.test.ts[0m:[93m75[0m:[93m54[0m - [91merror[0m[90m TS2339: [0mProperty 'toExist' does not exist on type 'Matchers<void, any> & SnapshotMatchers<void, any> & Inverse<JestMatchers<void, any>> & PromiseMatchers<any>'.
+
+    [7m75[0m       await expect(element(by.text('Kumar Sienna'))).toExist();
+    [7m  [0m [91m                                                     ~~~~~~~[0m
+    [96me2e/home-feed.test.ts[0m:[93m80[0m:[93m20[0m - [91merror[0m[90m TS2304: [0mCannot find name 'element'.
+
+    [7m80[0m       await expect(element(by.id('tier-badge'))).toExist();
+    [7m  [0m [91m                   ~~~~~~~[0m
+    [96me2e/home-feed.test.ts[0m:[93m80[0m:[93m28[0m - [91merror[0m[90m TS2304: [0mCannot find name 'by'.
+
+    [7m80[0m       await expect(element(by.id('tier-badge'))).toExist();
+    [7m  [0m [91m                           ~~[0m
+    [96me2e/home-feed.test.ts[0m:[93m80[0m:[93m50[0m - [91merror[0m[90m TS2339: [0mProperty 'toExist' does not exist on type 'Matchers<void, any> & SnapshotMatchers<void, any> & Inverse<JestMatchers<void, any>> & PromiseMatchers<any>'.
+
+    [7m80[0m       await expect(element(by.id('tier-badge'))).toExist();
+    [7m  [0m [91m                                                 ~~~~~~~[0m
+
+FAIL e2e/onboarding.test.ts
+  ● Test suite failed to run
+
+    [96me2e/onboarding.test.ts[0m:[93m4[0m:[93m3[0m - [91merror[0m[90m TS2304: [0mCannot find name 'beforeAll'.
+
+    [7m4[0m   beforeAll(async () => {
+    [7m [0m [91m  ~~~~~~~~~[0m
+    [96me2e/onboarding.test.ts[0m:[93m5[0m:[93m11[0m - [91merror[0m[90m TS2304: [0mCannot find name 'device'.
+
+    [7m5[0m     await device.launchApp({
+    [7m [0m [91m          ~~~~~~[0m
+    [96me2e/onboarding.test.ts[0m:[93m13[0m:[93m20[0m - [91merror[0m[90m TS2552: [0mCannot find name 'element'. Did you mean 'Element'?
+
+    [7m13[0m       await expect(element(by.id('splash-screen'))).toBeVisible();
+    [7m  [0m [91m                   ~~~~~~~[0m
+
+      [96mnode_modules/typescript/lib/lib.dom.d.ts[0m:[93m13921[0m:[93m13[0m
+        [7m13921[0m declare var Element: {
+        [7m     [0m [96m            ~~~~~~~[0m
+        'Element' is declared here.
+    [96me2e/onboarding.test.ts[0m:[93m13[0m:[93m28[0m - [91merror[0m[90m TS2304: [0mCannot find name 'by'.
+
+    [7m13[0m       await expect(element(by.id('splash-screen'))).toBeVisible();
+    [7m  [0m [91m                           ~~[0m
+    [96me2e/onboarding.test.ts[0m:[93m13[0m:[93m53[0m - [91merror[0m[90m TS2339: [0mProperty 'toBeVisible' does not exist on type 'Matchers<void, any> & SnapshotMatchers<void, any> & Inverse<JestMatchers<void, any>> & PromiseMatchers<any>'.
+
+    [7m13[0m       await expect(element(by.id('splash-screen'))).toBeVisible();
+    [7m  [0m [91m                                                    ~~~~~~~~~~~[0m
+    [96me2e/onboarding.test.ts[0m:[93m20[0m:[93m13[0m - [91merror[0m[90m TS2304: [0mCannot find name 'waitFor'.
+
+    [7m20[0m       await waitFor(element(by.id('email-login-screen')))
+    [7m  [0m [91m            ~~~~~~~[0m
+    [96me2e/onboarding.test.ts[0m:[93m20[0m:[93m21[0m - [91merror[0m[90m TS2552: [0mCannot find name 'element'. Did you mean 'Element'?
+
+    [7m20[0m       await waitFor(element(by.id('email-login-screen')))
+    [7m  [0m [91m                    ~~~~~~~[0m
+
+      [96mnode_modules/typescript/lib/lib.dom.d.ts[0m:[93m13921[0m:[93m13[0m
+        [7m13921[0m declare var Element: {
+        [7m     [0m [96m            ~~~~~~~[0m
+        'Element' is declared here.
+    [96me2e/onboarding.test.ts[0m:[93m20[0m:[93m29[0m - [91merror[0m[90m TS2304: [0mCannot find name 'by'.
+
+    [7m20[0m       await waitFor(element(by.id('email-login-screen')))
+    [7m  [0m [91m                            ~~[0m
+    [96me2e/onboarding.test.ts[0m:[93m26[0m:[93m20[0m - [91merror[0m[90m TS2552: [0mCannot find name 'element'. Did you mean 'Element'?
+
+    [7m26[0m       await expect(element(by.id('email-input'))).toBeVisible();
+    [7m  [0m [91m                   ~~~~~~~[0m
+
+      [96mnode_modules/typescript/lib/lib.dom.d.ts[0m:[93m13921[0m:[93m13[0m
+        [7m13921[0m declare var Element: {
+        [7m     [0m [96m            ~~~~~~~[0m
+        'Element' is declared here.
+    [96me2e/onboarding.test.ts[0m:[93m26[0m:[93m28[0m - [91merror[0m[90m TS2304: [0mCannot find name 'by'.
+
+    [7m26[0m       await expect(element(by.id('email-input'))).toBeVisible();
+    [7m  [0m [91m                           ~~[0m
+    [96me2e/onboarding.test.ts[0m:[93m26[0m:[93m51[0m - [91merror[0m[90m TS2339: [0mProperty 'toBeVisible' does not exist on type 'Matchers<void, any> & SnapshotMatchers<void, any> & Inverse<JestMatchers<void, any>> & PromiseMatchers<any>'.
+
+    [7m26[0m       await expect(element(by.id('email-input'))).toBeVisible();
+    [7m  [0m [91m                                                  ~~~~~~~~~~~[0m
+    [96me2e/onboarding.test.ts[0m:[93m27[0m:[93m20[0m - [91merror[0m[90m TS2552: [0mCannot find name 'element'. Did you mean 'Element'?
+
+    [7m27[0m       await expect(element(by.id('password-input'))).toBeVisible();
+    [7m  [0m [91m                   ~~~~~~~[0m
+
+      [96mnode_modules/typescript/lib/lib.dom.d.ts[0m:[93m13921[0m:[93m13[0m
+        [7m13921[0m declare var Element: {
+        [7m     [0m [96m            ~~~~~~~[0m
+        'Element' is declared here.
+    [96me2e/onboarding.test.ts[0m:[93m27[0m:[93m28[0m - [91merror[0m[90m TS2304: [0mCannot find name 'by'.
+
+    [7m27[0m       await expect(element(by.id('password-input'))).toBeVisible();
+    [7m  [0m [91m                           ~~[0m
+    [96me2e/onboarding.test.ts[0m:[93m27[0m:[93m54[0m - [91merror[0m[90m TS2339: [0mProperty 'toBeVisible' does not exist on type 'Matchers<void, any> & SnapshotMatchers<void, any> & Inverse<JestMatchers<void, any>> & PromiseMatchers<any>'.
+
+    [7m27[0m       await expect(element(by.id('password-input'))).toBeVisible();
+    [7m  [0m [91m                                                     ~~~~~~~~~~~[0m
+    [96me2e/onboarding.test.ts[0m:[93m31[0m:[93m13[0m - [91merror[0m[90m TS2304: [0mCannot find name 'element'.
+
+    [7m31[0m       await element(by.id('email-input')).typeText('test@example.com');
+    [7m  [0m [91m            ~~~~~~~[0m
+    [96me2e/onboarding.test.ts[0m:[93m31[0m:[93m21[0m - [91merror[0m[90m TS2304: [0mCannot find name 'by'.
+
+    [7m31[0m       await element(by.id('email-input')).typeText('test@example.com');
+    [7m  [0m [91m                    ~~[0m
+    [96me2e/onboarding.test.ts[0m:[93m32[0m:[93m13[0m - [91merror[0m[90m TS2304: [0mCannot find name 'element'.
+
+    [7m32[0m       await element(by.id('password-input')).typeText('password123');
+    [7m  [0m [91m            ~~~~~~~[0m
+    [96me2e/onboarding.test.ts[0m:[93m32[0m:[93m21[0m - [91merror[0m[90m TS2304: [0mCannot find name 'by'.
+
+    [7m32[0m       await element(by.id('password-input')).typeText('password123');
+    [7m  [0m [91m                    ~~[0m
+    [96me2e/onboarding.test.ts[0m:[93m33[0m:[93m20[0m - [91merror[0m[90m TS2304: [0mCannot find name 'element'.
+
+    [7m33[0m       await expect(element(by.id('login-button'))).toBeVisible();
+    [7m  [0m [91m                   ~~~~~~~[0m
+    [96me2e/onboarding.test.ts[0m:[93m33[0m:[93m28[0m - [91merror[0m[90m TS2304: [0mCannot find name 'by'.
+
+    [7m33[0m       await expect(element(by.id('login-button'))).toBeVisible();
+    [7m  [0m [91m                           ~~[0m
+    [96me2e/onboarding.test.ts[0m:[93m33[0m:[93m52[0m - [91merror[0m[90m TS2339: [0mProperty 'toBeVisible' does not exist on type 'Matchers<void, any> & SnapshotMatchers<void, any> & Inverse<JestMatchers<void, any>> & PromiseMatchers<any>'.
+
+    [7m33[0m       await expect(element(by.id('login-button'))).toBeVisible();
+    [7m  [0m [91m                                                   ~~~~~~~~~~~[0m
+    [96me2e/onboarding.test.ts[0m:[93m37[0m:[93m13[0m - [91merror[0m[90m TS2304: [0mCannot find name 'element'.
+
+    [7m37[0m       await element(by.id('login-button')).tap();
+    [7m  [0m [91m            ~~~~~~~[0m
+    [96me2e/onboarding.test.ts[0m:[93m37[0m:[93m21[0m - [91merror[0m[90m TS2304: [0mCannot find name 'by'.
+
+    [7m37[0m       await element(by.id('login-button')).tap();
+    [7m  [0m [91m                    ~~[0m
+    [96me2e/onboarding.test.ts[0m:[93m39[0m:[93m13[0m - [91merror[0m[90m TS2304: [0mCannot find name 'waitFor'.
+
+    [7m39[0m       await waitFor(element(by.text('Home')))
+    [7m  [0m [91m            ~~~~~~~[0m
+    [96me2e/onboarding.test.ts[0m:[93m39[0m:[93m21[0m - [91merror[0m[90m TS2304: [0mCannot find name 'element'.
+
+    [7m39[0m       await waitFor(element(by.text('Home')))
+    [7m  [0m [91m                    ~~~~~~~[0m
+    [96me2e/onboarding.test.ts[0m:[93m39[0m:[93m29[0m - [91merror[0m[90m TS2304: [0mCannot find name 'by'.
+
+    [7m39[0m       await waitFor(element(by.text('Home')))
+    [7m  [0m [91m                            ~~[0m
+    [96me2e/onboarding.test.ts[0m:[93m53[0m:[93m20[0m - [91merror[0m[90m TS2304: [0mCannot find name 'element'.
+
+    [7m53[0m       await expect(element(by.text('Home'))).toBeVisible();
+    [7m  [0m [91m                   ~~~~~~~[0m
+    [96me2e/onboarding.test.ts[0m:[93m53[0m:[93m28[0m - [91merror[0m[90m TS2304: [0mCannot find name 'by'.
+
+    [7m53[0m       await expect(element(by.text('Home'))).toBeVisible();
+    [7m  [0m [91m                           ~~[0m
+    [96me2e/onboarding.test.ts[0m:[93m53[0m:[93m46[0m - [91merror[0m[90m TS2339: [0mProperty 'toBeVisible' does not exist on type 'Matchers<void, any> & SnapshotMatchers<void, any> & Inverse<JestMatchers<void, any>> & PromiseMatchers<any>'.
+
+    [7m53[0m       await expect(element(by.text('Home'))).toBeVisible();
+    [7m  [0m [91m                                             ~~~~~~~~~~~[0m
+    [96me2e/onboarding.test.ts[0m:[93m54[0m:[93m20[0m - [91merror[0m[90m TS2304: [0mCannot find name 'element'.
+
+    [7m54[0m       await expect(element(by.text('Discover'))).toBeVisible();
+    [7m  [0m [91m                   ~~~~~~~[0m
+    [96me2e/onboarding.test.ts[0m:[93m54[0m:[93m28[0m - [91merror[0m[90m TS2304: [0mCannot find name 'by'.
+
+    [7m54[0m       await expect(element(by.text('Discover'))).toBeVisible();
+    [7m  [0m [91m                           ~~[0m
+    [96me2e/onboarding.test.ts[0m:[93m54[0m:[93m50[0m - [91merror[0m[90m TS2339: [0mProperty 'toBeVisible' does not exist on type 'Matchers<void, any> & SnapshotMatchers<void, any> & Inverse<JestMatchers<void, any>> & PromiseMatchers<any>'.
+
+    [7m54[0m       await expect(element(by.text('Discover'))).toBeVisible();
+    [7m  [0m [91m                                                 ~~~~~~~~~~~[0m
+    [96me2e/onboarding.test.ts[0m:[93m61[0m:[93m13[0m - [91merror[0m[90m TS2304: [0mCannot find name 'device'.
+
+    [7m61[0m       await device.reloadReactNative();
+    [7m  [0m [91m            ~~~~~~[0m
+    [96me2e/onboarding.test.ts[0m:[93m64[0m:[93m20[0m - [91merror[0m[90m TS2304: [0mCannot find name 'element'.
+
+    [7m64[0m       await expect(element(by.text('Home'))).toBeVisible();
+    [7m  [0m [91m                   ~~~~~~~[0m
+    [96me2e/onboarding.test.ts[0m:[93m64[0m:[93m28[0m - [91merror[0m[90m TS2304: [0mCannot find name 'by'.
+
+    [7m64[0m       await expect(element(by.text('Home'))).toBeVisible();
+    [7m  [0m [91m                           ~~[0m
+    [96me2e/onboarding.test.ts[0m:[93m64[0m:[93m46[0m - [91merror[0m[90m TS2339: [0mProperty 'toBeVisible' does not exist on type 'Matchers<void, any> & SnapshotMatchers<void, any> & Inverse<JestMatchers<void, any>> & PromiseMatchers<any>'.
+
+    [7m64[0m       await expect(element(by.text('Home'))).toBeVisible();
+    [7m  [0m [91m                                             ~~~~~~~~~~~[0m
+    [96me2e/onboarding.test.ts[0m:[93m65[0m:[93m20[0m - [91merror[0m[90m TS2304: [0mCannot find name 'element'.
+
+    [7m65[0m       await expect(element(by.text('Test User'))).toExist();
+    [7m  [0m [91m                   ~~~~~~~[0m
+    [96me2e/onboarding.test.ts[0m:[93m65[0m:[93m28[0m - [91merror[0m[90m TS2304: [0mCannot find name 'by'.
+
+    [7m65[0m       await expect(element(by.text('Test User'))).toExist();
+    [7m  [0m [91m                           ~~[0m
+    [96me2e/onboarding.test.ts[0m:[93m65[0m:[93m51[0m - [91merror[0m[90m TS2339: [0mProperty 'toExist' does not exist on type 'Matchers<void, any> & SnapshotMatchers<void, any> & Inverse<JestMatchers<void, any>> & PromiseMatchers<any>'.
+
+    [7m65[0m       await expect(element(by.text('Test User'))).toExist();
+    [7m  [0m [91m                                                  ~~~~~~~[0m
+
+Test Suites: 4 failed, 4 total
+Tests:       0 total
+Snapshots:   0 total
+Time:        21.888 s
+Ran all test suites.
+00:49:34.270 detox[70035] E Command failed with exit code = 1:
+jest --config e2e/jest.config.js

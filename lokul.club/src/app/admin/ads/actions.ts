@@ -8,8 +8,7 @@ const noRealDb = (process.env.DATABASE_URL ?? "").includes("USER:PASSWORD");
 const E2E = process.env.E2E_TEST === "1" || noRealDb;
 
 async function requireAdmin(): Promise<string> {
-  const user = await getServerUser();
-  const user = session?.user as { id?: string; role?: string } | undefined;
+  const user = (await getServerUser()) as { id?: string; role?: string } | null;
   if (user?.role !== "admin") throw new Error("Unauthorized");
   return user.id ?? "admin";
 }

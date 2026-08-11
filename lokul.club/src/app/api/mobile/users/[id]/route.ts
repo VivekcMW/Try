@@ -55,13 +55,16 @@ export async function PATCH(
 
   try {
     const body = await req.json();
-    const { name, bio, avatarUrl, language, privacy, ageBand } = body;
+    const { name, bio, avatarUrl, language, privacy, ageBand, radiusKm } = body;
 
     if (name !== undefined && name.trim().length < 2) {
       return NextResponse.json({ error: "Name must be at least 2 characters" }, { status: 400 });
     }
     if (ageBand !== undefined && ageBand !== null && !AGE_BANDS.includes(ageBand)) {
       return NextResponse.json({ error: "Invalid ageBand" }, { status: 400 });
+    }
+    if (radiusKm !== undefined && radiusKm !== null && (typeof radiusKm !== "number" || radiusKm <= 0 || radiusKm > 50)) {
+      return NextResponse.json({ error: "radiusKm must be between 0 and 50" }, { status: 400 });
     }
 
     const data: Record<string, unknown> = {};
@@ -71,11 +74,12 @@ export async function PATCH(
     if (language  !== undefined) { data['language']        = language; }
     if (privacy   !== undefined) { data['privacySettings'] = privacy; }
     if (ageBand   !== undefined) { data['ageBand']          = ageBand; } // self-declared, optional — never required
+    if (radiusKm  !== undefined) { data['radiusKm']         = radiusKm; }
 
     const updated = await prisma.user.update({
       where: { id },
       data,
-      select: { id: true, name: true, avatarUrl: true, bio: true, kycTier: true, role: true, privacySettings: true, ageBand: true },
+      select: { id: true, name: true, avatarUrl: true, bio: true, kycTier: true, role: true, privacySettings: true, ageBand: true, radiusKm: true },
     });
 
     return NextResponse.json(updated);

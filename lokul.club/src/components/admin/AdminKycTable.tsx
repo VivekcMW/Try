@@ -13,7 +13,7 @@ type KycDocRow = {
   reviewNote: string | null;
   reviewedAt: string | null;
   createdAt: string;
-  user: { id: string; name: string; email: string; phone: string; kycTier: string };
+  user: { id: string; name: string; email: string; phone: string | null; kycTier: string };
 };
 
 const STATUS_TONES: Record<string, "neutral" | "success" | "danger"> = {

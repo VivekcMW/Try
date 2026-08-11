@@ -24,7 +24,7 @@ interface EmailOTPResponse {
 
 export class EmailOTPClient {
   private resend: Resend | null = null;
-  private fromEmail: string;
+  private fromEmail: string = 'Lokul.club <onboarding@resend.dev>';
 
   constructor() {
     const apiKey = process.env.RESEND_API_KEY;

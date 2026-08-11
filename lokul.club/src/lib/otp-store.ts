@@ -14,7 +14,7 @@ export async function storeOtp(phone: string, code: string): Promise<void> {
     data: { used: true },
   });
   await prisma.otpVerification.create({
-    data: { phone, code, expiresAt: new Date(Date.now() + TTL_MS) },
+    data: { phone, code, expiresAt: new Date(Date.now() + TTL_MS), transactionId: crypto.randomUUID() },
   });
 }
 

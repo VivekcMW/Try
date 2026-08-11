@@ -32,7 +32,7 @@ function parseDate(value: string | null, fallback: Date): Date {
 
 export async function GET(req: NextRequest) {
   const user = await getServerUser();
-  if ((session?.user as { role?: string } | undefined)?.role !== "admin") {
+  if ((user as { role?: string } | null)?.role !== "admin") {
     return new NextResponse("Unauthorized", { status: 401 });
   }
 

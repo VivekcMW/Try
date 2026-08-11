@@ -191,6 +191,7 @@ export default function OrdersDashboardScreen() {
   const userId = useWalletStore((s) => s.userId);
   const earningsPaise = useWalletStore((s) => s.earningsPaise);
   const bookings = useBookingStore((s) => s.bookings);
+  const fetchBookings = useBookingStore((s) => s.fetchBookings);
 
   const BOOKING_LABEL: Partial<Record<BookingStatus, string>> = {
     requested: 'Requested',
@@ -240,6 +241,7 @@ export default function OrdersDashboardScreen() {
   }, [userId]);
 
   useEffect(() => { load(); }, [load]);
+  useEffect(() => { fetchBookings(); }, [fetchBookings]);
 
   const now = Date.now();
 

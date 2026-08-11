@@ -168,21 +168,21 @@ async function updateUserInterestProfile(userId: string) {
       .filter((a) => a.catalogItem?.pricePaise)
       .map((a) => a.catalogItem!.pricePaise);
 
-    let preferredPriceRange = null;
+    let preferredPriceRange: string | null = null;
     if (prices.length > 0) {
       const avg = prices.reduce((sum, p) => sum + p, 0) / prices.length;
       const min = Math.min(...prices);
       const max = Math.max(...prices);
-      preferredPriceRange = {
+      preferredPriceRange = JSON.stringify({
         avgPaise: Math.round(avg),
         minPaise: min,
         maxPaise: max,
-      };
+      });
     }
 
     // Calculate order frequency
     const orders = activities.filter((a) => a.activityType === 'order_placed');
-    const avgOrderFrequency = orders.length > 0 ? orders.length / 4.3 : 0; // per week
+    const avgOrderFrequency = orders.length > 0 ? Math.round(orders.length / 4.3) : 0; // per week
 
     // Analyze time slots (when user is most active)
     const hourMap: Record<number, number> = {};

@@ -12,7 +12,7 @@ const E2E_EXPORT_ROWS = [
 
 export async function GET() {
   const user = await getServerUser();
-  if ((session?.user as { role?: string } | undefined)?.role !== "admin") {
+  if ((user as { role?: string } | null)?.role !== "admin") {
     return new NextResponse("Unauthorized", { status: 401 });
   }
 

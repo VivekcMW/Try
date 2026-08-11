@@ -1,6 +1,8 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
+import { apiFetch } from '@/services/apiClient';
+import { useWalletStore } from '@/store/walletStore';
 
 // PRD §02.3.2 — Radius is the core discovery primitive.
 export type RadiusKey = '200m' | '500m' | '2km' | '5km';
@@ -30,7 +32,16 @@ export const useRadiusStore = create<RadiusState>()(
   persist(
     (set) => ({
       active: '200m',
-      setRadius: (active) => set({ active }),
+      setRadius: (active) => {
+        set({ active });
+        const userId = useWalletStore.getState().userId;
+        if (userId) {
+          apiFetch(`/api/mobile/users/${userId}`, {
+            method: 'PATCH',
+            body: { radiusKm: RADIUS_METERS[active] / 1000 },
+          }).catch(() => {});
+        }
+      },
     }),
     {
       name: 'lokul.radius',

@@ -1,6 +1,8 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { apiFetch } from '@/services/apiClient';
+import { useWalletStore } from '@/store/walletStore';
 
 /** How the booking is fulfilled */
 export type BookingKind = 'slot' | 'window' | 'project';
@@ -52,6 +54,8 @@ export type ServiceBooking = {
   /** Chosen staff member — stylist, doctor etc. */
   providerName?: string;
   providerRole?: string;
+  /** Backend MerchantStaff.id when a real provider was picked */
+  staffId?: string;
   /** Movers: pickup and drop locations */
   fromAddress?: string;
   toAddress?: string;
@@ -85,11 +89,16 @@ export type ServiceBooking = {
   status: BookingStatus;
   createdAt: string;
   history: { status: BookingStatus; at: string }[];
+  /** Backend ServiceBooking.id once the POST succeeds */
+  serverId?: string;
+  /** Backend milestone ids, index-aligned with `milestones` */
+  serverMilestoneIds?: string[];
 };
 
 type BookingStore = {
   bookings: ServiceBooking[];
   createBooking: (b: Omit<ServiceBooking, 'otp' | 'status' | 'createdAt' | 'history'>) => ServiceBooking;
+  fetchBookings: () => Promise<void>;
   setStatus: (id: string, status: BookingStatus) => void;
   setOnsiteQuote: (id: string, quote: { label: string; pricePaise: number }) => void;
   approveOnsiteQuote: (id: string) => void;
@@ -103,6 +112,149 @@ type BookingStore = {
   getBooking: (id: string) => ServiceBooking | undefined;
 };
 
+// ── Server sync ──────────────────────────────────────────────────────────────
+// Local state stays the source of truth for the UI (instant + demo timers);
+// every action is mirrored to the backend fire-and-forget via `serverId`.
+
+type ServerBooking = {
+  id: string;
+  kind: BookingKind;
+  status: BookingStatus;
+  category: string;
+  date: string;
+  slotLabel: string;
+  address?: string | null;
+  fromAddress?: string | null;
+  toAddress?: string | null;
+  bookingFor?: string | null;
+  petName?: string | null;
+  inventory?: string | null;
+  fastingRequired?: boolean;
+  roomCount?: string | null;
+  recurrence?: { plan: string; meals?: string[] } | null;
+  consultMode?: 'online' | 'office' | null;
+  problem?: string | null;
+  urgency?: 'normal' | 'emergency' | null;
+  visitFeePaise?: number | null;
+  totalPaise: number;
+  advancePaise?: number | null;
+  advancePaid?: boolean;
+  otp: string;
+  rating?: number | null;
+  createdAt: string;
+  merchant?: { id: string; name: string; category: string };
+  staff?: { id: string; name: string; role: string } | null;
+  items?: { name: string; pricePaise: number; durationMins?: number | null }[];
+  quotes?: {
+    type: string;
+    label?: string | null;
+    lineItems?: { label: string; pricePaise: number }[] | null;
+    totalPaise: number;
+    counterPaise?: number | null;
+    status: string;
+  }[];
+  milestones?: { id: string; label: string; done: boolean }[];
+  statusHistory?: { toStatus: BookingStatus; createdAt: string }[];
+};
+
+function currentUserId(): string | null {
+  return useWalletStore.getState().userId;
+}
+
+/** Placeholder until the server OTP arrives — not security-sensitive */
+function localOtp(): string {
+  return String(1000 + (Date.now() % 9000));
+}
+
+function withServerIdentity(
+  bookings: ServiceBooking[],
+  localId: string,
+  res: { id: string; otp?: string }
+): ServiceBooking[] {
+  return bookings.map((bk) =>
+    bk.id === localId ? { ...bk, serverId: res.id, ...(res.otp ? { otp: res.otp } : {}) } : bk
+  );
+}
+
+function withMilestoneDone(
+  bookings: ServiceBooking[],
+  id: string,
+  index: number
+): ServiceBooking[] {
+  return bookings.map((bk) => {
+    if (bk.id !== id || !bk.milestones) return bk;
+    const milestones = bk.milestones.map((m, i) => (i === index ? { ...m, done: true } : m));
+    const allDone = milestones.every((m) => m.done);
+    return { ...bk, milestones, status: allDone ? ('work_done' as BookingStatus) : bk.status };
+  });
+}
+
+function serverIdOf(id: string): string | undefined {
+  return useBookingStore.getState().bookings.find((b) => b.id === id)?.serverId;
+}
+
+function sync(id: string, fn: (serverId: string, userId: string) => Promise<unknown>) {
+  const serverId = serverIdOf(id);
+  const userId = currentUserId();
+  if (!serverId || !userId) return;
+  fn(serverId, userId).catch(() => {});
+}
+
+function mapServerBooking(sb: ServerBooking): ServiceBooking {
+  const projectQuote = sb.quotes?.find((q) => q.type === 'project');
+  const onsiteQuote = sb.quotes?.find((q) => q.type === 'onsite');
+  return {
+    id: sb.id,
+    serverId: sb.id,
+    kind: sb.kind,
+    merchantId: sb.merchant?.id ?? '',
+    merchantName: sb.merchant?.name ?? '',
+    category: sb.category,
+    services: (sb.items ?? []).map((i) => ({
+      id: i.name,
+      name: i.name,
+      pricePaise: i.pricePaise,
+      durationMins: i.durationMins ?? undefined,
+    })),
+    date: sb.date,
+    slotLabel: sb.slotLabel,
+    address: sb.address ?? undefined,
+    bookingFor: sb.bookingFor ?? undefined,
+    petName: sb.petName ?? undefined,
+    providerName: sb.staff?.name,
+    providerRole: sb.staff?.role,
+    staffId: sb.staff?.id,
+    fromAddress: sb.fromAddress ?? undefined,
+    toAddress: sb.toAddress ?? undefined,
+    inventory: sb.inventory ?? undefined,
+    fastingRequired: sb.fastingRequired ?? undefined,
+    roomCount: sb.roomCount ?? undefined,
+    recurrence: sb.recurrence ?? undefined,
+    consultMode: sb.consultMode ?? undefined,
+    counterPaise: projectQuote?.counterPaise ?? undefined,
+    problem: sb.problem ?? undefined,
+    urgency: sb.urgency ?? undefined,
+    visitFeePaise: sb.visitFeePaise ?? undefined,
+    onsiteQuote: onsiteQuote
+      ? { label: onsiteQuote.label ?? '', pricePaise: onsiteQuote.totalPaise }
+      : undefined,
+    onsiteApproved: onsiteQuote?.status === 'approved' || undefined,
+    quote: projectQuote?.lineItems
+      ? { lineItems: projectQuote.lineItems, totalPaise: projectQuote.totalPaise }
+      : undefined,
+    advancePaise: sb.advancePaise ?? undefined,
+    advancePaid: sb.advancePaid ?? undefined,
+    milestones: sb.milestones?.map((m) => ({ label: m.label, done: m.done })),
+    serverMilestoneIds: sb.milestones?.map((m) => m.id),
+    otp: sb.otp,
+    totalPaise: sb.totalPaise,
+    rating: sb.rating ?? undefined,
+    status: sb.status,
+    createdAt: sb.createdAt,
+    history: (sb.statusHistory ?? []).map((h) => ({ status: h.toStatus, at: h.createdAt })),
+  };
+}
+
 export const useBookingStore = create<BookingStore>()(
   persist(
     (set, get) => ({
@@ -111,7 +263,7 @@ export const useBookingStore = create<BookingStore>()(
       createBooking: (b) => {
         const booking: ServiceBooking = {
           ...b,
-          otp: String(Math.floor(1000 + Math.random() * 9000)),
+          otp: localOtp(),
           status: b.kind === 'project' ? 'visit_scheduled' : 'requested',
           createdAt: new Date().toISOString(),
           history: [
@@ -122,26 +274,101 @@ export const useBookingStore = create<BookingStore>()(
           ],
         };
         set((s) => ({ bookings: [booking, ...s.bookings] }));
+
+        const userId = currentUserId();
+        if (userId) {
+          apiFetch<{ id: string; otp?: string }>('/api/mobile/bookings', {
+            method: 'POST',
+            body: {
+              userId,
+              merchantId: b.merchantId,
+              staffId: b.staffId,
+              kind: b.kind,
+              category: b.category,
+              date: b.date,
+              slotLabel: b.slotLabel,
+              services: b.services,
+              address: b.address,
+              fromAddress: b.fromAddress,
+              toAddress: b.toAddress,
+              bookingFor: b.bookingFor,
+              petName: b.petName,
+              inventory: b.inventory,
+              fastingRequired: b.fastingRequired,
+              roomCount: b.roomCount,
+              recurrence: b.recurrence,
+              consultMode: b.consultMode,
+              problem: b.problem,
+              urgency: b.urgency,
+              visitFeePaise: b.visitFeePaise,
+              totalPaise: b.totalPaise,
+              milestones: b.milestones?.map((m) => ({ label: m.label })),
+            },
+          })
+            .then((res) =>
+              set((s) => ({ bookings: withServerIdentity(s.bookings, booking.id, res) }))
+            )
+            .catch(() => {});
+        }
         return booking;
       },
 
-      setStatus: (id, status) =>
+      fetchBookings: async () => {
+        const userId = currentUserId();
+        if (!userId) return;
+        try {
+          const res = await apiFetch<{ items: ServerBooking[] }>(
+            `/api/mobile/bookings?userId=${userId}`
+          );
+          const local = get().bookings;
+          const seen = new Set(local.map((b) => b.serverId).filter(Boolean));
+          const incoming = (res.items ?? [])
+            .filter((sb) => !seen.has(sb.id))
+            .map(mapServerBooking);
+          if (incoming.length > 0) {
+            set({ bookings: [...incoming, ...local].sort((a, z) => z.createdAt.localeCompare(a.createdAt)) });
+          }
+        } catch {
+          // offline — local cache stays
+        }
+      },
+
+      setStatus: (id, status) => {
         set((s) => ({
           bookings: s.bookings.map((bk) =>
             bk.id === id && bk.status !== 'cancelled'
               ? { ...bk, status, history: [...bk.history, { status, at: new Date().toISOString() }] }
               : bk
           ),
-        })),
+        }));
+        sync(id, (serverId, userId) =>
+          status === 'cancelled'
+            ? apiFetch(`/api/mobile/bookings/${serverId}/cancel`, {
+                method: 'POST',
+                body: { userId, reason: 'Cancelled by customer' },
+              })
+            : apiFetch(`/api/mobile/bookings/${serverId}`, {
+                method: 'PATCH',
+                body: { status, actorId: userId },
+              })
+        );
+      },
 
-      setOnsiteQuote: (id, quote) =>
+      setOnsiteQuote: (id, quote) => {
         set((s) => ({
           bookings: s.bookings.map((bk) =>
             bk.id === id ? { ...bk, onsiteQuote: quote, status: 'quote_pending' } : bk
           ),
-        })),
+        }));
+        sync(id, (serverId) =>
+          apiFetch(`/api/mobile/bookings/${serverId}/onsite-quote`, {
+            method: 'POST',
+            body: { label: quote.label, pricePaise: quote.pricePaise },
+          })
+        );
+      },
 
-      approveOnsiteQuote: (id) =>
+      approveOnsiteQuote: (id) => {
         set((s) => ({
           bookings: s.bookings.map((bk) =>
             bk.id === id
@@ -153,16 +380,30 @@ export const useBookingStore = create<BookingStore>()(
                 }
               : bk
           ),
-        })),
+        }));
+        sync(id, (serverId, userId) =>
+          apiFetch(`/api/mobile/bookings/${serverId}/onsite-quote`, {
+            method: 'PATCH',
+            body: { actorId: userId },
+          })
+        );
+      },
 
-      setQuote: (id, quote) =>
+      setQuote: (id, quote) => {
         set((s) => ({
           bookings: s.bookings.map((bk) =>
             bk.id === id ? { ...bk, quote, status: 'quote_shared' } : bk
           ),
-        })),
+        }));
+        sync(id, (serverId) =>
+          apiFetch(`/api/mobile/bookings/${serverId}/quote`, {
+            method: 'POST',
+            body: { lineItems: quote.lineItems, totalPaise: quote.totalPaise },
+          })
+        );
+      },
 
-      acceptQuote: (id) =>
+      acceptQuote: (id) => {
         set((s) => ({
           bookings: s.bookings.map((bk) =>
             bk.id === id && bk.quote
@@ -174,16 +415,30 @@ export const useBookingStore = create<BookingStore>()(
                 }
               : bk
           ),
-        })),
+        }));
+        sync(id, (serverId, userId) =>
+          apiFetch(`/api/mobile/bookings/${serverId}/quote`, {
+            method: 'PATCH',
+            body: { actorId: userId, action: 'accept' },
+          })
+        );
+      },
 
-      counterQuote: (id, counterPaise) =>
+      counterQuote: (id, counterPaise) => {
         set((s) => ({
           bookings: s.bookings.map((bk) =>
             bk.id === id ? { ...bk, counterPaise } : bk
           ),
-        })),
+        }));
+        sync(id, (serverId, userId) =>
+          apiFetch(`/api/mobile/bookings/${serverId}/quote`, {
+            method: 'PATCH',
+            body: { actorId: userId, action: 'counter', counterPaise },
+          })
+        );
+      },
 
-      acceptCounter: (id) =>
+      acceptCounter: (id) => {
         set((s) => ({
           bookings: s.bookings.map((bk) =>
             bk.id === id && bk.counterPaise
@@ -196,29 +451,54 @@ export const useBookingStore = create<BookingStore>()(
                 }
               : bk
           ),
-        })),
+        }));
+        // merchant-side action in real life — sent without actor in demo
+        sync(id, (serverId) =>
+          apiFetch(`/api/mobile/bookings/${serverId}/quote`, {
+            method: 'PATCH',
+            body: { action: 'accept-counter' },
+          })
+        );
+      },
 
-      payAdvance: (id) =>
+      payAdvance: (id) => {
         set((s) => ({
           bookings: s.bookings.map((bk) =>
             bk.id === id ? { ...bk, advancePaid: true, status: 'scheduled' } : bk
           ),
-        })),
+        }));
+        sync(id, (serverId, userId) =>
+          apiFetch(`/api/mobile/bookings/${serverId}/advance`, {
+            method: 'POST',
+            body: { userId, method: 'upi' },
+          })
+        );
+      },
 
-      completeMilestone: (id, index) =>
-        set((s) => ({
-          bookings: s.bookings.map((bk) => {
-            if (bk.id !== id || !bk.milestones) return bk;
-            const milestones = bk.milestones.map((m, i) => (i === index ? { ...m, done: true } : m));
-            const allDone = milestones.every((m) => m.done);
-            return { ...bk, milestones, status: allDone ? 'work_done' : bk.status };
-          }),
-        })),
+      completeMilestone: (id, index) => {
+        set((s) => ({ bookings: withMilestoneDone(s.bookings, id, index) }));
+        const milestoneId = get().bookings.find((b) => b.id === id)?.serverMilestoneIds?.[index];
+        if (milestoneId) {
+          sync(id, (serverId, userId) =>
+            apiFetch(`/api/mobile/bookings/${serverId}/milestones`, {
+              method: 'PATCH',
+              body: { actorId: userId, milestoneId },
+            })
+          );
+        }
+      },
 
-      setRating: (id, rating) =>
+      setRating: (id, rating) => {
         set((s) => ({
           bookings: s.bookings.map((bk) => (bk.id === id ? { ...bk, rating } : bk)),
-        })),
+        }));
+        sync(id, (serverId, userId) =>
+          apiFetch(`/api/mobile/bookings/${serverId}/rate`, {
+            method: 'POST',
+            body: { userId, rating },
+          })
+        );
+      },
 
       getBooking: (id) => get().bookings.find((bk) => bk.id === id),
     }),

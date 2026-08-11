@@ -111,7 +111,7 @@ async function verifyOtpFromDb(phone: string, otp: string): Promise<boolean> {
  */
 async function handleEmailLogin(email: string, password: string) {
   try {
-    const supabase = createServerSupabaseClient();
+    const supabase = await createServerSupabaseClient();
 
     // Authenticate with Supabase
     const { data, error } = await supabase.auth.signInWithPassword({
@@ -148,7 +148,7 @@ async function handleEmailLogin(email: string, password: string) {
       );
     }
 
-    if (merchant.status !== "active" && merchant.status !== "pending") {
+    if (merchant.status !== "active" && merchant.status !== "pending_verification") {
       return NextResponse.json(
         { error: `Your merchant account is ${merchant.status}. Please contact support.` },
         { status: 403 }

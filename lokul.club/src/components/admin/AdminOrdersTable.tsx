@@ -14,8 +14,8 @@ type OrderRow = {
   completedAt: string | null;
   cancelledAt: string | null;
   cancelReason: string | null;
-  buyer:   { id: string; name: string; phone: string };
-  seller:  { id: string; name: string; phone: string };
+  buyer:   { id: string; name: string; phone: string | null };
+  seller:  { id: string; name: string; phone: string | null };
   listing: { id: string; title: string; category: string };
   rating:  { score: number } | null;
 };

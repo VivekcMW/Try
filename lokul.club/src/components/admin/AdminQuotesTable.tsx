@@ -12,7 +12,7 @@ type QuoteRow = {
   budgetPaise: number | null;
   quotedPaise: number | null;
   createdAt: string;
-  user: { id: string; name: string; phone: string };
+  user: { id: string; name: string; phone: string | null };
   merchant: { id: string; name: string };
 };
 

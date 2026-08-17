@@ -6,6 +6,7 @@ import { ArrowLeft, Calendar, Plus, Users } from 'lucide-react-native';
 import { Badge, Card, HStack, Text, VStack } from '@/components/ui';
 import { useOnboardingStore } from '@/store/onboardingStore';
 import { colors, spacing } from '@lokul/ui-tokens';
+import { FeatureGate } from '@/components/FeatureGate';
 
 const BASE = process.env.EXPO_PUBLIC_API_BASE ?? '';
 
@@ -15,6 +16,14 @@ type ApiPost = {
 };
 
 export default function EventsScreen() {
+  return (
+    <FeatureGate featureKey="events">
+      <EventsScreenInner />
+    </FeatureGate>
+  );
+}
+
+function EventsScreenInner() {
   const router  = useRouter();
   const pinCode = useOnboardingStore((s) => s.pin);
   const [items,   setItems]   = useState<ApiPost[]>([]);

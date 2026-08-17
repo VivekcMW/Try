@@ -8,12 +8,14 @@ import enOnboarding from '@/locales/en/onboarding.json';
 import enFeed from '@/locales/en/feed.json';
 import enSafety from '@/locales/en/safety.json';
 import enSettings from '@/locales/en/settings.json';
+import enMerchant from '@/locales/en/merchant.json';
 
 import hiCommon from '@/locales/hi/common.json';
 import hiOnboarding from '@/locales/hi/onboarding.json';
 import hiFeed from '@/locales/hi/feed.json';
 import hiSafety from '@/locales/hi/safety.json';
 import hiSettings from '@/locales/hi/settings.json';
+import hiMerchant from '@/locales/hi/merchant.json';
 
 import mrCommon from '@/locales/mr/common.json';
 import mrOnboarding from '@/locales/mr/onboarding.json';
@@ -32,6 +34,7 @@ import knOnboarding from '@/locales/kn/onboarding.json';
 import knFeed from '@/locales/kn/feed.json';
 import knSafety from '@/locales/kn/safety.json';
 import knSettings from '@/locales/kn/settings.json';
+import knMerchant from '@/locales/kn/merchant.json';
 
 const baseNamespaces = {
   common: enCommon,
@@ -39,6 +42,7 @@ const baseNamespaces = {
   feed: enFeed,
   safety: enSafety,
   settings: enSettings,
+  merchant: enMerchant,
 };
 
 // Non-English locales are merged onto the English namespace so any key not
@@ -49,6 +53,7 @@ const hindiNamespaces = {
   feed: { ...enFeed, ...hiFeed },
   safety: { ...enSafety, ...hiSafety },
   settings: { ...enSettings, ...hiSettings },
+  merchant: { ...enMerchant, ...hiMerchant },
 };
 
 const marathiNamespaces = {
@@ -57,6 +62,7 @@ const marathiNamespaces = {
   feed: { ...enFeed, ...mrFeed },
   safety: { ...enSafety, ...mrSafety },
   settings: { ...enSettings, ...mrSettings },
+  merchant: enMerchant,
 };
 
 const teluguNamespaces = {
@@ -65,6 +71,7 @@ const teluguNamespaces = {
   feed: { ...enFeed, ...teFeed },
   safety: { ...enSafety, ...teSafety },
   settings: { ...enSettings, ...teSettings },
+  merchant: enMerchant,
 };
 
 const kannadaNamespaces = {
@@ -73,6 +80,7 @@ const kannadaNamespaces = {
   feed: { ...enFeed, ...knFeed },
   safety: { ...enSafety, ...knSafety },
   settings: { ...enSettings, ...knSettings },
+  merchant: { ...enMerchant, ...knMerchant },
 };
 
 const languageNamespaces: Record<string, typeof baseNamespaces> = {
@@ -103,7 +111,7 @@ if (!i18n.isInitialized) {
       escapeValue: false,
     },
     defaultNS: 'common',
-    ns: ['common', 'onboarding', 'feed', 'safety', 'settings'],
+    ns: ['common', 'onboarding', 'feed', 'safety', 'settings', 'merchant'],
     returnNull: false,
   });
 }

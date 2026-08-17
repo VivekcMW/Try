@@ -17,6 +17,7 @@ import { useOnboardingStore } from '@/store/onboardingStore';
 import { type StaffMember, type StaffRole } from '@/data/community-seed';
 import { useStaffAttendanceStore } from '@/store/staffAttendanceStore';
 import { colors, radius, spacing } from '@lokul/ui-tokens';
+import { FeatureGate } from '@/components/FeatureGate';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 function fmtTime(ts: number | undefined): string {
@@ -175,6 +176,14 @@ const ROLE_OPTIONS: StaffRole[] = ['maid', 'cook', 'driver', 'nanny', 'gardener'
 
 // ─── Main screen ──────────────────────────────────────────────────────────────
 export default function StaffScreen() {
+  return (
+    <FeatureGate featureKey="rwa_management">
+      <StaffScreenInner />
+    </FeatureGate>
+  );
+}
+
+function StaffScreenInner() {
   const router    = useRouter();
   const societyId = useOnboardingStore((s) => s.societyId);
 

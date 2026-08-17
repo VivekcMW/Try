@@ -2,8 +2,10 @@
 
 import {
   createContext,
+  useCallback,
   useContext,
   useEffect,
+  useMemo,
   useState,
   type ReactNode,
 } from "react";
@@ -33,7 +35,7 @@ const I18nContext = createContext<I18nContextValue>({
   t: DICTS.en,
 });
 
-export function LanguageProvider({ children }: { children: ReactNode }) {
+export function LanguageProvider({ children }: Readonly<{ children: ReactNode }>) {
   const [locale, setLocaleState] = useState<Locale>("en");
 
   useEffect(() => {
@@ -47,16 +49,17 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     document.documentElement.lang = locale;
   }, [locale]);
 
-  const setLocale = (next: Locale) => {
+  const setLocale = useCallback((next: Locale) => {
     setLocaleState(next);
     localStorage.setItem(STORAGE_KEY, next);
-  };
+  }, []);
 
-  return (
-    <I18nContext.Provider value={{ locale, setLocale, t: DICTS[locale] }}>
-      {children}
-    </I18nContext.Provider>
+  const value = useMemo(
+    () => ({ locale, setLocale, t: DICTS[locale] }),
+    [locale, setLocale]
   );
+
+  return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>;
 }
 
 export function useI18n() {

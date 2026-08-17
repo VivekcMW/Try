@@ -8,6 +8,7 @@ import { EVENTS, RSVPStatus } from '@/data/community-seed';
 import { useOnboardingStore } from '@/store/onboardingStore';
 import { useWalletStore } from '@/store/walletStore';
 import { colors, spacing } from '@lokul/ui-tokens';
+import { FeatureGate } from '@/components/FeatureGate';
 
 const BASE = process.env.EXPO_PUBLIC_API_BASE ?? '';
 
@@ -62,6 +63,14 @@ function seedToDetail(seed: (typeof EVENTS)[number]): EventDetail {
 }
 
 export default function EventDetailScreen() {
+  return (
+    <FeatureGate featureKey="events">
+      <EventDetailScreenInner />
+    </FeatureGate>
+  );
+}
+
+function EventDetailScreenInner() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router  = useRouter();
   const userId  = useWalletStore((s) => s.userId);

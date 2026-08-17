@@ -15,6 +15,7 @@ import { Button, Card, HStack, Text, VStack } from '@/components/ui';
 import { useOnboardingStore } from '@/store/onboardingStore';
 import { useWalletStore } from '@/store/walletStore';
 import { colors, radius, spacing } from '@lokul/ui-tokens';
+import { FeatureGate } from '@/components/FeatureGate';
 
 const BASE = process.env.EXPO_PUBLIC_API_BASE ?? '';
 
@@ -24,6 +25,14 @@ const CATEGORY_TAGS = [
 ];
 
 export default function EventCreateScreen() {
+  return (
+    <FeatureGate featureKey="events">
+      <EventCreateScreenInner />
+    </FeatureGate>
+  );
+}
+
+function EventCreateScreenInner() {
   const router    = useRouter();
   const userId    = useWalletStore((s) => s.userId);
   const pinCode   = useOnboardingStore((s) => s.pin);

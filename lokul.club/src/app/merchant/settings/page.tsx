@@ -1,10 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Settings as SettingsIcon, User, Phone, MapPin, Clock, Store, AlertTriangle, XCircle, CheckCircle, Pencil, Bell, Wrench, ShoppingCart, Shield, CalendarX, CreditCard, ChevronDown, ChevronUp } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Settings as SettingsIcon, User, Phone, MapPin, Clock, Store, AlertTriangle, XCircle, CheckCircle, Pencil, Bell, Wrench, ShoppingCart, Shield, CalendarX, CreditCard, ChevronDown, ChevronUp, Upload, Trash2, Loader2 } from "lucide-react";
 import { useMerchantProfile } from "@/lib/merchant-profile-context";
 import { CategoryBadge } from "@/components/merchant/CategoryBadge";
 import type { MerchantCategory } from "@/types/merchant-categories";
+import { useToast } from "@/components/ui";
+import { LOCALES, useI18n } from "@/lib/i18n";
+import type { Locale } from "@/i18n";
 
 type MerchantProfile = {
   id: string;
@@ -32,6 +35,8 @@ type MerchantProfile = {
 
 export default function SettingsPage() {
   const profile = useMerchantProfile();
+  const toast = useToast();
+  const { locale, setLocale } = useI18n();
   const [merchant, setMerchant] = useState<MerchantProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [acceptingOrders, setAcceptingOrders] = useState(true);
@@ -46,6 +51,9 @@ export default function SettingsPage() {
   // Profile edit state
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [profileForm, setProfileForm] = useState({ name: "", description: "", avatarUrl: "" });
+  const [uploadingLogo, setUploadingLogo] = useState(false);
+  const [logoError, setLogoError] = useState<string | null>(null);
+  const logoFileInputRef = useRef<HTMLInputElement | null>(null);
 
   // Delivery fee state (in rupees for the UI; stored as paise)
   const [deliveryFeeRupees, setDeliveryFeeRupees] = useState(20);
@@ -221,13 +229,13 @@ export default function SettingsPage() {
           setAutoReopen(false);
           setClosedUntil("");
         }
-        alert(data.message);
+        toast.success(data.message || (enabled ? "Now accepting orders" : "Orders paused"));
       } else {
-        alert(data.error || "Failed to update settings");
+        toast.error(data.error || "Failed to update settings");
       }
-    } catch (error) {
-      console.error("Failed to update accepting orders:", error);
-      alert("Failed to update settings");
+    } catch (err) {
+      console.error("Failed to update accepting orders:", err);
+      toast.error("Failed to update settings");
     } finally {
       setUpdating(false);
     }
@@ -249,13 +257,13 @@ export default function SettingsPage() {
       const data = await res.json();
       
       if (res.ok) {
-        alert("Settings updated successfully");
+        toast.success("Settings updated");
       } else {
-        alert(data.error || "Failed to update settings");
+        toast.error(data.error || "Failed to update settings");
       }
-    } catch (error) {
-      console.error("Failed to update closed settings:", error);
-      alert("Failed to update settings");
+    } catch (err) {
+      console.error("Failed to update closed settings:", err);
+      toast.error("Failed to update settings");
     } finally {
       setUpdating(false);
     }
@@ -263,7 +271,7 @@ export default function SettingsPage() {
 
   async function handleSaveBusinessHours() {
     if (!businessHoursStart || !businessHoursEnd) {
-      alert("Please set both opening and closing times");
+      toast.warning("Please set both opening and closing times");
       return;
     }
 
@@ -281,13 +289,13 @@ export default function SettingsPage() {
       const data = await res.json();
       
       if (res.ok) {
-        alert("Business hours updated successfully");
+        toast.success("Business hours updated");
       } else {
-        alert(data.error || "Failed to update business hours");
+        toast.error(data.error || "Failed to update business hours");
       }
-    } catch (error) {
-      console.error("Failed to update business hours:", error);
-      alert("Failed to update business hours");
+    } catch (err) {
+      console.error("Failed to update business hours:", err);
+      toast.error("Failed to update business hours");
     } finally {
       setUpdating(false);
     }
@@ -295,7 +303,7 @@ export default function SettingsPage() {
 
   async function handleSaveDeliveryTime() {
     if (!estimatedDeliveryMins || estimatedDeliveryMins < 5 || estimatedDeliveryMins > 180) {
-      alert("Please enter a delivery time between 5 and 180 minutes");
+      toast.warning("Please enter a delivery time between 5 and 180 minutes");
       return;
     }
 
@@ -312,13 +320,13 @@ export default function SettingsPage() {
       const data = await res.json();
       
       if (res.ok) {
-        alert("Delivery time updated successfully");
+        toast.success("Delivery time updated");
       } else {
-        alert(data.error || "Failed to update delivery time");
+        toast.error(data.error || "Failed to update delivery time");
       }
-    } catch (error) {
-      console.error("Failed to update delivery time:", error);
-      alert("Failed to update delivery time");
+    } catch (err) {
+      console.error("Failed to update delivery time:", err);
+      toast.error("Failed to update delivery time");
     } finally {
       setUpdating(false);
     }
@@ -326,11 +334,11 @@ export default function SettingsPage() {
 
   async function handleSaveProfile() {
     if (!profileForm.name.trim()) {
-      alert("Business name cannot be empty");
+      toast.warning("Business name cannot be empty");
       return;
     }
     if (profileForm.name.trim().length > 100) {
-      alert("Business name must be 100 characters or fewer");
+      toast.warning("Business name must be 100 characters or fewer");
       return;
     }
 
@@ -360,15 +368,62 @@ export default function SettingsPage() {
             : prev
         );
         setIsEditingProfile(false);
-        alert("Profile updated successfully");
+        toast.success("Profile updated");
       } else {
-        alert(data.error || "Failed to update profile");
+        toast.error(data.error || "Failed to update profile");
       }
-    } catch (error) {
-      console.error("Failed to update profile:", error);
-      alert("Failed to update profile");
+    } catch (err) {
+      console.error("Failed to update profile:", err);
+      toast.error("Failed to update profile");
     } finally {
       setUpdating(false);
+    }
+  }
+
+  async function handleLogoFile(file: File) {
+    setLogoError(null);
+
+    const allowedTypes = ["image/jpeg", "image/png", "image/webp", "image/svg+xml"];
+    if (!allowedTypes.includes(file.type)) {
+      setLogoError("Logo must be JPEG, PNG, WEBP, or SVG");
+      return;
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      setLogoError("Logo must be 2 MB or smaller");
+      return;
+    }
+
+    const dataUrl = await new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = () => reject(new Error("Could not read file"));
+      reader.readAsDataURL(file);
+    }).catch((e) => {
+      setLogoError(e.message);
+      return null;
+    });
+    if (!dataUrl) return;
+
+    setUploadingLogo(true);
+    try {
+      const res = await fetch("/api/merchant/settings/logo", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ fileDataUrl: dataUrl }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || "Upload failed");
+      }
+      setProfileForm((f) => ({ ...f, avatarUrl: data.avatarUrl }));
+      setMerchant((prev) => (prev ? { ...prev, avatarUrl: data.avatarUrl } : prev));
+      toast.success("Logo uploaded");
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Upload failed";
+      setLogoError(msg);
+      toast.error(msg);
+    } finally {
+      setUploadingLogo(false);
     }
   }
 
@@ -406,7 +461,7 @@ export default function SettingsPage() {
 
   async function handleSaveDeliveryFee() {
     if (deliveryFeeRupees < 0 || deliveryFeeRupees > 500) {
-      alert("Delivery fee must be between ₹0 and ₹500");
+      toast.warning("Delivery fee must be between ₹0 and ₹500");
       return;
     }
 
@@ -421,17 +476,17 @@ export default function SettingsPage() {
       const data = await res.json();
 
       if (res.ok) {
-        alert(
-          data.note
-            ? "Saved (note: full persistence requires a schema migration)"
-            : "Delivery fee updated successfully"
-        );
+        if (data.note) {
+          toast.info("Saved", "Full persistence requires a schema migration");
+        } else {
+          toast.success("Delivery fee updated");
+        }
       } else {
-        alert(data.error || "Failed to update delivery fee");
+        toast.error(data.error || "Failed to update delivery fee");
       }
-    } catch (error) {
-      console.error("Failed to update delivery fee:", error);
-      alert("Failed to update delivery fee");
+    } catch (err) {
+      console.error("Failed to update delivery fee:", err);
+      toast.error("Failed to update delivery fee");
     } finally {
       setSavingDeliveryFee(false);
     }
@@ -439,7 +494,7 @@ export default function SettingsPage() {
 
   async function handleSaveVisitCharge() {
     if (visitChargeRupees < 0 || visitChargeRupees > 10000) {
-      alert("Visit charge must be between ₹0 and ₹10,000");
+      toast.warning("Visit charge must be between ₹0 and ₹10,000");
       return;
     }
 
@@ -454,13 +509,13 @@ export default function SettingsPage() {
       const data = await res.json();
 
       if (res.ok) {
-        alert("Visit charge updated successfully");
+        toast.success("Visit charge updated");
       } else {
-        alert(data.error || "Failed to update visit charge");
+        toast.error(data.error || "Failed to update visit charge");
       }
-    } catch (error) {
-      console.error("Failed to update visit charge:", error);
-      alert("Failed to update visit charge");
+    } catch (err) {
+      console.error("Failed to update visit charge:", err);
+      toast.error("Failed to update visit charge");
     } finally {
       setSavingVisitCharge(false);
     }
@@ -476,12 +531,12 @@ export default function SettingsPage() {
       });
       const data = await res.json();
       if (res.ok) {
-        alert("Location settings updated successfully");
+        toast.success("Location settings updated");
       } else {
-        alert(data.error || "Failed to update location settings");
+        toast.error(data.error || "Failed to update location settings");
       }
     } catch {
-      alert("Failed to update location settings");
+      toast.error("Failed to update location settings");
     } finally {
       setSavingLocation(false);
     }
@@ -500,12 +555,12 @@ export default function SettingsPage() {
       });
       const data = await res.json();
       if (res.ok) {
-        alert("Order rules updated successfully");
+        toast.success("Order rules updated");
       } else {
-        alert(data.error || "Failed to update order rules");
+        toast.error(data.error || "Failed to update order rules");
       }
     } catch {
-      alert("Failed to update order rules");
+      toast.error("Failed to update order rules");
     } finally {
       setSavingOrderRules(false);
     }
@@ -522,15 +577,15 @@ export default function SettingsPage() {
       const data = await res.json();
       if (res.ok) {
         if (data.warning) {
-          alert(`Saved. Warning: ${data.warning}`);
+          toast.warning("Compliance details saved", data.warning);
         } else {
-          alert("Compliance details updated successfully");
+          toast.success("Compliance details updated");
         }
       } else {
-        alert(data.error || "Failed to update compliance details");
+        toast.error(data.error || "Failed to update compliance details");
       }
     } catch {
-      alert("Failed to update compliance details");
+      toast.error("Failed to update compliance details");
     } finally {
       setSavingCompliance(false);
     }
@@ -552,12 +607,12 @@ export default function SettingsPage() {
       });
       const data = await res.json();
       if (res.ok) {
-        alert("Weekly schedule updated successfully");
+        toast.success("Weekly schedule updated");
       } else {
-        alert(data.error || "Failed to update schedule");
+        toast.error(data.error || "Failed to update schedule");
       }
     } catch {
-      alert("Failed to update schedule");
+      toast.error("Failed to update schedule");
     } finally {
       setSavingSchedule(false);
     }
@@ -579,12 +634,12 @@ export default function SettingsPage() {
       });
       const data = await res.json();
       if (res.ok) {
-        alert("Payment methods updated successfully");
+        toast.success("Payment methods updated");
       } else {
-        alert(data.error || "Failed to update payment methods");
+        toast.error(data.error || "Failed to update payment methods");
       }
     } catch {
-      alert("Failed to update payment methods");
+      toast.error("Failed to update payment methods");
     } finally {
       setSavingPayments(false);
     }
@@ -599,7 +654,17 @@ export default function SettingsPage() {
   }
 
   if (!merchant) {
-    return null;
+    return (
+      <div className="flex h-full items-center justify-center p-6">
+        <div className="w-full max-w-md rounded-md border border-red-200 bg-red-50 p-6 text-center shadow-sm">
+          <AlertTriangle className="mx-auto mb-3 h-8 w-8 text-red-500" />
+          <h2 className="text-lg font-semibold text-red-900">Settings unavailable</h2>
+          <p className="mt-2 text-sm text-red-700">
+            We couldn’t load your merchant settings. Please refresh and try again.
+          </p>
+        </div>
+      </div>
+    );
   }
 
   const statusColor = {
@@ -612,11 +677,29 @@ export default function SettingsPage() {
   return (
     <div className="p-6 lg:p-8">
       {/* Header */}
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Settings</h1>
-        <p className="mt-1 text-sm text-gray-600">
-          Manage your business profile and account settings
-        </p>
+      <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Settings</h1>
+          <p className="mt-1 text-sm text-gray-600">
+            Manage your business profile and account settings
+          </p>
+        </div>
+
+        <label className="flex items-center gap-2 rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 shadow-sm">
+          <span className="font-medium">Language</span>
+          <select
+            aria-label="Language"
+            value={locale}
+            onChange={(e) => setLocale(e.target.value as Locale)}
+            className="rounded border border-gray-200 bg-white px-2 py-1.5 text-sm text-gray-900 outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
+          >
+            {LOCALES.map((language) => (
+              <option key={language.code} value={language.code}>
+                {language.label}
+              </option>
+            ))}
+          </select>
+        </label>
       </div>
 
       <div className="max-w-3xl space-y-6">
@@ -687,14 +770,84 @@ export default function SettingsPage() {
 
             {isEditingProfile && (
               <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700">Avatar / Logo URL</label>
+                <label className="mb-1 block text-sm font-medium text-gray-700">Logo</label>
+                <div className="flex items-start gap-4 rounded-md border border-gray-200 bg-gray-50 p-4">
+                  <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-md border border-gray-200 bg-white">
+                    {profileForm.avatarUrl ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={profileForm.avatarUrl}
+                        alt="Logo preview"
+                        className="h-full w-full object-cover"
+                        onError={(e) => {
+                          (e.currentTarget as HTMLImageElement).style.display = "none";
+                        }}
+                      />
+                    ) : (
+                      <Store className="h-8 w-8 text-gray-300" />
+                    )}
+                  </div>
+                  <div className="flex-1 space-y-2">
+                    <div className="flex flex-wrap gap-2">
+                      <input
+                        ref={logoFileInputRef}
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp,image/svg+xml"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) handleLogoFile(file);
+                          e.target.value = "";
+                        }}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => logoFileInputRef.current?.click()}
+                        disabled={uploadingLogo}
+                        className="flex items-center gap-1.5 rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+                      >
+                        {uploadingLogo ? (
+                          <Loader2 size={14} className="animate-spin" />
+                        ) : (
+                          <Upload size={14} />
+                        )}
+                        {uploadingLogo ? "Uploading…" : "Upload logo"}
+                      </button>
+                      {profileForm.avatarUrl && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setProfileForm((f) => ({ ...f, avatarUrl: "" }));
+                            setLogoError(null);
+                          }}
+                          disabled={uploadingLogo}
+                          className="flex items-center gap-1.5 rounded-md border border-red-200 bg-white px-3 py-1.5 text-sm font-medium text-red-600 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                          <Trash2 size={14} />
+                          Remove
+                        </button>
+                      )}
+                    </div>
+                    <p className="text-xs text-gray-500">
+                      JPEG, PNG, WEBP or SVG. Max 2 MB. Square images work best.
+                    </p>
+                    {logoError && (
+                      <p className="text-xs text-red-600">{logoError}</p>
+                    )}
+                  </div>
+                </div>
+
+                <label className="mb-1 mt-4 block text-sm font-medium text-gray-700">Logo URL</label>
                 <input
                   type="url"
                   value={profileForm.avatarUrl}
                   onChange={(e) => setProfileForm((f) => ({ ...f, avatarUrl: e.target.value }))}
                   className="w-full rounded-md border border-gray-300 px-4 py-2.5 text-base focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-                  placeholder="https://… (optional)"
+                  placeholder="https://… (or paste a hosted URL)"
                 />
+                <p className="mt-1 text-xs text-gray-500">
+                  Auto-filled after upload. You can also paste a URL from an external image host.
+                </p>
               </div>
             )}
 

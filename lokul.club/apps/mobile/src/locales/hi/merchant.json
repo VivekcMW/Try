@@ -1,0 +1,71 @@
+{
+  "title": "व्यवसाय डैशबोर्ड",
+  "overview": "अवलोकन",
+  "orders": "ऑर्डर",
+  "inventory": "इन्वेंटरी",
+  "settings": "सेटिंग्स",
+  "language": "भाषा",
+  "tabs": {
+    "overview": "अवलोकन",
+    "bookings": "बुकिंग",
+    "revenue": "राजस्व",
+    "funnel": "फनल"
+  },
+  "stats": {
+    "pageViews": "पेज व्यू",
+    "weeklyBookings": "साप्ताहिक बुकिंग",
+    "monthlyBookings": "मासिक बुकिंग",
+    "revenueThisMonth": "इस महीने का राजस्व",
+    "avgRating": "औसत रेटिंग",
+    "totalReviews": "कुल समीक्षा",
+    "newCustomers": "नए ग्राहक",
+    "repeatCustomers": "दोहराए गए ग्राहक",
+    "topProduct": "शीर्ष उत्पाद"
+  },
+  "status": {
+    "newOrder": "नया ऑर्डर",
+    "accepted": "स्वीकृत",
+    "preparing": "तैयार किया जा रहा है",
+    "ready": "तैयार",
+    "delivered": "पहुंचा",
+    "rejected": "अस्वीकृत",
+    "cancelled": "रद्द",
+    "pending": "लंबित"
+  },
+  "auth": {
+    "login": "लॉगिन",
+    "phoneNumber": "फोन नंबर",
+    "continue": "जारी रखें",
+    "otpVerification": "OTP सत्यापन",
+    "verifyOtp": "OTP सत्यापित करें",
+    "resendCode": "कोड फिर से भेजें",
+    "invalidOtp": "अमान्य OTP",
+    "welcomeBack": "वापसी पर स्वागत है",
+    "networkError": "नेटवर्क त्रुटि"
+  },
+  "inventory": {
+    "addProduct": "उत्पाद जोड़ें",
+    "editProduct": "उत्पाद संपादित करें",
+    "stock": "स्टॉक",
+    "price": "कीमत",
+    "quantity": "मात्रा",
+    "category": "श्रेणी",
+    "save": "सेव करें",
+    "publish": "प्रकाशित करें",
+    "draft": "ड्राफ्ट",
+    "outOfStock": "स्टॉक समाप्त",
+    "lowStock": "कम स्टॉक"
+  },
+  "empty": {
+    "noOrders": "अभी तक कोई ऑर्डर नहीं",
+    "noInventory": "अभी तक कोई इन्वेंटरी आइटम नहीं",
+    "noNotifications": "कोई सूचना नहीं",
+    "noResults": "कोई परिणाम नहीं मिला"
+  },
+  "errors": {
+    "somethingWentWrong": "कुछ गलत हुआ",
+    "tryAgain": "पुनः प्रयास करें",
+    "sessionExpired": "सत्र समाप्त",
+    "permissionRequired": "अनुमति आवश्यक"
+  }
+}

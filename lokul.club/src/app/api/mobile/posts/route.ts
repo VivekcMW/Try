@@ -6,6 +6,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { moderateText } from "@/lib/moderation";
 import { captureServerEvent } from "@/lib/analytics-server";
+import { isFeatureEnabled } from "@/lib/feature-flags-server";
 
 export async function GET(req: NextRequest) {
   const { searchParams } = req.nextUrl;
@@ -79,6 +80,15 @@ export async function POST(req: NextRequest) {
     const VALID_TYPES = new Set(['update','safety','lost','event','poll','sell','rwa_notice','sos','recommendation','outage','help_request']);
     if (type && !VALID_TYPES.has(type)) {
       return NextResponse.json({ error: "Invalid post type" }, { status: 400 });
+    }
+    if (type === "sos" && !(await isFeatureEnabled("sos_broadcast", { pinCode, societyId, userId }))) {
+      return NextResponse.json({ error: "SOS posts are currently disabled" }, { status: 403 });
+    }
+    if (type === "event" && !(await isFeatureEnabled("events", { pinCode, societyId, userId }))) {
+      return NextResponse.json({ error: "Events are currently disabled" }, { status: 403 });
+    }
+    if (type === "lost" && !(await isFeatureEnabled("lost_found", { pinCode, societyId, userId }))) {
+      return NextResponse.json({ error: "Lost & Found is currently disabled" }, { status: 403 });
     }
 
     // Moderation check

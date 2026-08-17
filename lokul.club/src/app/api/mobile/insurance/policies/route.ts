@@ -4,6 +4,7 @@
  */
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { isFeatureEnabled } from "@/lib/feature-flags-server";
 
 export async function GET(req: NextRequest) {
   const ownerId = req.nextUrl.searchParams.get("ownerId");
@@ -26,6 +27,10 @@ export async function POST(req: NextRequest) {
       ownerId, provider, planName, category, categoryIcon,
       coverAmountPaise, premiumPaise, pinCode,
     } = await req.json();
+
+    if (!(await isFeatureEnabled("insurance", { pinCode, userId: ownerId }))) {
+      return NextResponse.json({ error: "Insurance is currently unavailable" }, { status: 403 });
+    }
 
     if (!ownerId || !provider || !planName || !category || !coverAmountPaise || !premiumPaise || !pinCode) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });

@@ -1043,6 +1043,15 @@ async function main() {
       { key: 'realestate', enabled: false, scope: 'global', scopeValue: null, description: 'Property listings (needs RERA compliance)' },
       { key: 'amenity_booking', enabled: false, scope: 'global', scopeValue: null, description: 'Book society amenities (clubhouse, pool)' },
       { key: 'domestic_help', enabled: false, scope: 'global', scopeValue: null, description: 'Maid/cook/driver directory (can be part of Services)' },
+      { key: 'sos_broadcast', enabled: false, scope: 'global', scopeValue: null, description: 'Emergency "sos" post type in the feed' },
+      { key: 'kyc_gold_tier', enabled: true, scope: 'global', scopeValue: null, description: 'Aadhaar liveness/face-match gold KYC tier flow' },
+
+      // Merchant back-office (admin off-switch for abuse/spam review)
+      { key: 'merchant_broadcasts', enabled: true, scope: 'global', scopeValue: null, description: 'Merchants push messages to their past customers' },
+      { key: 'merchant_coupons', enabled: true, scope: 'global', scopeValue: null, description: 'Merchants create their own discount codes' },
+      { key: 'merchant_subscriptions', enabled: true, scope: 'global', scopeValue: null, description: 'Merchants sell recurring subscription plans' },
+      { key: 'merchant_branches', enabled: true, scope: 'global', scopeValue: null, description: 'Merchants add multiple business locations' },
+      { key: 'merchant_pages', enabled: true, scope: 'global', scopeValue: null, description: 'Public merchant directory/storefront listings' },
     ],
     skipDuplicates: true,
   });

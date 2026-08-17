@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState, useCallback } from "react";
 import { Plus, Package, Edit2, Trash2, X, Loader2, Calendar } from "lucide-react";
+import { useToast } from "@/components/ui";
 
 type Plan = {
   id: string;
@@ -47,8 +48,10 @@ function frequencyBadge(frequency: string) {
 }
 
 export default function PlansPage() {
+  const toast = useToast();
   const [plans, setPlans] = useState<Plan[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [editingPlan, setEditingPlan] = useState<Plan | null>(null);
   const [saving, setSaving] = useState(false);
@@ -56,6 +59,8 @@ export default function PlansPage() {
   const [formError, setFormError] = useState("");
 
   const loadPlans = useCallback(async () => {
+    setLoading(true);
+    setError(null);
     try {
       const res = await fetch("/api/merchant/plans");
       if (!res.ok) throw new Error("Failed to fetch");
@@ -63,6 +68,7 @@ export default function PlansPage() {
       setPlans(data.plans ?? []);
     } catch (err) {
       console.error("Failed to load plans:", err);
+      setError("We couldn’t load your subscription plans. Please retry in a moment.");
     } finally {
       setLoading(false);
     }
@@ -166,7 +172,7 @@ export default function PlansPage() {
 
   const handleDelete = async (plan: Plan) => {
     if (plan._count.subscriptions > 0) {
-      alert("Cannot delete a plan with active subscriptions.");
+      toast.warning("Cannot delete a plan with active subscriptions");
       return;
     }
     if (!confirm("Delete this plan? This cannot be undone.")) return;
@@ -176,7 +182,7 @@ export default function PlansPage() {
       const res = await fetch(`/api/merchant/plans/${plan.id}`, { method: "DELETE" });
       if (!res.ok) {
         const data = await res.json();
-        alert(data.error ?? "Failed to delete plan.");
+        toast.error(data.error ?? "Failed to delete plan");
         await loadPlans();
       }
     } catch (err) {
@@ -189,6 +195,23 @@ export default function PlansPage() {
     return (
       <div className="flex h-full items-center justify-center">
         <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-blue-600" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex h-full items-center justify-center p-6">
+        <div className="w-full max-w-md rounded-md border border-red-200 bg-red-50 p-6 text-center shadow-sm">
+          <h2 className="text-lg font-semibold text-red-900">Plans unavailable</h2>
+          <p className="mt-2 text-sm text-red-700">{error}</p>
+          <button
+            onClick={loadPlans}
+            className="mt-4 rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700"
+          >
+            Retry
+          </button>
+        </div>
       </div>
     );
   }

@@ -57,6 +57,7 @@ export type AdminMerchant = {
   status: string;
   isEndorsed: boolean;
   isBlacklisted: boolean;
+  workflowProfile: string; // "" means never explicitly set
   createdAt: Date;
 };
 
@@ -124,10 +125,10 @@ const FIXTURE_SOCIETIES: AdminSociety[] = [
 ];
 
 const FIXTURE_MERCHANTS: AdminMerchant[] = [
-  { id: "m1", ownerId: "u2", ownerName: "Rahul Mehta",   name: "Rahul's Grocery",     category: "grocery",   city: "Bengaluru", pinCode: "560001", status: "pending_verification", isEndorsed: false, isBlacklisted: false, createdAt: days(3)  },
-  { id: "m2", ownerId: "u6", ownerName: "Vikram Singh",  name: "Vikram Electricals",  category: "services",  city: "Mumbai",    pinCode: "400053", status: "active",               isEndorsed: true,  isBlacklisted: false, createdAt: days(25) },
-  { id: "m3", ownerId: "u4", ownerName: "Amit Kumar",    name: "Amit Fast Food",      category: "food",      city: "Bengaluru", pinCode: "560034", status: "suspended",            isEndorsed: false, isBlacklisted: false, createdAt: days(10) },
-  { id: "m4", ownerId: "u1", ownerName: "Priya Sharma",  name: "Priya Boutique",      category: "fashion",   city: "Hyderabad", pinCode: "500033", status: "pending_verification", isEndorsed: false, isBlacklisted: false, createdAt: days(1)  },
+  { id: "m1", ownerId: "u2", ownerName: "Rahul Mehta",   name: "Rahul's Grocery",     category: "kirana",      city: "Bengaluru", pinCode: "560001", status: "pending_verification", isEndorsed: false, isBlacklisted: false, workflowProfile: "retail", createdAt: days(3)  },
+  { id: "m2", ownerId: "u6", ownerName: "Vikram Singh",  name: "Vikram Electricals",  category: "electrician", city: "Mumbai",    pinCode: "400053", status: "active",               isEndorsed: true,  isBlacklisted: false, workflowProfile: "",       createdAt: days(25) },
+  { id: "m3", ownerId: "u4", ownerName: "Amit Kumar",    name: "Amit Fast Food",      category: "restaurant",  city: "Bengaluru", pinCode: "560034", status: "suspended",            isEndorsed: false, isBlacklisted: false, workflowProfile: "retail", createdAt: days(10) },
+  { id: "m4", ownerId: "u1", ownerName: "Priya Sharma",  name: "Priya Boutique",      category: "clothing",    city: "Hyderabad", pinCode: "500033", status: "pending_verification", isEndorsed: false, isBlacklisted: false, workflowProfile: "retail", createdAt: days(1)  },
 ];
 
 const FIXTURE_BROADCASTS: AdminBroadcast[] = [
@@ -138,11 +139,15 @@ const FIXTURE_BROADCASTS: AdminBroadcast[] = [
 ];
 
 const FIXTURE_FLAGS: AdminFlag[] = [
-  { id: "f1", key: "classifieds",      enabled: true,  scope: "global",  scopeValue: null,    description: "Classifieds / marketplace feature", updatedAt: days(10) },
-  { id: "f2", key: "merchant_pages",   enabled: true,  scope: "global",  scopeValue: null,    description: "Merchant storefronts",              updatedAt: days(10) },
-  { id: "f3", key: "sos_broadcast",    enabled: false, scope: "global",  scopeValue: null,    description: "SOS post type in feed",             updatedAt: days(3)  },
-  { id: "f4", key: "kyc_gold_tier",    enabled: false, scope: "global",  scopeValue: null,    description: "Gold KYC tier verification flow",   updatedAt: days(2)  },
-  { id: "f5", key: "classifieds",      enabled: true,  scope: "society", scopeValue: "s2",    description: null,                                updatedAt: days(5)  },
+  { id: "f1", key: "classifieds",           enabled: true,  scope: "global",  scopeValue: null, description: "Classifieds / marketplace feature", updatedAt: days(10) },
+  { id: "f2", key: "merchant_pages",        enabled: true,  scope: "global",  scopeValue: null, description: "Merchant storefronts",              updatedAt: days(10) },
+  { id: "f3", key: "sos_broadcast",         enabled: false, scope: "global",  scopeValue: null, description: "SOS post type in feed",             updatedAt: days(3)  },
+  { id: "f4", key: "kyc_gold_tier",         enabled: true,  scope: "global",  scopeValue: null, description: "Gold KYC tier verification flow",   updatedAt: days(2)  },
+  { id: "f5", key: "classifieds",           enabled: true,  scope: "society", scopeValue: "s2", description: null,                                updatedAt: days(5)  },
+  { id: "f6", key: "merchant_broadcasts",    enabled: true,  scope: "global", scopeValue: null, description: "Merchants push messages to their past customers", updatedAt: days(1) },
+  { id: "f7", key: "merchant_coupons",       enabled: true,  scope: "global", scopeValue: null, description: "Merchants create their own discount codes",       updatedAt: days(1) },
+  { id: "f8", key: "merchant_subscriptions", enabled: true,  scope: "global", scopeValue: null, description: "Merchants sell recurring subscription plans",     updatedAt: days(1) },
+  { id: "f9", key: "merchant_branches",      enabled: true,  scope: "global", scopeValue: null, description: "Merchants add multiple business locations",       updatedAt: days(1) },
 ];
 
 const FIXTURE_AUDIT: AdminAuditLog[] = [
@@ -369,7 +374,8 @@ export async function getMerchants({
   const merchants: AdminMerchant[] = raw.map(m => ({
     id: m.id, ownerId: m.ownerId, ownerName: m.owner.name,
     name: m.name, category: m.category, city: m.city, pinCode: m.pinCode,
-    status: m.status, isEndorsed: m.isEndorsed, isBlacklisted: m.isBlacklisted, createdAt: m.createdAt,
+    status: m.status, isEndorsed: m.isEndorsed, isBlacklisted: m.isBlacklisted,
+    workflowProfile: m.workflowProfile ?? "", createdAt: m.createdAt,
   }));
 
   return { merchants, total, pages: Math.ceil(total / pageSize) };
@@ -1081,4 +1087,313 @@ export async function getIncidentReports({
     }),
   ]);
   return { reports, total, pages: Math.ceil(total / pageSize) };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// MERCHANT ORDERS (merchant back-office commerce — distinct from the P2P
+// classifieds `Order` model surfaced on /admin/orders)
+// ─────────────────────────────────────────────────────────────────────────────
+
+export type AdminMerchantOrder = {
+  id: string; orderNumber: string; status: string; paymentStatus: string;
+  totalPaise: number; createdAt: Date;
+  customer: { id: string; name: string };
+  merchant: { id: string; name: string };
+};
+
+export async function getMerchantOrders({
+  page = 1, pageSize = 50, search = "", status = "",
+}: { page?: number; pageSize?: number; search?: string; status?: string }) {
+  if (E2E) {
+    const stub: AdminMerchantOrder[] = [
+      { id: "mo1", orderNumber: "#LK-2026-0001", status: "pending",   paymentStatus: "paid",     totalPaise: 45000,  createdAt: days(1), customer: { id: "u1", name: "Priya Sharma" }, merchant: { id: "m1", name: "Rahul's Grocery" } },
+      { id: "mo2", orderNumber: "#LK-2026-0002", status: "completed", paymentStatus: "paid",     totalPaise: 120000, createdAt: days(2), customer: { id: "u2", name: "Ravi Kumar" },   merchant: { id: "m3", name: "Amit Fast Food" } },
+      { id: "mo3", orderNumber: "#LK-2026-0003", status: "disputed",  paymentStatus: "refunded", totalPaise: 80000,  createdAt: days(3), customer: { id: "u3", name: "Anita Nair" },   merchant: { id: "m2", name: "Vikram Electricals" } },
+    ];
+    const filtered = status ? stub.filter((o) => o.status === status) : stub;
+    const q = search.toLowerCase();
+    const result = q ? filtered.filter((o) => o.orderNumber.toLowerCase().includes(q) || o.customer.name.toLowerCase().includes(q) || o.merchant.name.toLowerCase().includes(q)) : filtered;
+    return { orders: result.slice((page - 1) * pageSize, page * pageSize), total: result.length, pages: Math.max(1, Math.ceil(result.length / pageSize)) };
+  }
+  const where: Prisma.MerchantOrderWhereInput = {
+    ...(status ? { status: status as Prisma.EnumOrderStatusFilter } : {}),
+    ...(search ? { OR: [
+      { orderNumber: { contains: search, mode: "insensitive" as const } },
+      { customer: { name: { contains: search, mode: "insensitive" as const } } },
+      { merchant: { name: { contains: search, mode: "insensitive" as const } } },
+    ] } : {}),
+  };
+  const [total, orders] = await Promise.all([
+    prisma.merchantOrder.count({ where }),
+    prisma.merchantOrder.findMany({
+      where, orderBy: { createdAt: "desc" }, skip: (page - 1) * pageSize, take: pageSize,
+      select: {
+        id: true, orderNumber: true, status: true, paymentStatus: true, totalPaise: true, createdAt: true,
+        customer: { select: { id: true, name: true } },
+        merchant: { select: { id: true, name: true } },
+      },
+    }),
+  ]);
+  return { orders, total, pages: Math.max(1, Math.ceil(total / pageSize)) };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// MERCHANT COUPONS
+// ─────────────────────────────────────────────────────────────────────────────
+
+export type AdminMerchantCoupon = {
+  id: string; code: string; discountType: string; discountValue: number;
+  usedCount: number; maxUsesTotal: number | null; isActive: boolean;
+  expiresAt: Date | null; createdAt: Date;
+  merchant: { id: string; name: string };
+};
+
+export async function getMerchantCoupons({
+  page = 1, pageSize = 50, search = "", active = "",
+}: { page?: number; pageSize?: number; search?: string; active?: string }) {
+  if (E2E) {
+    const stub: AdminMerchantCoupon[] = [
+      { id: "mc1", code: "WELCOME10", discountType: "percent_off", discountValue: 10,  usedCount: 34, maxUsesTotal: 100, isActive: true,  expiresAt: null,    createdAt: days(20), merchant: { id: "m1", name: "Rahul's Grocery" } },
+      { id: "mc2", code: "FEST200",   discountType: "flat_off",    discountValue: 20000, usedCount: 12, maxUsesTotal: 50,  isActive: false, expiresAt: days(-2), createdAt: days(30), merchant: { id: "m3", name: "Amit Fast Food" } },
+    ];
+    const filtered = active === "" ? stub : stub.filter((c) => c.isActive === (active === "1"));
+    const q = search.toLowerCase();
+    const result = q ? filtered.filter((c) => c.code.toLowerCase().includes(q) || c.merchant.name.toLowerCase().includes(q)) : filtered;
+    return { coupons: result.slice((page - 1) * pageSize, page * pageSize), total: result.length, pages: Math.max(1, Math.ceil(result.length / pageSize)) };
+  }
+  const where: Prisma.MerchantCouponWhereInput = {
+    ...(active !== "" ? { isActive: active === "1" } : {}),
+    ...(search ? { OR: [
+      { code: { contains: search, mode: "insensitive" as const } },
+      { merchant: { name: { contains: search, mode: "insensitive" as const } } },
+    ] } : {}),
+  };
+  const [total, coupons] = await Promise.all([
+    prisma.merchantCoupon.count({ where }),
+    prisma.merchantCoupon.findMany({
+      where, orderBy: { createdAt: "desc" }, skip: (page - 1) * pageSize, take: pageSize,
+      select: {
+        id: true, code: true, discountType: true, discountValue: true, usedCount: true,
+        maxUsesTotal: true, isActive: true, expiresAt: true, createdAt: true,
+        merchant: { select: { id: true, name: true } },
+      },
+    }),
+  ]);
+  return { coupons, total, pages: Math.max(1, Math.ceil(total / pageSize)) };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// MERCHANT BROADCASTS (merchant → their own past customers — unmoderated
+// unless the `merchant_broadcasts` feature flag is toggled off)
+// ─────────────────────────────────────────────────────────────────────────────
+
+export type AdminMerchantBroadcast = {
+  id: string; title: string; message: string; sentTo: number; createdAt: Date;
+  merchant: { id: string; name: string };
+};
+
+export async function getMerchantBroadcasts({
+  page = 1, pageSize = 50, search = "",
+}: { page?: number; pageSize?: number; search?: string }) {
+  if (E2E) {
+    const stub: AdminMerchantBroadcast[] = [
+      { id: "mb1", title: "Diwali Sale This Weekend!", message: "20% off on all items Fri-Sun.", sentTo: 84, createdAt: days(2), merchant: { id: "m1", name: "Rahul's Grocery" } },
+      { id: "mb2", title: "New menu items",            message: "Try our new thali combo.",       sentTo: 40, createdAt: days(6), merchant: { id: "m3", name: "Amit Fast Food" } },
+    ];
+    const q = search.toLowerCase();
+    const result = q ? stub.filter((b) => b.title.toLowerCase().includes(q) || b.merchant.name.toLowerCase().includes(q)) : stub;
+    return { broadcasts: result.slice((page - 1) * pageSize, page * pageSize), total: result.length, pages: Math.max(1, Math.ceil(result.length / pageSize)) };
+  }
+  const where: Prisma.MerchantBroadcastWhereInput = search ? {
+    OR: [
+      { title: { contains: search, mode: "insensitive" as const } },
+      { merchant: { name: { contains: search, mode: "insensitive" as const } } },
+    ],
+  } : {};
+  const [total, broadcasts] = await Promise.all([
+    prisma.merchantBroadcast.count({ where }),
+    prisma.merchantBroadcast.findMany({
+      where, orderBy: { createdAt: "desc" }, skip: (page - 1) * pageSize, take: pageSize,
+      select: {
+        id: true, title: true, message: true, sentTo: true, createdAt: true,
+        merchant: { select: { id: true, name: true } },
+      },
+    }),
+  ]);
+  return { broadcasts, total, pages: Math.max(1, Math.ceil(total / pageSize)) };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// MERCHANT BRANCHES
+// ─────────────────────────────────────────────────────────────────────────────
+
+export type AdminMerchantBranch = {
+  id: string; name: string; city: string; pinCode: string; isActive: boolean; createdAt: Date;
+  merchant: { id: string; name: string };
+};
+
+export async function getMerchantBranches({
+  page = 1, pageSize = 50, search = "",
+}: { page?: number; pageSize?: number; search?: string }) {
+  if (E2E) {
+    const stub: AdminMerchantBranch[] = [
+      { id: "mbr1", name: "HSR Layout branch",  city: "Bengaluru", pinCode: "560102", isActive: true,  createdAt: days(15), merchant: { id: "m1", name: "Rahul's Grocery" } },
+      { id: "mbr2", name: "Indiranagar branch", city: "Bengaluru", pinCode: "560038", isActive: false, createdAt: days(40), merchant: { id: "m3", name: "Amit Fast Food" } },
+    ];
+    const q = search.toLowerCase();
+    const result = q ? stub.filter((b) => b.name.toLowerCase().includes(q) || b.city.toLowerCase().includes(q) || b.merchant.name.toLowerCase().includes(q)) : stub;
+    return { branches: result.slice((page - 1) * pageSize, page * pageSize), total: result.length, pages: Math.max(1, Math.ceil(result.length / pageSize)) };
+  }
+  const where: Prisma.MerchantBranchWhereInput = search ? {
+    OR: [
+      { name: { contains: search, mode: "insensitive" as const } },
+      { city: { contains: search, mode: "insensitive" as const } },
+      { merchant: { name: { contains: search, mode: "insensitive" as const } } },
+    ],
+  } : {};
+  const [total, branches] = await Promise.all([
+    prisma.merchantBranch.count({ where }),
+    prisma.merchantBranch.findMany({
+      where, orderBy: { createdAt: "desc" }, skip: (page - 1) * pageSize, take: pageSize,
+      select: {
+        id: true, name: true, city: true, pinCode: true, isActive: true, createdAt: true,
+        merchant: { select: { id: true, name: true } },
+      },
+    }),
+  ]);
+  return { branches, total, pages: Math.max(1, Math.ceil(total / pageSize)) };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// MERCHANT SUBSCRIPTIONS (recurring plans customers have subscribed to)
+// ─────────────────────────────────────────────────────────────────────────────
+
+export type AdminMerchantSubscription = {
+  id: string; status: string; quantity: number; startDate: Date; createdAt: Date;
+  plan: { id: string; name: string; pricePaise: number; frequency: string };
+  merchant: { id: string; name: string };
+  customer: { id: string; name: string };
+};
+
+export async function getMerchantSubscriptions({
+  page = 1, pageSize = 50, search = "", status = "",
+}: { page?: number; pageSize?: number; search?: string; status?: string }) {
+  if (E2E) {
+    const stub: AdminMerchantSubscription[] = [
+      { id: "sub1", status: "active",    quantity: 1, startDate: days(30), createdAt: days(30), plan: { id: "p1", name: "Daily Milk 1L", pricePaise: 6000, frequency: "daily" }, merchant: { id: "m1", name: "Rahul's Grocery" }, customer: { id: "u1", name: "Priya Sharma" } },
+      { id: "sub2", status: "paused",    quantity: 2, startDate: days(60), createdAt: days(60), plan: { id: "p2", name: "Lunch Tiffin", pricePaise: 12000, frequency: "weekdays" }, merchant: { id: "m3", name: "Amit Fast Food" }, customer: { id: "u2", name: "Ravi Kumar" } },
+    ];
+    const filtered = status ? stub.filter((s) => s.status === status) : stub;
+    const q = search.toLowerCase();
+    const result = q ? filtered.filter((s) => s.plan.name.toLowerCase().includes(q) || s.merchant.name.toLowerCase().includes(q) || s.customer.name.toLowerCase().includes(q)) : filtered;
+    return { subscriptions: result.slice((page - 1) * pageSize, page * pageSize), total: result.length, pages: Math.max(1, Math.ceil(result.length / pageSize)) };
+  }
+  const where: Prisma.SubscriptionWhereInput = {
+    ...(status ? { status } : {}),
+    ...(search ? { OR: [
+      { plan: { name: { contains: search, mode: "insensitive" as const } } },
+      { merchant: { name: { contains: search, mode: "insensitive" as const } } },
+      { customer: { name: { contains: search, mode: "insensitive" as const } } },
+    ] } : {}),
+  };
+  const [total, subscriptions] = await Promise.all([
+    prisma.subscription.count({ where }),
+    prisma.subscription.findMany({
+      where, orderBy: { createdAt: "desc" }, skip: (page - 1) * pageSize, take: pageSize,
+      select: {
+        id: true, status: true, quantity: true, startDate: true, createdAt: true,
+        plan: { select: { id: true, name: true, pricePaise: true, frequency: true } },
+        merchant: { select: { id: true, name: true } },
+        customer: { select: { id: true, name: true } },
+      },
+    }),
+  ]);
+  return { subscriptions, total, pages: Math.max(1, Math.ceil(total / pageSize)) };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// MERCHANT CATALOG (products, menu items, services, consultations, classes)
+// ─────────────────────────────────────────────────────────────────────────────
+
+export type AdminMerchantCatalogItem = {
+  id: string; name: string; kind: string; pricePaise: number;
+  isAvailable: boolean; stockCount: number | null; createdAt: Date;
+  merchant: { id: string; name: string };
+};
+
+export async function getMerchantCatalogItems({
+  page = 1, pageSize = 50, search = "", kind = "",
+}: { page?: number; pageSize?: number; search?: string; kind?: string }) {
+  if (E2E) {
+    const stub: AdminMerchantCatalogItem[] = [
+      { id: "ci1", name: "Basmati Rice 5kg",  kind: "product",   pricePaise: 45000, isAvailable: true,  stockCount: 20, createdAt: days(10), merchant: { id: "m1", name: "Rahul's Grocery" } },
+      { id: "ci2", name: "Butter Chicken",    kind: "menu_item", pricePaise: 32000, isAvailable: true,  stockCount: null, createdAt: days(5),  merchant: { id: "m3", name: "Amit Fast Food" } },
+      { id: "ci3", name: "Fan Installation",  kind: "service",   pricePaise: 25000, isAvailable: false, stockCount: null, createdAt: days(20), merchant: { id: "m2", name: "Vikram Electricals" } },
+    ];
+    const filtered = kind ? stub.filter((c) => c.kind === kind) : stub;
+    const q = search.toLowerCase();
+    const result = q ? filtered.filter((c) => c.name.toLowerCase().includes(q) || c.merchant.name.toLowerCase().includes(q)) : filtered;
+    return { items: result.slice((page - 1) * pageSize, page * pageSize), total: result.length, pages: Math.max(1, Math.ceil(result.length / pageSize)) };
+  }
+  const where: Prisma.MerchantCatalogItemWhereInput = {
+    ...(kind ? { kind: kind as Prisma.EnumCatalogItemKindFilter } : {}),
+    ...(search ? { OR: [
+      { name: { contains: search, mode: "insensitive" as const } },
+      { merchant: { name: { contains: search, mode: "insensitive" as const } } },
+    ] } : {}),
+  };
+  const [total, items] = await Promise.all([
+    prisma.merchantCatalogItem.count({ where }),
+    prisma.merchantCatalogItem.findMany({
+      where, orderBy: { createdAt: "desc" }, skip: (page - 1) * pageSize, take: pageSize,
+      select: {
+        id: true, name: true, kind: true, pricePaise: true, isAvailable: true, stockCount: true, createdAt: true,
+        merchant: { select: { id: true, name: true } },
+      },
+    }),
+  ]);
+  return { items, total, pages: Math.max(1, Math.ceil(total / pageSize)) };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// MERCHANT OFFERS
+// ─────────────────────────────────────────────────────────────────────────────
+
+export type AdminMerchantOffer = {
+  id: string; title: string; type: string; value: number;
+  isActive: boolean; startsAt: Date; endsAt: Date; createdAt: Date;
+  merchant: { id: string; name: string };
+};
+
+export async function getMerchantOffers({
+  page = 1, pageSize = 50, search = "", active = "",
+}: { page?: number; pageSize?: number; search?: string; active?: string }) {
+  if (E2E) {
+    const stub: AdminMerchantOffer[] = [
+      { id: "of1", title: "Weekend 15% off", type: "percent_off", value: 15, isActive: true,  startsAt: days(3), endsAt: days(-2), createdAt: days(3),  merchant: { id: "m1", name: "Rahul's Grocery" } },
+      { id: "of2", title: "Free delivery over \u20b9500", type: "free_delivery", value: 0, isActive: false, startsAt: days(20), endsAt: days(1), createdAt: days(20), merchant: { id: "m3", name: "Amit Fast Food" } },
+    ];
+    const filtered = active === "" ? stub : stub.filter((o) => o.isActive === (active === "1"));
+    const q = search.toLowerCase();
+    const result = q ? filtered.filter((o) => o.title.toLowerCase().includes(q) || o.merchant.name.toLowerCase().includes(q)) : filtered;
+    return { offers: result.slice((page - 1) * pageSize, page * pageSize), total: result.length, pages: Math.max(1, Math.ceil(result.length / pageSize)) };
+  }
+  const where: Prisma.MerchantOfferWhereInput = {
+    ...(active !== "" ? { isActive: active === "1" } : {}),
+    ...(search ? { OR: [
+      { title: { contains: search, mode: "insensitive" as const } },
+      { merchant: { name: { contains: search, mode: "insensitive" as const } } },
+    ] } : {}),
+  };
+  const [total, offers] = await Promise.all([
+    prisma.merchantOffer.count({ where }),
+    prisma.merchantOffer.findMany({
+      where, orderBy: { createdAt: "desc" }, skip: (page - 1) * pageSize, take: pageSize,
+      select: {
+        id: true, title: true, type: true, value: true, isActive: true, startsAt: true, endsAt: true, createdAt: true,
+        merchant: { select: { id: true, name: true } },
+      },
+    }),
+  ]);
+  return { offers, total, pages: Math.max(1, Math.ceil(total / pageSize)) };
 }

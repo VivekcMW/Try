@@ -9,12 +9,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { isR2Configured, uploadToR2, dataUrlToBuffer } from "@/lib/r2";
+import { isFeatureEnabled } from "@/lib/feature-flags-server";
 
 const E2E = process.env.E2E_TEST === "1" || (process.env.DATABASE_URL ?? "").includes("USER:PASSWORD");
 
 export async function POST(req: NextRequest) {
   try {
     const { userId, imageDataUrl } = await req.json();
+
+    if (!(await isFeatureEnabled("kyc_gold_tier", { userId }))) {
+      return NextResponse.json({ error: "Gold tier verification is currently unavailable" }, { status: 403 });
+    }
 
     if (!userId || !imageDataUrl) {
       return NextResponse.json(

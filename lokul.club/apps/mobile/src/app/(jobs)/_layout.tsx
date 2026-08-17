@@ -1,14 +1,17 @@
 import { Stack } from 'expo-router';
 import { colors } from '@lokul/ui-tokens';
+import { FeatureGate } from '@/components/FeatureGate';
 
 export default function JobsLayout() {
   return (
-    <Stack
-      screenOptions={{
-        headerShown: false,
-        contentStyle: { backgroundColor: colors.background },
-        animation: 'slide_from_right',
-      }}
-    />
+    <FeatureGate featureKey="jobs_board">
+      <Stack
+        screenOptions={{
+          headerShown: false,
+          contentStyle: { backgroundColor: colors.background },
+          animation: 'slide_from_right',
+        }}
+      />
+    </FeatureGate>
   );
 }

@@ -30,6 +30,7 @@ import { HStack, Text, VStack } from '@/components/ui';
 import { colors, radius, spacing } from '@lokul/ui-tokens';
 import { useSafetyStore, type TrustedContact } from '@/store/safetyStore';
 import { useWalletStore } from '@/store/walletStore';
+import { FeatureGate } from '@/components/FeatureGate';
 
 const BASE = process.env.EXPO_PUBLIC_API_BASE ?? '';
 const MAX_CONTACTS = 5;
@@ -166,6 +167,14 @@ function ContactForm({
 }
 
 export default function ContactsScreen() {
+  return (
+    <FeatureGate featureKey="safety_contacts">
+      <ContactsScreenInner />
+    </FeatureGate>
+  );
+}
+
+function ContactsScreenInner() {
   const router   = useRouter();
   const userId   = useWalletStore((s) => s.userId);
   const contacts = useSafetyStore((s) => s.contacts);

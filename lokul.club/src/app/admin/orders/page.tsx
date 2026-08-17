@@ -59,8 +59,8 @@ export default async function AdminOrdersPage({
   return (
     <div className="space-y-4">
       <PageHeader
-        title="Orders & Bookings"
-        description="Peer-to-peer service orders — track status, disputes and completions."
+        title="Orders & Bookings (Classifieds)"
+        description="Peer-to-peer service orders from classifieds listings only — track status, disputes and completions. For merchant catalog/menu orders, see Merchant Orders."
       />
       <Suspense>
         <AdminOrdersTable orders={orders as never} total={total} page={page} pages={Math.ceil(total / PAGE_SIZE)} status={status} search={search} />

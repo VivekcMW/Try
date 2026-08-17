@@ -4,11 +4,11 @@
  * Client-side charts for /admin/revenue. Data is fetched server-side in the
  * page component (getRevenueOverview) and passed in as plain props.
  */
-import { TrendingUp, Megaphone, Gift, MapPin, ArrowUp, ArrowDown } from "lucide-react";
+import { TrendingUp, Megaphone, Gift, MapPin, ArrowUp, ArrowDown, Store } from "lucide-react";
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend,
 } from "recharts";
-import type { AdDayStat, ReferralFunnelStage, TopPin } from "@/lib/admin-revenue";
+import type { AdDayStat, ReferralFunnelStage, TopPin, TopMerchant } from "@/lib/admin-revenue";
 
 function paise(v: number): string {
   return `₹${(v / 100).toLocaleString("en-IN", { maximumFractionDigits: 0 })}`;
@@ -54,6 +54,10 @@ export default function RevenueCharts({
   adDaily,
   referralFunnel,
   topPins,
+  merchantGmvAllTimePaise,
+  merchantGmvThisWeekPaise,
+  merchantGmvTrendPct,
+  topMerchantsByGmv,
 }: {
   adRevenueAllTimePaise: number;
   adRevenueThisWeekPaise: number;
@@ -63,6 +67,10 @@ export default function RevenueCharts({
   adDaily: AdDayStat[];
   referralFunnel: ReferralFunnelStage[];
   topPins: TopPin[];
+  merchantGmvAllTimePaise: number;
+  merchantGmvThisWeekPaise: number;
+  merchantGmvTrendPct: number | null;
+  topMerchantsByGmv: TopMerchant[];
 }) {
   const maxInvited = referralFunnel[0]?.count ?? 0;
   const converted = referralFunnel[referralFunnel.length - 1]?.count ?? 0;
@@ -95,6 +103,19 @@ export default function RevenueCharts({
           label="Referral Credits Paid"
           value={paise(referralCreditsPaidPaise)}
           color="bg-violet-50 text-violet-600"
+        />
+        <StatCard
+          icon={Store}
+          label="Merchant GMV (all-time)"
+          value={paise(merchantGmvAllTimePaise)}
+          color="bg-emerald-50 text-emerald-600"
+        />
+        <StatCard
+          icon={Store}
+          label="Merchant GMV (this week)"
+          value={paise(merchantGmvThisWeekPaise)}
+          trendPct={merchantGmvTrendPct}
+          color="bg-teal-50 text-teal-600"
         />
       </div>
 
@@ -181,6 +202,35 @@ export default function RevenueCharts({
                   <td className="py-3 font-mono font-bold text-gray-800">{row.pin}</td>
                   <td className="py-3 text-right font-semibold text-gray-800">{paise(row.revenuePaise)}</td>
                   <td className="py-3 text-right text-gray-600">{row.bookings}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+      {/* Top merchants by GMV */}
+      <div className="bg-white rounded-[6px] border border-gray-100 p-6">
+        <div className="flex items-center gap-2 mb-4">
+          <Store className="w-4 h-4 text-emerald-500" />
+          <h2 className="text-base font-bold text-gray-800">Top Merchants by GMV</h2>
+        </div>
+        {topMerchantsByGmv.length === 0 ? (
+          <div className="py-12 text-center text-sm text-gray-400">No paid merchant orders yet.</div>
+        ) : (
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="text-left text-xs text-gray-500 border-b border-gray-100">
+                <th className="pb-2 font-semibold">Merchant</th>
+                <th className="pb-2 font-semibold text-right">GMV</th>
+                <th className="pb-2 font-semibold text-right">Orders</th>
+              </tr>
+            </thead>
+            <tbody>
+              {topMerchantsByGmv.map((row, i) => (
+                <tr key={row.merchantId} className={i < topMerchantsByGmv.length - 1 ? "border-b border-gray-50" : ""}>
+                  <td className="py-3 font-semibold text-gray-800">{row.name}</td>
+                  <td className="py-3 text-right font-semibold text-gray-800">{paise(row.gmvPaise)}</td>
+                  <td className="py-3 text-right text-gray-600">{row.orders}</td>
                 </tr>
               ))}
             </tbody>

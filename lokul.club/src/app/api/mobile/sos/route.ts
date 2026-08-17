@@ -6,6 +6,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { publishSosAlert } from "@/lib/ably";
 import { sendPush, findNearbyTokens } from "@/lib/push";
+import { isFeatureEnabled } from "@/lib/feature-flags-server";
 
 const E2E = process.env.E2E_TEST === "1" || (process.env.DATABASE_URL ?? "").includes("USER:PASSWORD");
 
@@ -43,6 +44,10 @@ export async function POST(req: NextRequest) {
 
   try {
     const { authorId, pinCode, category, severity, body, lat, lng } = await req.json();
+
+    if (!(await isFeatureEnabled("sos_alerts", { pinCode, userId: authorId }))) {
+      return NextResponse.json({ error: "SOS alerts are currently disabled" }, { status: 403 });
+    }
 
     if (!authorId || !pinCode || !category || !body) {
       return NextResponse.json(

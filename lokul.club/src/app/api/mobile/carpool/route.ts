@@ -9,6 +9,7 @@
  */
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { isFeatureEnabled } from "@/lib/feature-flags-server";
 
 /** Haversine distance in km between two lat/lng pairs */
 function haversineKm(lat1: number, lng1: number, lat2: number, lng2: number): number {
@@ -68,6 +69,10 @@ export async function POST(req: NextRequest) {
   try {
     const { driverId, fromLabel, toLabel, fromLat, fromLng, toLat, toLng,
             departureAt, seatsTotal, pricePaise, pinCode, notes } = await req.json();
+    if (!(await isFeatureEnabled("carpool", { pinCode, userId: driverId }))) {
+      return NextResponse.json({ error: "Carpooling is currently unavailable" }, { status: 403 });
+    }
+
     if (!driverId || !fromLabel || !toLabel || !departureAt || !seatsTotal || !pinCode) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }

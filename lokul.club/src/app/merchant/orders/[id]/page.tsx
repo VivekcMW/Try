@@ -15,6 +15,8 @@ import {
   Loader2,
   AlertTriangle,
 } from "lucide-react";
+import { useToast } from "@/components/ui";
+import { useI18n } from "@/lib/i18n";
 
 type OrderItem = {
   id: string;
@@ -77,6 +79,8 @@ type Order = {
 export default function OrderDetailPage() {
   const params = useParams();
   const router = useRouter();
+  const toast = useToast();
+  const { t } = useI18n();
   const orderId = params.id as string;
 
   const [order, setOrder] = useState<Order | null>(null);
@@ -100,16 +104,16 @@ export default function OrderDetailPage() {
         setOrder(data.order);
         setMerchantNotes(data.order.merchantNotes || "");
       } else {
-        alert("Order not found");
+        toast.error(t.merchant.detail.orderNotFound);
         router.push("/merchant/orders");
       }
-    } catch (error) {
-      console.error("Failed to load order:", error);
-      alert("Failed to load order");
+    } catch (err) {
+      console.error("Failed to load order:", err);
+      toast.error(t.merchant.detail.failedToLoad);
     } finally {
       setLoading(false);
     }
-  }, [orderId, router]);
+  }, [orderId, router, toast]);
 
   useEffect(() => {
     loadOrder();
@@ -130,13 +134,14 @@ export default function OrderDetailPage() {
         await loadOrder();
         setShowRejectModal(false);
         setRejectReason("");
+        toast.success(`${t.merchant.detail.title} ${action.replace(/_/g, " ")}`);
       } else {
         const data = await res.json();
-        alert(data.error || "Failed to update status");
+        toast.error(data.error || t.merchant.detail.failedToUpdate);
       }
-    } catch (error) {
-      console.error("Failed to update status:", error);
-      alert("Failed to update status");
+    } catch (err) {
+      console.error("Failed to update status:", err);
+      toast.error(t.merchant.detail.failedToUpdate);
     } finally {
       setUpdating(false);
     }
@@ -151,10 +156,10 @@ export default function OrderDetailPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ merchantNotes }),
       });
-      alert("Notes saved");
-    } catch (error) {
-      console.error("Failed to save notes:", error);
-      alert("Failed to save notes");
+      toast.success(t.merchant.detail.saveNotes);
+    } catch (err) {
+      console.error("Failed to save notes:", err);
+      toast.error(t.merchant.detail.failedToSaveNotes);
     }
   };
 
@@ -168,18 +173,18 @@ export default function OrderDetailPage() {
         body: JSON.stringify({ response: responseText.trim() }),
       });
       if (res.ok) {
-        alert("Response sent successfully");
+        toast.success(t.merchant.detail.responseSent);
         setShowResponseInput(false);
         setEditingResponse(false);
         setResponseText("");
         await loadOrder();
       } else {
         const data = await res.json();
-        alert(data.error || "Failed to send response");
+        toast.error(data.error || t.merchant.detail.failedToSendResponse);
       }
-    } catch (error) {
-      console.error("Failed to send response:", error);
-      alert("Failed to send response");
+    } catch (err) {
+      console.error("Failed to send response:", err);
+      toast.error(t.merchant.detail.failedToSendResponse);
     } finally {
       setSendingResponse(false);
     }
@@ -187,11 +192,11 @@ export default function OrderDetailPage() {
 
   const getStatusBadge = (status: string) => {
     const badges: Record<string, { label: string; className: string }> = {
-      pending: { label: "Pending", className: "bg-yellow-100 text-yellow-800" },
-      confirmed: { label: "Confirmed", className: "bg-blue-100 text-blue-800" },
-      in_progress: { label: "In Progress", className: "bg-purple-100 text-purple-800" },
-      completed: { label: "Completed", className: "bg-green-100 text-green-800" },
-      cancelled: { label: "Cancelled", className: "bg-red-100 text-red-800" },
+      pending: { label: t.merchant.status.pending, className: "bg-yellow-100 text-yellow-800" },
+      confirmed: { label: t.merchant.status.confirmed, className: "bg-blue-100 text-blue-800" },
+      in_progress: { label: t.merchant.status.in_progress, className: "bg-purple-100 text-purple-800" },
+      completed: { label: t.merchant.status.completed, className: "bg-green-100 text-green-800" },
+      cancelled: { label: t.merchant.status.cancelled, className: "bg-red-100 text-red-800" },
     };
     const badge = badges[status] || { label: status, className: "bg-gray-100 text-gray-800" };
     return (
@@ -212,7 +217,7 @@ export default function OrderDetailPage() {
   if (!order) {
     return (
       <div className="p-6">
-        <p className="text-gray-600">Order not found</p>
+        <p className="text-gray-600">{t.merchant.detail.orderNotFound}</p>
       </div>
     );
   }
@@ -229,7 +234,7 @@ export default function OrderDetailPage() {
             <ArrowLeft className="h-5 w-5" />
           </Link>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Order {order.orderNumber}</h1>
+            <h1 className="text-2xl font-bold text-gray-900">{t.merchant.detail.title} {order.orderNumber}</h1>
             <p className="mt-1 text-sm text-gray-600">
               {new Date(order.createdAt).toLocaleString("en-IN", {
                 day: "numeric",

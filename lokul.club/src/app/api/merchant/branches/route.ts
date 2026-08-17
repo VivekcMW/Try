@@ -5,6 +5,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireMerchant } from "@/lib/merchant-auth";
 import { prisma } from "@/lib/prisma";
+import { isFeatureEnabled } from "@/lib/feature-flags-server";
 
 export async function GET(_req: NextRequest) {
   try {
@@ -26,7 +27,11 @@ export async function GET(_req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const { merchantId } = await requireMerchant();
+    const { merchantId, merchant, userId } = await requireMerchant();
+    if (!(await isFeatureEnabled("merchant_branches", { pinCode: merchant.pinCode, city: merchant.city, userId }))) {
+      return NextResponse.json({ error: "Branches are currently disabled" }, { status: 403 });
+    }
+
     const body = await req.json();
 
     const { name, address, pinCode, city, lat, lng, phone } = body as {

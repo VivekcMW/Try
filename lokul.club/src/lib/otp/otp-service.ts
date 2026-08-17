@@ -298,6 +298,11 @@ export class OTPService {
   async hasPendingOTP(phone?: string, email?: string): Promise<boolean> {
     if (!phone && !email) return false;
 
+    const isDev = process.env.NODE_ENV === 'development' || process.env.E2E_TEST === '1';
+    if (isDev) {
+      return false;
+    }
+
     const recentOTP = await prisma.otpVerification.findFirst({
       where: {
         OR: [

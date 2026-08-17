@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { Flag, CheckCircle2, XCircle, Clock } from "lucide-react";
-import { Badge, Card, EmptyState, Switch } from "@/components/ui";
-import { toggleFlag } from "@/app/admin/flags/actions";
+import { Flag, CheckCircle2, XCircle, Clock, Plus } from "lucide-react";
+import { Badge, Button, Card, EmptyState, FormField, Input, Modal, Select, Switch } from "@/components/ui";
+import { toggleFlag, createFlag } from "@/app/admin/flags/actions";
 import type { AdminFlag } from "@/lib/admin-platform";
 import { FEATURE_METADATA } from "@/lib/feature-flags";
 
@@ -19,6 +19,13 @@ const PHASE_COLORS = {
 
 export default function FlagsTable({ flags }: { flags: AdminFlag[] }) {
   const [loadingId, setLoadingId] = useState<string | null>(null);
+  const [creating, setCreating] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [newKey, setNewKey] = useState("");
+  const [newDescription, setNewDescription] = useState("");
+  const [newScope, setNewScope] = useState("global");
+  const [newScopeValue, setNewScopeValue] = useState("");
+  const [newEnabled, setNewEnabled] = useState(false);
 
   async function handleToggle(id: string, current: boolean) {
     setLoadingId(id);
@@ -26,15 +33,58 @@ export default function FlagsTable({ flags }: { flags: AdminFlag[] }) {
     setLoadingId(null);
   }
 
+  function resetCreateForm() {
+    setCreating(false);
+    setNewKey("");
+    setNewDescription("");
+    setNewScope("global");
+    setNewScopeValue("");
+    setNewEnabled(false);
+  }
+
+  async function handleCreate() {
+    setSubmitting(true);
+    const fd = new FormData();
+    fd.set("key", newKey.trim().toLowerCase().replace(/[^a-z0-9_]+/g, "_"));
+    fd.set("description", newDescription);
+    fd.set("scope", newScope);
+    fd.set("scopeValue", newScopeValue);
+    if (newEnabled) fd.set("enabled", "on");
+    try {
+      await createFlag(fd);
+      resetCreateForm();
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
   if (flags.length === 0) {
     return (
-      <Card>
-        <EmptyState
-          icon={<Flag size={28} />}
-          title="No feature flags"
-          description="No flags have been configured yet. Run the seed script to create default flags."
+      <div className="space-y-4">
+        <div className="flex justify-end">
+          <Button size="sm" variant="primary" leftIcon={<Plus size={14} />} onClick={() => setCreating(true)}>
+            New flag
+          </Button>
+        </div>
+        <Card>
+          <EmptyState
+            icon={<Flag size={28} />}
+            title="No feature flags"
+            description="No flags have been configured yet. Run the seed script to create default flags."
+          />
+        </Card>
+        <CreateFlagModal
+          open={creating}
+          onClose={resetCreateForm}
+          submitting={submitting}
+          onSubmit={handleCreate}
+          newKey={newKey} setNewKey={setNewKey}
+          newDescription={newDescription} setNewDescription={setNewDescription}
+          newScope={newScope} setNewScope={setNewScope}
+          newScopeValue={newScopeValue} setNewScopeValue={setNewScopeValue}
+          newEnabled={newEnabled} setNewEnabled={setNewEnabled}
         />
-      </Card>
+      </div>
     );
   }
 
@@ -63,6 +113,12 @@ export default function FlagsTable({ flags }: { flags: AdminFlag[] }) {
 
   return (
     <div className="space-y-6">
+      <div className="flex justify-end">
+        <Button size="sm" variant="primary" leftIcon={<Plus size={14} />} onClick={() => setCreating(true)}>
+          New flag
+        </Button>
+      </div>
+
       {/* Phase 1: Core Features (Launch Day) */}
       {byPhase[1].length > 0 && (
         <div>
@@ -140,7 +196,97 @@ export default function FlagsTable({ flags }: { flags: AdminFlag[] }) {
           </div>
         </div>
       )}
+
+      <CreateFlagModal
+        open={creating}
+        onClose={resetCreateForm}
+        submitting={submitting}
+        onSubmit={handleCreate}
+        newKey={newKey} setNewKey={setNewKey}
+        newDescription={newDescription} setNewDescription={setNewDescription}
+        newScope={newScope} setNewScope={setNewScope}
+        newScopeValue={newScopeValue} setNewScopeValue={setNewScopeValue}
+        newEnabled={newEnabled} setNewEnabled={setNewEnabled}
+      />
     </div>
+  );
+}
+
+function CreateFlagModal({
+  open, onClose, submitting, onSubmit,
+  newKey, setNewKey,
+  newDescription, setNewDescription,
+  newScope, setNewScope,
+  newScopeValue, setNewScopeValue,
+  newEnabled, setNewEnabled,
+}: {
+  open: boolean;
+  onClose: () => void;
+  submitting: boolean;
+  onSubmit: () => void;
+  newKey: string; setNewKey: (v: string) => void;
+  newDescription: string; setNewDescription: (v: string) => void;
+  newScope: string; setNewScope: (v: string) => void;
+  newScopeValue: string; setNewScopeValue: (v: string) => void;
+  newEnabled: boolean; setNewEnabled: (v: boolean) => void;
+}) {
+  return (
+    <Modal
+      open={open}
+      onClose={onClose}
+      title="New feature flag"
+      description="Create a flag admins can toggle to control a feature at runtime, without a code deploy."
+      size="lg"
+      footer={
+        <div className="flex justify-end gap-2">
+          <Button variant="outline" size="sm" onClick={onClose}>Cancel</Button>
+          <Button variant="primary" size="sm" loading={submitting} disabled={!newKey.trim()} onClick={onSubmit}>
+            Create flag
+          </Button>
+        </div>
+      }
+    >
+      <div className="space-y-4">
+        <FormField label="Key" hint="lowercase letters, numbers, underscores — e.g. merchant_reviews">
+          <Input
+            placeholder="e.g. merchant_reviews"
+            value={newKey}
+            onChange={(e) => setNewKey(e.target.value)}
+          />
+        </FormField>
+        <FormField label="Description">
+          <Input
+            placeholder="What does this flag control?"
+            value={newDescription}
+            onChange={(e) => setNewDescription(e.target.value)}
+          />
+        </FormField>
+        <FormField label="Scope">
+          <Select value={newScope} onChange={(e) => setNewScope(e.target.value)}>
+            <option value="global">Global</option>
+            <option value="city">City</option>
+            <option value="pincode">Pincode</option>
+            <option value="society">Society</option>
+            <option value="user">User</option>
+          </Select>
+        </FormField>
+        {newScope !== "global" && (
+          <FormField label="Scope value" hint={`The ${newScope} this override applies to`}>
+            <Input
+              placeholder={newScope === "pincode" ? "e.g. 560001" : `${newScope} id`}
+              value={newScopeValue}
+              onChange={(e) => setNewScopeValue(e.target.value)}
+            />
+          </FormField>
+        )}
+        <FormField label="Initial state">
+          <div className="flex items-center gap-2">
+            <Switch checked={newEnabled} onChange={() => setNewEnabled(!newEnabled)} aria-label="Enabled on creation" />
+            <span className="text-sm text-gray-600">{newEnabled ? "Enabled" : "Disabled"}</span>
+          </div>
+        </FormField>
+      </div>
+    </Modal>
   );
 }
 

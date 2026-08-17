@@ -17,6 +17,7 @@ import { LockedFeatureCard } from '@/components/LockedFeatureCard';
 import { useOnboardingStore } from '@/store/onboardingStore';
 import { STAFF_MEMBERS } from '@/data/community-seed';
 import { colors, radius, spacing } from '@lokul/ui-tokens';
+import { FeatureGate } from '@/components/FeatureGate';
 
 const BASE = process.env.EXPO_PUBLIC_API_BASE ?? '';
 
@@ -38,6 +39,14 @@ const STATUS_TONE: Record<string, StatusTone> = {
 };
 
 export default function VisitorsScreen() {
+  return (
+    <FeatureGate featureKey="rwa_management">
+      <VisitorsScreenInner />
+    </FeatureGate>
+  );
+}
+
+function VisitorsScreenInner() {
   const router     = useRouter();
   const societyId  = useOnboardingStore((s) => s.societyId);
   const [tab,          setTab]          = useState<'visitors' | 'staff'>('visitors');

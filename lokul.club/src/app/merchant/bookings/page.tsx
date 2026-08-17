@@ -13,7 +13,7 @@ import {
   Loader2,
   AlertCircle,
 } from "lucide-react";
-import { useProfileLabels } from "@/lib/merchant-profile-context";
+import { useProfileLabels, useMerchantProfile } from "@/lib/merchant-profile-context";
 
 type Appointment = {
   id: string;
@@ -57,6 +57,7 @@ function formatScheduledAt(isoString: string): string {
 
 export default function BookingsPage() {
   const labels = useProfileLabels();
+  const profile = useMerchantProfile();
   const [filter, setFilter] = useState<FilterValue>("upcoming");
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [loading, setLoading] = useState(true);
@@ -115,7 +116,11 @@ export default function BookingsPage() {
     <div className="p-6 lg:p-8">
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-900">{labels.bookings}</h1>
-        <p className="mt-1 text-sm text-gray-600">Manage your appointments and bookings</p>
+        <p className="mt-1 text-sm text-gray-600">
+          {profile === "home_services"
+            ? "Track incoming service requests and update job progress."
+            : "Manage your appointments and bookings"}
+        </p>
       </div>
 
       {/* Filter tabs */}

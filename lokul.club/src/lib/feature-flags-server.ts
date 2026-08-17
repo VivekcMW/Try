@@ -11,27 +11,58 @@
 
 import { prisma } from './prisma';
 
+export type FlagContext = {
+  pinCode?: string | null;
+  societyId?: string | null;
+  city?: string | null;
+  userId?: string | null;
+};
+
+const SCOPE_PRIORITY: Record<string, number> = { global: 0, city: 1, pincode: 2, society: 3, user: 4 };
+
 /**
- * Check if a feature is enabled
- * Use on server-side only (API routes, server components)
+ * Check if a feature is enabled, resolving admin-configured scope overrides
+ * (global < city < pincode < society < user — most specific wins), matching
+ * the resolution order used by GET /api/mobile/flags.
+ *
+ * Pass locality/user context when available so per-society/city/pincode/user
+ * overrides set in /admin/flags actually take effect; omitting context falls
+ * back to the global flag only.
+ *
+ * Use on server-side only (API routes, server components).
  */
 export async function isFeatureEnabled(
   featureKey: string,
-  scope: 'global' | 'society' | 'city' | 'pincode' | 'user' = 'global',
-  scopeValue: string | null = null
+  context: FlagContext = {}
 ): Promise<boolean> {
   try {
-    const flag = await prisma.featureFlag.findFirst({
+    const { pinCode, societyId, city, userId } = context;
+    const flags = await prisma.featureFlag.findMany({
       where: {
         key: featureKey,
-        scope,
-        scopeValue,
+        OR: [
+          { scope: 'global' },
+          ...(city ? [{ scope: 'city' as const, scopeValue: city }] : []),
+          ...(pinCode ? [{ scope: 'pincode' as const, scopeValue: pinCode }] : []),
+          ...(societyId ? [{ scope: 'society' as const, scopeValue: societyId }] : []),
+          ...(userId ? [{ scope: 'user' as const, scopeValue: userId }] : []),
+        ],
       },
-      select: { enabled: true },
+      select: { scope: true, enabled: true },
     });
 
+    let resolved: boolean | undefined;
+    let resolvedPriority = -1;
+    for (const flag of flags) {
+      const p = SCOPE_PRIORITY[flag.scope] ?? 0;
+      if (p >= resolvedPriority) {
+        resolved = flag.enabled;
+        resolvedPriority = p;
+      }
+    }
+
     // If flag doesn't exist, default to disabled for safety
-    return flag?.enabled ?? false;
+    return resolved ?? false;
   } catch (error) {
     console.error(`Error checking feature flag ${featureKey}:`, error);
     return false; // Fail closed - disable feature if check fails

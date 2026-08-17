@@ -15,6 +15,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import {
   ArrowLeft,
   BarChart3,
@@ -179,6 +180,7 @@ function StatCard({
 
 // ── Main screen ───────────────────────────────────────────────────────────────
 export default function MerchantAnalyticsScreen() {
+  const { t } = useTranslation('merchant');
   const router  = useRouter();
   const userId  = useWalletStore((s) => s.userId);
   const society = useOnboardingStore((s) => s.societyName) ?? 'your locality';
@@ -224,7 +226,7 @@ export default function MerchantAnalyticsScreen() {
             <ArrowLeft size={22} color={colors.surface.heading} />
           </Pressable>
           <VStack gap={0} style={{ flex: 1 }}>
-            <Text variant="body" style={{ fontWeight: '700', color: colors.surface.heading }}>Business Analytics</Text>
+            <Text variant="body" style={{ fontWeight: '700', color: colors.surface.heading }}>{t('title')}</Text>
             <Text variant="caption" tone="secondary">{society}</Text>
           </VStack>
           <Pressable onPress={load} hitSlop={10} accessibilityRole="button" accessibilityLabel="Refresh">
@@ -234,15 +236,15 @@ export default function MerchantAnalyticsScreen() {
 
         {/* Tab bar */}
         <HStack gap={0} style={styles.tabs}>
-          {(['overview', 'bookings', 'revenue', 'funnel'] as const).map((t) => (
+          {(['overview', 'bookings', 'revenue', 'funnel'] as const).map((tabKey) => (
             <Pressable
-              key={t}
-              onPress={() => setTab(t)}
-              style={[styles.tab, tab === t && styles.tabActive]}
+              key={tabKey}
+              onPress={() => setTab(tabKey)}
+              style={[styles.tab, tab === tabKey && styles.tabActive]}
               accessibilityRole="tab"
             >
-              <Text style={[styles.tabText, tab === t && styles.tabTextActive]}>
-                {t.charAt(0).toUpperCase() + t.slice(1)}
+              <Text style={[styles.tabText, tab === tabKey && styles.tabTextActive]}>
+                {t(`tabs.${tabKey}`)}
               </Text>
             </Pressable>
           ))}
@@ -260,19 +262,19 @@ export default function MerchantAnalyticsScreen() {
               <>
                 {/* Hero stats grid */}
                 <View style={styles.statsGrid}>
-                  <StatCard icon={Eye}        label="Page Views"        value={s.pageViews.toLocaleString('en-IN')} sub="This month" />
-                  <StatCard icon={Wallet}     label="Revenue"           value={revStr}                              sub="This month" color="#059669" />
-                  <StatCard icon={Star}       label="Avg Rating"        value={`${s.avgRating}★`}                  sub={`${s.totalReviews} reviews`} color="#F59E0B" />
-                  <StatCard icon={Users}      label="New Customers"     value={s.newCustomers.toString()}           sub="This month" />
-                  <StatCard icon={ShoppingBag} label="Repeat Customers" value={s.repeatCustomers.toString()}       color={colors.brand[500]} />
-                  <StatCard icon={TrendingUp} label="Top Service"       value="" sub={s.topProduct} />
+                  <StatCard icon={Eye}        label={t('stats.pageViews')} value={s.pageViews.toLocaleString('en-IN')} sub={t('stats.revenueThisMonth')} />
+                  <StatCard icon={Wallet}     label={t('stats.revenueThisMonth')} value={revStr} sub={t('stats.revenueThisMonth')} color="#059669" />
+                  <StatCard icon={Star}       label={t('stats.avgRating')} value={`${s.avgRating}★`} sub={`${s.totalReviews} ${t('stats.totalReviews')}`} color="#F59E0B" />
+                  <StatCard icon={Users}      label={t('stats.newCustomers')} value={s.newCustomers.toString()} sub={t('stats.revenueThisMonth')} />
+                  <StatCard icon={ShoppingBag} label={t('stats.repeatCustomers')} value={s.repeatCustomers.toString()} color={colors.brand[500]} />
+                  <StatCard icon={TrendingUp} label={t('stats.topProduct')} value="" sub={s.topProduct} />
                 </View>
 
                 {/* Weekly bookings chart */}
                 <View style={styles.chartCard}>
                   <HStack gap={2} align="center" style={{ marginBottom: spacing[3] }}>
                     <CalendarDays size={16} color={colors.brand[600]} />
-                    <Text style={styles.chartTitle}>This Week — Bookings</Text>
+                    <Text style={styles.chartTitle}>{t('stats.weeklyBookings')} — {t('tabs.bookings')}</Text>
                   </HStack>
                   <BarChartMini data={SEED_WEEKLY} field="bookings" />
                   <Text style={styles.chartSub}>Total: {s.weeklyBookings} bookings · ₹{(SEED_WEEKLY.reduce((a, d) => a + d.revenue, 0) / 100).toLocaleString('en-IN')} revenue</Text>

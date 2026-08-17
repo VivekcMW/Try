@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireMerchant } from "@/lib/merchant-auth";
 import { prisma } from "@/lib/prisma";
+import { isFeatureEnabled } from "@/lib/feature-flags-server";
 
 export async function GET() {
   const { merchantId } = await requireMerchant();
@@ -15,7 +16,11 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
-  const { merchantId } = await requireMerchant();
+  const { merchantId, merchant, userId } = await requireMerchant();
+  if (!(await isFeatureEnabled("merchant_subscriptions", { pinCode: merchant.pinCode, city: merchant.city, userId }))) {
+    return NextResponse.json({ error: "Subscription plans are currently disabled" }, { status: 403 });
+  }
+
   const body = await request.json();
   const { name, description, pricePaise, frequency, unit } = body;
 

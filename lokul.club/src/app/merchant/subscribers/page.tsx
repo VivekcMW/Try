@@ -50,6 +50,7 @@ function statusBadge(status: string) {
 export default function SubscribersPage() {
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<StatusTab>("active");
   const [acting, setActing] = useState<string | null>(null);
   const [pauseModal, setPauseModal] = useState<{ id: string } | null>(null);
@@ -58,6 +59,7 @@ export default function SubscribersPage() {
   const load = useCallback(
     async (status: StatusTab) => {
       setLoading(true);
+      setError(null);
       try {
         const res = await fetch(`/api/merchant/subscribers?status=${status}`);
         if (!res.ok) throw new Error("Failed to fetch");
@@ -65,6 +67,7 @@ export default function SubscribersPage() {
         setSubscriptions(data.subscriptions ?? []);
       } catch (err) {
         console.error("Failed to load subscribers:", err);
+        setError("We couldn’t load your subscriptions right now. Please retry.");
       } finally {
         setLoading(false);
       }
@@ -132,6 +135,17 @@ export default function SubscribersPage() {
       {loading ? (
         <div className="flex justify-center py-16">
           <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-blue-600" />
+        </div>
+      ) : error ? (
+        <div className="rounded-md border border-red-200 bg-red-50 p-6 text-center shadow-sm">
+          <h3 className="text-lg font-semibold text-red-900">Subscribers unavailable</h3>
+          <p className="mt-2 text-sm text-red-700">{error}</p>
+          <button
+            onClick={() => load(activeTab)}
+            className="mt-4 rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700"
+          >
+            Retry
+          </button>
         </div>
       ) : subscriptions.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-md border-2 border-dashed border-gray-300 bg-gray-50 py-16">

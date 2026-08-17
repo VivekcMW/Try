@@ -6,7 +6,7 @@
  */
 import { test, expect, type Page } from "@playwright/test";
 
-const MERCHANT_PHONE = "9999999999"; // digits only, without +91
+const MERCHANT_PHONE = "9000000206"; // seeded merchant account from the live DB
 
 // ── helpers ──────────────────────────────────────────────────────────────────
 
@@ -14,18 +14,30 @@ async function loginAsMerchant(page: Page) {
   await page.goto("/merchant/login");
   await expect(page.getByRole("heading", { name: /merchant dashboard/i })).toBeVisible();
 
-  // Step 1 — enter phone number
-  await page.getByPlaceholder(/98765/i).fill(MERCHANT_PHONE);
-  await page.getByRole("button", { name: /send otp/i }).click();
+  // The live app defaults to Email mode, and the OTP flow is only rendered after
+  // the phone request completes successfully.
+  await page.getByRole("button", { name: /^phone$/i }).click();
+  await page.getByPlaceholder("98765 43210").fill(MERCHANT_PHONE);
 
-  // Step 2 — fill OTP boxes (dev OTP is always 123456)
+  const sendOtpRequest = page.waitForResponse(
+    (response) => response.url().includes("/api/web/otp/send") && response.request().method() === "POST"
+  );
+
+  await page.getByRole("button", { name: /send otp/i }).click();
+  await sendOtpRequest;
+
+  await expect(page.getByText(/we sent a code to/i)).toBeVisible({ timeout: 15_000 });
+
   const otpBoxes = page.locator('input[maxlength="1"]');
-  await expect(otpBoxes.first()).toBeVisible({ timeout: 8_000 });
-  for (let i = 0; i < 6; i++) {
-    await otpBoxes.nth(i).fill(String(i + 1));
+  await expect(otpBoxes).toHaveCount(6, { timeout: 15_000 });
+  await expect(otpBoxes.first()).toBeVisible({ timeout: 15_000 });
+
+  const otp = "123456";
+  for (let i = 0; i < otp.length; i++) {
+    await otpBoxes.nth(i).fill(otp[i]);
   }
 
-  await page.getByRole("button", { name: /verify.*login/i }).click();
+  await page.getByRole("button", { name: /verify otp/i }).click();
   await page.waitForURL(/\/merchant$/, { timeout: 15_000 });
 }
 
@@ -44,16 +56,26 @@ test.describe("Merchant login", () => {
   test("renders the phone entry form", async ({ page }) => {
     await page.goto("/merchant/login");
     await expect(page.getByRole("heading", { name: /merchant dashboard/i })).toBeVisible();
-    await expect(page.getByPlaceholder(/98765/i)).toBeVisible();
+    await page.getByRole("button", { name: /^phone$/i }).click();
+    await expect(page.getByPlaceholder("98765 43210")).toBeVisible();
     await expect(page.getByRole("button", { name: /send otp/i })).toBeVisible();
   });
 
   test("shows OTP step after valid phone", async ({ page }) => {
     await page.goto("/merchant/login");
-    await page.getByPlaceholder(/98765/i).fill(MERCHANT_PHONE);
+    await page.getByRole("button", { name: /^phone$/i }).click();
+    await page.getByPlaceholder("98765 43210").fill(MERCHANT_PHONE);
+
+    const sendOtpRequest = page.waitForResponse(
+      (response) => response.url().includes("/api/web/otp/send") && response.request().method() === "POST"
+    );
+
     await page.getByRole("button", { name: /send otp/i }).click();
-    await expect(page.getByText(/verify your number/i)).toBeVisible({ timeout: 8_000 });
-    await expect(page.locator('input[maxlength="1"]').first()).toBeVisible();
+    await sendOtpRequest;
+
+    await expect(page.getByText(/we sent a code to/i)).toBeVisible({ timeout: 15_000 });
+    await expect(page.locator('input[maxlength="1"]')).toHaveCount(6, { timeout: 15_000 });
+    await expect(page.locator('input[maxlength="1"]').first()).toBeVisible({ timeout: 15_000 });
   });
 
   test("logs in and lands on dashboard", async ({ page }) => {
@@ -127,6 +149,24 @@ test2.describe("Orders page", () => {
   });
 });
 
+// ── Service workflow pages ─────────────────────────────────────────────────────
+
+test2.describe("Service workflow pages", () => {
+  test2("renders appointment and home-service management screens", async ({ merchantPage: page }) => {
+    await page.goto("/merchant/slots");
+    await expect(page.getByRole("heading", { name: /slots|availability/i })).toBeVisible({ timeout: 10_000 });
+
+    await page.goto("/merchant/bookings");
+    await expect(page.getByRole("heading", { name: /bookings/i })).toBeVisible({ timeout: 10_000 });
+
+    await page.goto("/merchant/requests");
+    await expect(page.getByRole("heading", { name: /requests|jobs/i })).toBeVisible({ timeout: 10_000 });
+
+    await page.goto("/merchant/jobs");
+    await expect(page.getByRole("heading", { name: /jobs/i })).toBeVisible({ timeout: 10_000 });
+  });
+});
+
 // ── Offers ────────────────────────────────────────────────────────────────────
 
 test2.describe("Offers page", () => {
@@ -167,9 +207,9 @@ test2.describe("Analytics page", () => {
   test2("period toggle switches between weekly and monthly", async ({ merchantPage: page }) => {
     await page.goto("/merchant/analytics");
     await page.getByRole("button", { name: /monthly/i }).click();
-    await expect(page.getByRole("button", { name: /monthly/i })).toHaveClass(/bg-mw-primary/);
+    await expect(page.getByRole("button", { name: /monthly/i })).toHaveClass(/bg-brand-600/);
     await page.getByRole("button", { name: /weekly/i }).click();
-    await expect(page.getByRole("button", { name: /weekly/i })).toHaveClass(/bg-mw-primary/);
+    await expect(page.getByRole("button", { name: /weekly/i })).toHaveClass(/bg-brand-600/);
   });
 });
 

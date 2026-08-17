@@ -4,6 +4,7 @@
  */
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { isFeatureEnabled } from "@/lib/feature-flags-server";
 
 const MODES = ["video", "audio", "in_person", "instant"];
 
@@ -26,6 +27,10 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const { userId, doctorId, doctorName, specialty, mode, dateLabel, timeLabel, reason } = await req.json();
+
+    if (!(await isFeatureEnabled("telemedicine", { userId }))) {
+      return NextResponse.json({ error: "Telemedicine is currently unavailable" }, { status: 403 });
+    }
 
     if (!userId || !doctorName || !specialty || !mode || !dateLabel || !timeLabel) {
       return NextResponse.json({ error: "userId, doctorName, specialty, mode, dateLabel, timeLabel required" }, { status: 400 });

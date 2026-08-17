@@ -1,9 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireMerchant } from "@/lib/merchant-auth";
 import { prisma } from "@/lib/prisma";
+import { hasRealDatabaseConfig } from "@/lib/data-source-guard";
 
 export async function GET(request: NextRequest) {
   try {
+    if (!hasRealDatabaseConfig()) {
+      return NextResponse.json({ requests: [], warning: "No live database configured" }, { status: 503 });
+    }
+
     const { merchantId } = await requireMerchant();
     const filter = request.nextUrl.searchParams.get("filter") ?? "open";
 

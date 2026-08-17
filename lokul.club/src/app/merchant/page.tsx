@@ -7,7 +7,7 @@ import {
   CalendarDays, Users, BookOpen, Briefcase,
   AlertTriangle, CheckCircle, BookMarked, X, ChevronRight,
 } from "lucide-react";
-import { useMerchantProfile, useProfileLabels } from "@/lib/merchant-profile-context";
+import { useMerchantProfile, useProfileLabels, useMerchantWorkflowConfig } from "@/lib/merchant-profile-context";
 import type { WorkflowProfile } from "@/lib/merchant-profiles";
 
 type MerchantStats = {
@@ -112,6 +112,18 @@ function getQuickActions(profile: WorkflowProfile, labels: ReturnType<typeof use
         { href: "/merchant/catalog", icon: Package,   title: "Add Service",   desc: "List a new service",   color: "blue" },
         { href: "/merchant/orders",  icon: Briefcase, title: "View Requests", desc: "Respond to requests",  color: "orange" },
         { href: "/merchant/offers",  icon: Tag,       title: "Create Offer",  desc: "Attract more clients", color: "green" },
+      ];
+    case "subscriptions":
+      return [
+        { href: "/merchant/plans",    icon: Package,      title: "Add Plan",         desc: "Create a new recurring offer", color: "blue" },
+        { href: "/merchant/subscribers", icon: Users,      title: "Review Subscribers", desc: "Manage active plans",      color: "purple" },
+        { href: "/merchant/deliveries",  icon: CalendarDays, title: "Check Deliveries", desc: "Confirm today’s shipments", color: "orange" },
+      ];
+    case "events":
+      return [
+        { href: "/merchant/catalog", icon: Package,      title: "Add Package",      desc: "Create a new event package", color: "blue" },
+        { href: "/merchant/events",  icon: BookMarked,   title: "View Event Hub",   desc: "Track offers, enquiries, and bookings", color: "orange" },
+        { href: "/merchant/requests", icon: Star,         title: "Review Enquiries", desc: "Follow up on new event leads", color: "green" },
       ];
     default:
       return [
@@ -229,6 +241,7 @@ const COLOR_MAP = {
 export default function MerchantDashboardPage() {
   const profile = useMerchantProfile();
   const labels = useProfileLabels();
+  const workflowConfig = useMerchantWorkflowConfig();
   const [stats, setStats] = useState<MerchantStats | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -302,7 +315,9 @@ export default function MerchantDashboardPage() {
     <div className="p-6 lg:p-8">
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-        <p className="mt-1 text-sm text-gray-600">Overview of your business performance</p>
+        <p className="mt-1 text-sm text-gray-600">
+          {workflowConfig.label} overview · {workflowConfig.defaultInsight}
+        </p>
       </div>
 
       <OnboardingChecklist />

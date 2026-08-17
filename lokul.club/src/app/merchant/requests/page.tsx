@@ -11,7 +11,7 @@ import {
   Loader2,
   User,
 } from "lucide-react";
-import { useProfileLabels } from "@/lib/merchant-profile-context";
+import { useProfileLabels, useMerchantProfile } from "@/lib/merchant-profile-context";
 
 type QuoteStatus = "open" | "quoted" | "accepted" | "declined";
 
@@ -76,6 +76,7 @@ function getInitial(name: string): string {
 
 export default function RequestsPage() {
   const labels = useProfileLabels();
+  const profile = useMerchantProfile();
   const [requests, setRequests] = useState<QuoteRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<Filter>("all");
@@ -180,7 +181,9 @@ export default function RequestsPage() {
           <div>
             <h1 className="text-2xl font-bold text-gray-900">{labels.requests}</h1>
             <p className="mt-1 text-sm text-gray-600">
-              Manage service requests from customers
+              {profile === "home_services"
+                ? "Review incoming job requests and send quotes quickly."
+                : "Manage service requests from customers"}
             </p>
           </div>
         </div>

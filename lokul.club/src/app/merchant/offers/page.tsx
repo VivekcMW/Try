@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { Plus, Tag, X, Loader2, Trash2, Calendar, Package } from "lucide-react";
+import { useToast } from "@/components/ui";
 
 type CatalogItem = {
   id: string;
@@ -39,6 +40,7 @@ const OFFER_TYPES = [
 ];
 
 export default function OffersPage() {
+  const toast = useToast();
   const [merchantId, setMerchantId] = useState<string>("");
   const [offers, setOffers] = useState<Offer[]>([]);
   const [catalogItems, setCatalogItems] = useState<CatalogItem[]>([]);
@@ -108,7 +110,7 @@ export default function OffersPage() {
       setShowAddModal(false);
       await loadOffers();
     } catch (error) {
-      alert("Failed to add offer. Please try again.");
+      toast.error("Failed to add offer", "Please try again");
       console.error(error);
     } finally {
       setSaving(false);

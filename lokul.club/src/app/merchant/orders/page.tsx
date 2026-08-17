@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
+import { useI18n } from "@/lib/i18n";
 import {
   ShoppingCart,
   Package,
@@ -48,20 +49,20 @@ type Stats = {
   completionRate: number;
 };
 
-const STATUS_FILTERS = [
-  { value: "all", label: "All Orders", color: "gray" },
-  { value: "pending", label: "Pending", color: "yellow" },
-  { value: "confirmed", label: "Confirmed", color: "blue" },
-  { value: "in_progress", label: "In Progress", color: "purple" },
-  { value: "completed", label: "Completed", color: "green" },
-  { value: "cancelled", label: "Cancelled", color: "red" },
-  { value: "scheduled", label: "Scheduled", color: "indigo" },
-];
-
 export default function OrdersPage() {
+  const { t } = useI18n();
   const profile = useMerchantProfile();
   const labels = useProfileLabels();
   const isFood = profile === "food";
+  const STATUS_FILTERS = [
+    { value: "all", label: t.merchant.status.all, color: "gray" },
+    { value: "pending", label: t.merchant.status.pending, color: "yellow" },
+    { value: "confirmed", label: t.merchant.status.confirmed, color: "blue" },
+    { value: "in_progress", label: t.merchant.status.in_progress, color: "purple" },
+    { value: "completed", label: t.merchant.status.completed, color: "green" },
+    { value: "cancelled", label: t.merchant.status.cancelled, color: "red" },
+    { value: "scheduled", label: t.merchant.status.scheduled, color: "indigo" },
+  ];
 
   const [orders, setOrders] = useState<Order[]>([]);
   const [stats, setStats] = useState<Stats | null>(null);
@@ -222,11 +223,11 @@ export default function OrdersPage() {
 
   const getStatusBadge = (status: string) => {
     const badges: Record<string, { label: string; className: string }> = {
-      pending: { label: "Pending", className: "bg-yellow-100 text-yellow-800" },
-      confirmed: { label: "Confirmed", className: "bg-blue-100 text-blue-800" },
-      in_progress: { label: "In Progress", className: "bg-purple-100 text-purple-800" },
-      completed: { label: "Completed", className: "bg-green-100 text-green-800" },
-      cancelled: { label: "Cancelled", className: "bg-red-100 text-red-800" },
+      pending: { label: t.merchant.status.pending, className: "bg-yellow-100 text-yellow-800" },
+      confirmed: { label: t.merchant.status.confirmed, className: "bg-blue-100 text-blue-800" },
+      in_progress: { label: t.merchant.status.in_progress, className: "bg-purple-100 text-purple-800" },
+      completed: { label: t.merchant.status.completed, className: "bg-green-100 text-green-800" },
+      cancelled: { label: t.merchant.status.cancelled, className: "bg-red-100 text-red-800" },
     };
     const badge = badges[status] || { label: status, className: "bg-gray-100 text-gray-800" };
     return (
@@ -241,9 +242,9 @@ export default function OrdersPage() {
       {/* Header */}
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">{labels.orders}</h1>
+          <h1 className="text-2xl font-bold text-gray-900">{t.merchant.orders.title}</h1>
           <p className="mt-1 text-sm text-gray-600">
-            View and manage customer orders
+            {t.merchant.orders.subtitle}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -257,7 +258,7 @@ export default function OrdersPage() {
               }`}
             >
               <UtensilsCrossed className="h-4 w-4" />
-              Kitchen View
+              {t.merchant.orders.kitchenView}
             </button>
           )}
           <button

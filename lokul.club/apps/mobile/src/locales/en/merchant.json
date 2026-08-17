@@ -1,0 +1,71 @@
+{
+  "title": "Merchant Dashboard",
+  "overview": "Overview",
+  "orders": "Orders",
+  "inventory": "Inventory",
+  "settings": "Settings",
+  "language": "Language",
+  "tabs": {
+    "overview": "Overview",
+    "bookings": "Bookings",
+    "revenue": "Revenue",
+    "funnel": "Funnel"
+  },
+  "stats": {
+    "pageViews": "Page Views",
+    "weeklyBookings": "Weekly Bookings",
+    "monthlyBookings": "Monthly Bookings",
+    "revenueThisMonth": "This Month Revenue",
+    "avgRating": "Average Rating",
+    "totalReviews": "Total Reviews",
+    "newCustomers": "New Customers",
+    "repeatCustomers": "Repeat Customers",
+    "topProduct": "Top Product"
+  },
+  "status": {
+    "newOrder": "New order",
+    "accepted": "Accepted",
+    "preparing": "Preparing",
+    "ready": "Ready",
+    "delivered": "Delivered",
+    "rejected": "Rejected",
+    "cancelled": "Cancelled",
+    "pending": "Pending"
+  },
+  "auth": {
+    "login": "Login",
+    "phoneNumber": "Phone number",
+    "continue": "Continue",
+    "otpVerification": "OTP verification",
+    "verifyOtp": "Verify OTP",
+    "resendCode": "Resend code",
+    "invalidOtp": "Invalid OTP",
+    "welcomeBack": "Welcome back",
+    "networkError": "Network error"
+  },
+  "inventory": {
+    "addProduct": "Add product",
+    "editProduct": "Edit product",
+    "stock": "Stock",
+    "price": "Price",
+    "quantity": "Quantity",
+    "category": "Category",
+    "save": "Save",
+    "publish": "Publish",
+    "draft": "Draft",
+    "outOfStock": "Out of stock",
+    "lowStock": "Low stock"
+  },
+  "empty": {
+    "noOrders": "No orders yet",
+    "noInventory": "No inventory items yet",
+    "noNotifications": "No notifications",
+    "noResults": "No results found"
+  },
+  "errors": {
+    "somethingWentWrong": "Something went wrong",
+    "tryAgain": "Try again",
+    "sessionExpired": "Session expired",
+    "permissionRequired": "Permission required"
+  }
+}

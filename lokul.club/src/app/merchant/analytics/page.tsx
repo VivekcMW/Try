@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ShoppingCart, TrendingUp, BarChart2, CheckCircle } from "lucide-react";
+import { ShoppingCart, TrendingUp, BarChart2, CheckCircle, AlertCircle, RefreshCcw } from "lucide-react";
 
 type Summary = {
   totalOrders: number;
@@ -55,22 +55,27 @@ export default function AnalyticsPage() {
   const [data, setData] = useState<AnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);
   const [period, setPeriod] = useState<Period>("weekly");
+  const [error, setError] = useState<string | null>(null);
+
+  async function load() {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/merchant/analytics");
+      if (!res.ok) {
+        throw new Error("Unable to load analytics");
+      }
+      const json = await res.json();
+      setData(json);
+    } catch (err) {
+      console.error("Failed to load analytics:", err);
+      setError("We couldn’t load your analytics right now. Please refresh or try again in a moment.");
+    } finally {
+      setLoading(false);
+    }
+  }
 
   useEffect(() => {
-    async function load() {
-      try {
-        const res = await fetch("/api/merchant/analytics");
-        if (res.ok) {
-          const json = await res.json();
-          setData(json);
-        }
-      } catch (err) {
-        console.error("Failed to load analytics:", err);
-      } finally {
-        setLoading(false);
-      }
-    }
-
     load();
   }, []);
 
@@ -89,6 +94,25 @@ export default function AnalyticsPage() {
     avgOrderValuePaise: 0,
     completionRate: 0,
   };
+
+  if (error && !loading) {
+    return (
+      <div className="flex h-full items-center justify-center p-6">
+        <div className="w-full max-w-md rounded-md border border-red-200 bg-red-50 p-6 text-center shadow-sm">
+          <AlertCircle className="mx-auto mb-3 h-8 w-8 text-red-500" />
+          <h2 className="text-lg font-semibold text-red-900">Analytics unavailable</h2>
+          <p className="mt-2 text-sm text-red-700">{error}</p>
+          <button
+            onClick={load}
+            className="mt-4 inline-flex items-center gap-2 rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700"
+          >
+            <RefreshCcw className="h-4 w-4" />
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   const chartPoints: { label: string; orders: number }[] =
     period === "weekly"

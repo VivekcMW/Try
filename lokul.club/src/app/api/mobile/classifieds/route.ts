@@ -4,6 +4,7 @@
  */
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { isFeatureEnabled } from "@/lib/feature-flags-server";
 
 export async function GET(req: NextRequest) {
   const { searchParams } = req.nextUrl;
@@ -60,6 +61,10 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const { userId, title, description, category, pricePaise, condition, pinCode } = body;
+
+    if (!(await isFeatureEnabled("classifieds", { pinCode, userId }))) {
+      return NextResponse.json({ error: "Classifieds are currently disabled" }, { status: 403 });
+    }
 
     if (!userId || !title?.trim() || !category || !pinCode) {
       return NextResponse.json({ error: "userId, title, category, pinCode required" }, { status: 400 });

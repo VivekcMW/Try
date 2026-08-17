@@ -2,6 +2,8 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { Plus, CalendarDays, ChevronLeft, ChevronRight, Clock, Users, Loader2, X, CalendarRange, CheckSquare, Square } from "lucide-react";
+import { useMerchantProfile, useProfileLabels, useMerchantWorkflowConfig } from "@/lib/merchant-profile-context";
+import { useToast } from "@/components/ui";
 
 type ServiceSlot = {
   id: string;
@@ -97,6 +99,10 @@ function generateWeekSlots(
 }
 
 export default function SlotsPage() {
+  const profile = useMerchantProfile();
+  const labels = useProfileLabels();
+  const workflowConfig = useMerchantWorkflowConfig();
+  const toast = useToast();
   const [merchantId, setMerchantId] = useState<string>("");
   const [selectedDate, setSelectedDate] = useState<string>(getTodayString());
   const [slots, setSlots] = useState<ServiceSlot[]>([]);
@@ -181,7 +187,7 @@ export default function SlotsPage() {
       setShowAddForm(false);
       await loadSlots();
     } catch (error) {
-      alert("Failed to add slot. Please try again.");
+      toast.error("Failed to add slot", "Please try again");
       console.error(error);
     } finally {
       setSaving(false);
@@ -201,7 +207,7 @@ export default function SlotsPage() {
     );
 
     if (slotsToCreate.length === 0) {
-      alert("No slots to create. Check your configuration.");
+      toast.warning("No slots to create", "Check your configuration");
       return;
     }
 
@@ -252,9 +258,11 @@ export default function SlotsPage() {
       {/* Header */}
       <div className="mb-6 flex items-start justify-between gap-4">
         <div className="flex-1 min-w-0">
-          <h1 className="text-2xl font-bold text-gray-900">Service Slots</h1>
+          <h1 className="text-2xl font-bold text-gray-900">{profile === "home_services" ? "Availability" : labels.slots}</h1>
           <p className="mt-1 text-sm text-gray-600">
-            Manage available time slots for bookings
+            {profile === "home_services"
+              ? "Set your service windows and availability for incoming job requests."
+              : `Manage available time slots for ${workflowConfig.label.toLowerCase()} bookings.`}
           </p>
         </div>
         <div className="flex shrink-0 items-center gap-2">

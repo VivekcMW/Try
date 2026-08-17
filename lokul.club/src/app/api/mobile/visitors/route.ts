@@ -4,6 +4,7 @@
  * PATCH /api/mobile/visitors — approve / deny a visitor
  */
 import { NextRequest, NextResponse } from "next/server";
+import { isFeatureEnabled } from "@/lib/feature-flags-server";
 
 // In-memory store for visitor log entries (in prod: DB table VisitorLog)
 type VisitorLog = {
@@ -55,6 +56,11 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const { name, phone, purpose, flat, societyId } = await req.json();
+
+    if (!(await isFeatureEnabled("rwa_management", { societyId }))) {
+      return NextResponse.json({ error: "Visitor management is currently disabled" }, { status: 403 });
+    }
+
     if (!name || !societyId || !flat) {
       return NextResponse.json({ error: "name, flat, societyId required" }, { status: 400 });
     }

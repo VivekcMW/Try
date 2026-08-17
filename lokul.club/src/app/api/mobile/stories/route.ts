@@ -4,6 +4,7 @@
  */
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { isFeatureEnabled } from "@/lib/feature-flags-server";
 
 export async function GET(req: NextRequest) {
   const { searchParams } = req.nextUrl;
@@ -31,6 +32,11 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const { authorId, mediaKey, kind, caption, pinCode, societyId } = await req.json();
+
+    if (!(await isFeatureEnabled("stories", { pinCode, societyId, userId: authorId }))) {
+      return NextResponse.json({ error: "Stories are currently disabled" }, { status: 403 });
+    }
+
     if (!authorId || !mediaKey || !pinCode) {
       return NextResponse.json({ error: "authorId, mediaKey, pinCode required" }, { status: 400 });
     }

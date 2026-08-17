@@ -5,6 +5,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getProfileFromCategory } from "@/lib/merchant-profiles";
+import { isFeatureEnabled } from "@/lib/feature-flags-server";
 
 export async function GET(req: NextRequest) {
   const { searchParams } = req.nextUrl;
@@ -15,6 +16,12 @@ export async function GET(req: NextRequest) {
 
   if (!pinCode && !userId) {
     return NextResponse.json({ error: "pinCode or userId required" }, { status: 400 });
+  }
+
+  // Public storefront directory (by pinCode) can be paused platform-wide; a
+  // merchant looking up their own profile (by userId) is unaffected.
+  if (pinCode && !userId && !(await isFeatureEnabled("merchant_pages", { pinCode }))) {
+    return NextResponse.json({ items: [] });
   }
 
   try {

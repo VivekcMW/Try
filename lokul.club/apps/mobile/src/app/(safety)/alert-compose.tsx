@@ -18,6 +18,7 @@ import { CATEGORY_META, SafetyCategory } from '@/data/safety-seed';
 import { useOnboardingStore } from '@/store/onboardingStore';
 import { useWalletStore } from '@/store/walletStore';
 import { colors, spacing } from '@lokul/ui-tokens';
+import { FeatureGate } from '@/components/FeatureGate';
 
 const BASE = process.env.EXPO_PUBLIC_API_BASE ?? '';
 
@@ -38,6 +39,14 @@ const SAVED_LOCATIONS = [
 ];
 
 export default function AlertComposeScreen() {
+  return (
+    <FeatureGate featureKey="sos_alerts">
+      <AlertComposeScreenInner />
+    </FeatureGate>
+  );
+}
+
+function AlertComposeScreenInner() {
   const router   = useRouter();
   const userId   = useWalletStore((s) => s.userId);
   const pinCode  = useOnboardingStore((s) => s.pin);

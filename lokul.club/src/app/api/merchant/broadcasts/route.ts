@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireMerchant } from "@/lib/merchant-auth";
 import { prisma } from "@/lib/prisma";
+import { isFeatureEnabled } from "@/lib/feature-flags-server";
 
 export async function GET() {
   // List past broadcasts for this merchant
@@ -15,7 +16,11 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
-    const { merchantId } = await requireMerchant();
+    const { merchantId, merchant, userId } = await requireMerchant();
+    if (!(await isFeatureEnabled("merchant_broadcasts", { pinCode: merchant.pinCode, city: merchant.city, userId }))) {
+      return NextResponse.json({ error: "Broadcasts are currently disabled" }, { status: 403 });
+    }
+
     const { title, message } = await request.json();
 
     if (!title?.trim() || !message?.trim()) {

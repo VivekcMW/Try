@@ -28,7 +28,7 @@ export default async function ModerationPage({
     <div className="space-y-4">
       <PageHeader
         title="Moderation Queue"
-        description="Review reported content and take enforcement actions."
+        description="Review reported user-generated content (posts, comments, users) and take enforcement actions. Merchant catalog/offer/broadcast content is reviewed separately under Merchant Broadcasts."
       />
       <Suspense>
         <ModerationQueue

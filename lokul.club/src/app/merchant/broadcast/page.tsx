@@ -10,7 +10,10 @@ import {
   Smartphone,
   AlertTriangle,
   InboxIcon,
+  RefreshCcw,
+  AlertCircle,
 } from "lucide-react";
+import { useToast } from "@/components/ui";
 
 type Broadcast = {
   id: string;
@@ -21,22 +24,41 @@ type Broadcast = {
 };
 
 export default function BroadcastPage() {
+  const toast = useToast();
   const [broadcasts, setBroadcasts] = useState<Broadcast[]>([]);
   const [loading, setLoading] = useState(true);
   const [title, setTitle] = useState("");
   const [message, setMessage] = useState("");
   const [sending, setSending] = useState(false);
   const [successMsg, setSuccessMsg] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [broadcastsEnabled, setBroadcastsEnabled] = useState(true);
+
+  useEffect(() => {
+    fetch("/api/features")
+      .then((res) => res.json())
+      .then((data) => setBroadcastsEnabled(data.enabled?.includes("merchant_broadcasts") ?? true))
+      .catch(() => setBroadcastsEnabled(true));
+  }, []);
+
+  async function loadBroadcasts() {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/merchant/broadcasts");
+      if (!res.ok) throw new Error("Failed to load broadcasts");
+      const data = await res.json();
+      if (data.broadcasts) setBroadcasts(data.broadcasts);
+    } catch {
+      setError("We couldn’t load your recent broadcasts. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  }
 
   // Load past broadcasts
   useEffect(() => {
-    fetch("/api/merchant/broadcasts")
-      .then((r) => r.json())
-      .then((data) => {
-        if (data.broadcasts) setBroadcasts(data.broadcasts);
-      })
-      .catch(() => {})
-      .finally(() => setLoading(false));
+    loadBroadcasts();
   }, []);
 
   async function handleSend() {
@@ -50,18 +72,18 @@ export default function BroadcastPage() {
       });
       const data = await res.json();
       if (res.ok) {
-        setSuccessMsg(
-          `Sent to ${data.sentTo} customer${data.sentTo !== 1 ? "s" : ""}!`
-        );
+        const msg = `Sent to ${data.sentTo} customer${data.sentTo !== 1 ? "s" : ""}`;
+        setSuccessMsg(`${msg}!`);
         setTitle("");
         setMessage("");
         setBroadcasts((prev) => [data.broadcast, ...prev]);
         setTimeout(() => setSuccessMsg(""), 4000);
+        toast.success("Broadcast sent", msg);
       } else {
-        alert(data.error || "Failed to send");
+        toast.error(data.error || "Failed to send broadcast");
       }
     } catch {
-      alert("Failed to send broadcast");
+      toast.error("Failed to send broadcast");
     } finally {
       setSending(false);
     }
@@ -157,6 +179,16 @@ export default function BroadcastPage() {
             )}
 
             {/* Warning */}
+            {!broadcastsEnabled && (
+              <div className="bg-red-50 border border-red-200 rounded-md p-3 mb-4">
+                <div className="flex gap-2">
+                  <AlertTriangle className="w-4 h-4 text-red-500 mt-0.5 shrink-0" />
+                  <p className="text-xs text-red-800 font-medium">
+                    Broadcasts have been paused by the Lokul team. You can’t send new messages right now.
+                  </p>
+                </div>
+              </div>
+            )}
             <div className="bg-amber-50 border border-amber-200 rounded-md p-3 mb-4">
               <div className="flex gap-2">
                 <AlertTriangle className="w-4 h-4 text-amber-500 mt-0.5 shrink-0" />
@@ -185,7 +217,7 @@ export default function BroadcastPage() {
             {/* Send button */}
             <button
               onClick={handleSend}
-              disabled={sending || !title.trim() || !message.trim()}
+              disabled={sending || !broadcastsEnabled || !title.trim() || !message.trim()}
               className="w-full flex items-center justify-center gap-2 bg-violet-600 hover:bg-violet-700 disabled:bg-gray-200 disabled:text-gray-400 text-white font-semibold py-2.5 rounded-md transition-colors text-sm"
             >
               {sending ? (
@@ -212,6 +244,18 @@ export default function BroadcastPage() {
           {loading ? (
             <div className="flex items-center justify-center py-16">
               <Loader2 className="w-6 h-6 text-violet-500 animate-spin" />
+            </div>
+          ) : error ? (
+            <div className="bg-white rounded-md border border-red-200 shadow-sm p-6 text-center">
+              <AlertCircle className="mx-auto mb-3 h-8 w-8 text-red-500" />
+              <p className="text-sm font-medium text-red-700">{error}</p>
+              <button
+                onClick={loadBroadcasts}
+                className="mt-4 inline-flex items-center gap-2 rounded-md bg-red-600 px-3 py-2 text-sm font-medium text-white hover:bg-red-700"
+              >
+                <RefreshCcw className="h-4 w-4" />
+                Retry
+              </button>
             </div>
           ) : broadcasts.length === 0 ? (
             <div className="bg-white rounded-md border border-gray-200 shadow-sm flex flex-col items-center justify-center py-16 px-6 text-center">

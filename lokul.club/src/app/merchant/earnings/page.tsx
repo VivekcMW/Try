@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { TrendingUp, TrendingDown, ShoppingCart, DollarSign, BarChart2 } from "lucide-react";
+import { TrendingUp, TrendingDown, ShoppingCart, DollarSign, BarChart2, AlertCircle, RefreshCcw } from "lucide-react";
 
 type DayPoint = {
   date: string;
@@ -43,21 +43,27 @@ function calcPctChange(current: number, prev: number): { value: number; up: bool
 export default function EarningsPage() {
   const [data, setData] = useState<EarningsData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  async function load() {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/merchant/earnings");
+      if (!res.ok) {
+        throw new Error("Unable to load earnings");
+      }
+      const json = await res.json();
+      setData(json);
+    } catch (err) {
+      console.error("Failed to load earnings:", err);
+      setError("We couldn’t load your earnings right now. Please refresh or try again later.");
+    } finally {
+      setLoading(false);
+    }
+  }
 
   useEffect(() => {
-    async function load() {
-      try {
-        const res = await fetch("/api/merchant/earnings");
-        if (res.ok) {
-          const json = await res.json();
-          setData(json);
-        }
-      } catch (err) {
-        console.error("Failed to load earnings:", err);
-      } finally {
-        setLoading(false);
-      }
-    }
     load();
   }, []);
 
@@ -73,6 +79,25 @@ export default function EarningsPage() {
   const lastMonth = data?.lastMonth ?? { revenuePaise: 0, orders: 0 };
   const last30Days = data?.last30Days ?? [];
   const topItems = data?.topItems ?? [];
+
+  if (error && !loading) {
+    return (
+      <div className="flex h-full items-center justify-center p-6">
+        <div className="w-full max-w-md rounded-md border border-red-200 bg-red-50 p-6 text-center shadow-sm">
+          <AlertCircle className="mx-auto mb-3 h-8 w-8 text-red-500" />
+          <h2 className="text-lg font-semibold text-red-900">Earnings unavailable</h2>
+          <p className="mt-2 text-sm text-red-700">{error}</p>
+          <button
+            onClick={load}
+            className="mt-4 inline-flex items-center gap-2 rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700"
+          >
+            <RefreshCcw className="h-4 w-4" />
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   const revenueChange = calcPctChange(thisMonth.revenuePaise, lastMonth.revenuePaise);
   const ordersChange = calcPctChange(thisMonth.orders, lastMonth.orders);

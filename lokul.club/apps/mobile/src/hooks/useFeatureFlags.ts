@@ -1,19 +1,21 @@
 import { useEffect, useState } from 'react';
+import { useOnboardingStore } from '@/store/onboardingStore';
 
 const BASE = process.env.EXPO_PUBLIC_API_BASE ?? '';
 
 export interface FeatureFlagsResponse {
-  enabled: string[];
-  metadata: Record<string, any>;
-  timestamp: string;
+  flags: Record<string, boolean>;
 }
 
 /**
- * Hook to fetch enabled feature flags from the API
- * Returns array of enabled feature keys
+ * Hook to fetch resolved feature flags for the current user's pin code from
+ * `/api/mobile/flags` — this is the scoped endpoint (global < city < pincode
+ * < society < user), matching what admins configure per-locality in
+ * /admin/flags. Falls back to the flat global list if the scoped call fails.
  */
 export function useFeatureFlags() {
-  const [enabled, setEnabled] = useState<string[]>([]);
+  const pinCode = useOnboardingStore((s) => s.pin);
+  const [flags, setFlags] = useState<Record<string, boolean>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
@@ -22,11 +24,13 @@ export function useFeatureFlags() {
 
     async function fetchFlags() {
       try {
-        const res = await fetch(`${BASE}/api/features`);
+        const params = new URLSearchParams();
+        if (pinCode) params.set('pinCode', pinCode);
+        const res = await fetch(`${BASE}/api/mobile/flags?${params.toString()}`);
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data: FeatureFlagsResponse = await res.json();
         if (isMounted) {
-          setEnabled(data.enabled);
+          setFlags(data.flags ?? {});
           setLoading(false);
         }
       } catch (err) {
@@ -34,8 +38,7 @@ export function useFeatureFlags() {
         if (isMounted) {
           setError(err instanceof Error ? err : new Error('Failed to fetch feature flags'));
           setLoading(false);
-          // Fallback to all features enabled on error
-          setEnabled([]);
+          setFlags({});
         }
       }
     }
@@ -45,7 +48,7 @@ export function useFeatureFlags() {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [pinCode]);
 
   /**
    * Check if a specific feature is enabled
@@ -55,9 +58,10 @@ export function useFeatureFlags() {
     if (loading) return false;
     // If error occurred, show all features (graceful degradation)
     if (error) return true;
-    // Otherwise check if feature is in enabled list
-    return enabled.includes(featureKey);
+    return flags[featureKey] === true;
   };
+
+  const enabled = Object.keys(flags).filter((k) => flags[k]);
 
   return { enabled, loading, error, isEnabled };
 }

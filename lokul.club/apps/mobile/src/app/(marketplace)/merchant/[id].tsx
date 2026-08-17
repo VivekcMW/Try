@@ -34,189 +34,6 @@ type CatalogItem = {
   unit?: string; imageUrl?: string; isAvailable: boolean; kind: string;
 };
 
-// Demo fallback so the shopping flow works while backend has no data
-const DEMO_MERCHANTS: Record<string, ApiMerchant> = {
-  '1': {
-    id: '1', name: 'Amul Parlour', bio: 'Dairy · Ice Cream · Snacks — serving the society for 8 years',
-    rating: 4.5, reviewCount: 120, verified: true, acceptingOrders: true,
-    responseTime: '~10 min', category: 'grocery', estimatedDeliveryMins: 10,
-    businessHoursStart: '07:00', businessHoursEnd: '22:00',
-  },
-  '2': {
-    id: '2', name: 'Fresh Veggies Store', bio: 'Farm-fresh vegetables & fruits, sourced daily from local mandis',
-    rating: 4.3, reviewCount: 85, verified: false, acceptingOrders: true,
-    responseTime: '~15 min', category: 'grocery', estimatedDeliveryMins: 15,
-    businessHoursStart: '06:00', businessHoursEnd: '21:00',
-  },
-  '3': {
-    id: '3', name: 'MedPlus Pharmacy', bio: 'Medicines, healthcare & baby care — open 24/7 for emergencies',
-    rating: 4.7, reviewCount: 200, verified: true, acceptingOrders: true,
-    responseTime: '~20 min', category: 'pharmacy', estimatedDeliveryMins: 20,
-    businessHoursStart: '00:00', businessHoursEnd: '23:59',
-  },
-  '4': {
-    id: '4', name: 'Sharma Bakery', bio: 'Fresh bread, cakes & cookies baked every morning',
-    rating: 4.4, reviewCount: 64, verified: false, acceptingOrders: true,
-    responseTime: '~25 min', category: 'bakery', estimatedDeliveryMins: 25,
-    businessHoursStart: '07:00', businessHoursEnd: '21:00',
-  },
-  '5': {
-    id: '5', name: 'Glamour Touch Salon', bio: 'Haircuts, facials & grooming — walk-ins and home visits',
-    rating: 4.6, reviewCount: 94, verified: true, acceptingOrders: true,
-    responseTime: '~30 min', category: 'salon',
-    businessHoursStart: '09:00', businessHoursEnd: '20:00',
-  },
-  '6': {
-    id: '6', name: 'Style Studio Unisex Salon', bio: 'Hair spa, manicure & bridal packages by certified stylists',
-    rating: 4.2, reviewCount: 58, verified: false, acceptingOrders: true,
-    responseTime: '~1 hr', category: 'salon',
-    businessHoursStart: '10:00', businessHoursEnd: '21:00',
-  },
-  '7': {
-    id: '7', name: 'Sunrise Family Clinic', bio: 'General physician, vaccinations & preventive health checks',
-    rating: 4.8, reviewCount: 210, verified: true, acceptingOrders: true,
-    responseTime: '~15 min', category: 'clinic',
-    businessHoursStart: '08:00', businessHoursEnd: '21:00',
-  },
-  '8': {
-    id: '8', name: 'Smile Care Dental Clinic', bio: 'Complete dental care — checkups, cleaning & root canal',
-    rating: 4.5, reviewCount: 132, verified: true, acceptingOrders: true,
-    responseTime: '~20 min', category: 'clinic',
-    businessHoursStart: '10:00', businessHoursEnd: '20:00',
-  },
-  '9': {
-    id: '9', name: 'LifeCare Multispeciality Hospital', bio: 'OPD, diagnostics & 24/7 emergency care for the community',
-    rating: 4.4, reviewCount: 340, verified: false, acceptingOrders: true,
-    responseTime: '~10 min', category: 'clinic',
-    businessHoursStart: '00:00', businessHoursEnd: '23:59',
-  },
-  '10': {
-    id: '10', name: 'QuickFix AC & Appliance Repair', bio: 'Doorstep repair for AC, fridge & washing machines — visit fee waived on repair',
-    rating: 4.5, reviewCount: 176, verified: true, acceptingOrders: true,
-    responseTime: '~15 min', category: 'repair',
-    businessHoursStart: '09:00', businessHoursEnd: '21:00',
-  },
-  '11': {
-    id: '11', name: 'Sharma Plumbing & Electrical', bio: 'Leaks, wiring & fittings — 30-day workmanship warranty',
-    rating: 4.3, reviewCount: 98, verified: false, acceptingOrders: true,
-    responseTime: '~20 min', category: 'repair',
-    businessHoursStart: '08:00', businessHoursEnd: '20:00',
-  },
-  '12': {
-    id: '12', name: 'SafeNest Packers & Movers', bio: 'Local shifting with free site visit & insured transit',
-    rating: 4.6, reviewCount: 220, verified: true, acceptingOrders: true,
-    responseTime: '~1 hr', category: 'movers',
-    businessHoursStart: '09:00', businessHoursEnd: '19:00',
-  },
-  '13': {
-    id: '13', name: 'Happy Paws Grooming & Vet', bio: 'Pet grooming at home or clinic · vet consultations & vaccines',
-    rating: 4.7, reviewCount: 143, verified: true, acceptingOrders: true,
-    responseTime: '~30 min', category: 'pet_care',
-    businessHoursStart: '09:00', businessHoursEnd: '20:00',
-  },
-  '14': {
-    id: '14', name: 'HealthFirst Diagnostics @Home', bio: 'Blood tests at home — NABL certified lab, reports in 24h',
-    rating: 4.6, reviewCount: 188, verified: true, acceptingOrders: true,
-    responseTime: '~10 min', category: 'lab_test',
-    businessHoursStart: '06:00', businessHoursEnd: '12:00',
-  },
-  '15': {
-    id: '15', name: 'ShieldPro Pest Control', bio: 'Cockroach, termite & bed-bug treatment with 90-day warranty',
-    rating: 4.4, reviewCount: 112, verified: true, acceptingOrders: true,
-    responseTime: '~20 min', category: 'pest_control',
-    businessHoursStart: '09:00', businessHoursEnd: '19:00',
-  },
-  '16': {
-    id: '16', name: 'Moments Photography & Events', bio: 'Weddings, birthdays & society events — photo, decor & catering',
-    rating: 4.8, reviewCount: 76, verified: true, acceptingOrders: true,
-    responseTime: '~1 hr', category: 'event',
-    businessHoursStart: '10:00', businessHoursEnd: '20:00',
-  },
-  '17': {
-    id: '17', name: 'Ghar Ka Khana Tiffin', bio: 'Home-style veg & non-veg tiffins — monthly plans, made fresh daily',
-    rating: 4.5, reviewCount: 261, verified: true, acceptingOrders: true,
-    responseTime: '~15 min', category: 'tiffin',
-    businessHoursStart: '07:00', businessHoursEnd: '21:00',
-  },
-  '18': {
-    id: '18', name: 'LegalEase CA & Advocates', bio: 'Tax filing, GST, notary & legal consultations — online or in office',
-    rating: 4.7, reviewCount: 89, verified: true, acceptingOrders: true,
-    responseTime: '~30 min', category: 'consult',
-    businessHoursStart: '10:00', businessHoursEnd: '19:00',
-  },
-  '20': {
-    id: '20', name: 'Sparkle Wash Laundry', bio: 'Free pickup & delivery — wash, iron & dry-clean in 48h',
-    rating: 4.3, reviewCount: 154, verified: false, acceptingOrders: true,
-    responseTime: '~20 min', category: 'laundry',
-    businessHoursStart: '08:00', businessHoursEnd: '21:00',
-  },
-  '21': {
-    id: '21', name: 'Lakshmi Home Cleaning', bio: 'Trusted house help — daily cleaning, deep cleans & utensils',
-    rating: 4.5, reviewCount: 87, verified: true, acceptingOrders: true,
-    responseTime: '~30 min', category: 'maid',
-    businessHoursStart: '07:00', businessHoursEnd: '19:00',
-  },
-  '22': {
-    id: '22', name: "Anita's Kitchen Service", bio: 'Home cooks for daily meals — veg & non-veg, trial meal available',
-    rating: 4.6, reviewCount: 64, verified: true, acceptingOrders: true,
-    responseTime: '~1 hr', category: 'cook',
-    businessHoursStart: '06:00', businessHoursEnd: '20:00',
-  },
-  '23': {
-    id: '23', name: 'Ravi On-Call Drivers', bio: 'Verified drivers — hourly, daily or monthly engagement',
-    rating: 4.4, reviewCount: 121, verified: true, acceptingOrders: true,
-    responseTime: '~15 min', category: 'driver',
-    businessHoursStart: '06:00', businessHoursEnd: '23:00',
-  },
-  '24': {
-    id: '24', name: 'WoodCraft Carpentry', bio: 'Furniture repair, fittings & custom woodwork at your home',
-    rating: 4.5, reviewCount: 73, verified: false, acceptingOrders: true,
-    responseTime: '~25 min', category: 'carpenter',
-    businessHoursStart: '09:00', businessHoursEnd: '19:00',
-  },
-  '25': {
-    id: '25', name: 'ColorMax Painting & Civil', bio: 'Home painting, waterproofing & minor civil work — free site visit',
-    rating: 4.6, reviewCount: 95, verified: true, acceptingOrders: true,
-    responseTime: '~1 hr', category: 'painter',
-    businessHoursStart: '09:00', businessHoursEnd: '19:00',
-  },
-  '27': {
-    id: '27', name: 'GreenThumb Mali Services', bio: 'Garden maintenance, potting & terrace garden setup',
-    rating: 4.3, reviewCount: 41, verified: false, acceptingOrders: true,
-    responseTime: '~40 min', category: 'gardener',
-    businessHoursStart: '07:00', businessHoursEnd: '18:00',
-  },
-  '28': {
-    id: '28', name: 'ShineAuto Car Wash @Home', bio: 'Doorstep car wash & detailing — waterless eco wash',
-    rating: 4.4, reviewCount: 108, verified: true, acceptingOrders: true,
-    responseTime: '~20 min', category: 'car_wash',
-    businessHoursStart: '07:00', businessHoursEnd: '20:00',
-  },
-  '29': {
-    id: '29', name: 'FitLife Trainers & Yoga', bio: 'Personal training & yoga at home or society gym',
-    rating: 4.7, reviewCount: 66, verified: true, acceptingOrders: true,
-    responseTime: '~30 min', category: 'fitness',
-    businessHoursStart: '06:00', businessHoursEnd: '21:00',
-  },
-  '30': {
-    id: '30', name: 'Relax Spa & Massage @Home', bio: 'Certified therapists — massage & physiotherapy at home',
-    rating: 4.5, reviewCount: 59, verified: true, acceptingOrders: true,
-    responseTime: '~45 min', category: 'massage',
-    businessHoursStart: '09:00', businessHoursEnd: '21:00',
-  },
-  '32': {
-    id: '32', name: 'BrightMinds Tutors', bio: 'School tuition — maths, science & English, at home or center',
-    rating: 4.8, reviewCount: 112, verified: true, acceptingOrders: true,
-    responseTime: '~1 hr', category: 'tutor_academic',
-    businessHoursStart: '15:00', businessHoursEnd: '21:00',
-  },
-  '33': {
-    id: '33', name: 'CareNest Elder & Child Care', bio: 'Background-verified caretakers & nannies — hourly or monthly',
-    rating: 4.6, reviewCount: 48, verified: true, acceptingOrders: true,
-    responseTime: '~2 hrs', category: 'elderly_care',
-    businessHoursStart: '08:00', businessHoursEnd: '20:00',
-  },
-};
 
 const DEMO_CATALOG: Record<string, CatalogItem[]> = {
   '1': [
@@ -423,24 +240,22 @@ export default function MerchantProfileScreen() {
     if (!id) return;
     setLoading(true);
     try {
-      // Fetch merchant details
       const res  = await fetch(`${BASE}/api/mobile/merchants/${id}`);
       const data = await res.json();
-      if (data?.id) {
-        setMerchant(data);
-        const catalogRes = await fetch(`${BASE}/api/mobile/merchants/${id}/catalog`);
-        const catalogData = await catalogRes.json();
-        setCatalogItems(catalogData.items || []);
-      } else if (DEMO_MERCHANTS[id]) {
-        setMerchant(DEMO_MERCHANTS[id]);
-        setCatalogItems(DEMO_CATALOG[id] ?? []);
+
+      if (!res.ok || !data?.id) {
+        setMerchant(null);
+        setCatalogItems([]);
+        return;
       }
+
+      setMerchant(data);
+      const catalogRes = await fetch(`${BASE}/api/mobile/merchants/${id}/catalog`);
+      const catalogData = await catalogRes.json();
+      setCatalogItems(catalogRes.ok ? (catalogData.items || []) : []);
     } catch {
-      // Backend unavailable — fall back to demo data
-      if (DEMO_MERCHANTS[id]) {
-        setMerchant(DEMO_MERCHANTS[id]);
-        setCatalogItems(DEMO_CATALOG[id] ?? []);
-      }
+      setMerchant(null);
+      setCatalogItems([]);
     } finally { setLoading(false); }
   }, [id]);
 

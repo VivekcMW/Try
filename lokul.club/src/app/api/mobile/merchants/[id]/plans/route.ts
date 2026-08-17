@@ -4,8 +4,9 @@
  */
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { hasRealDatabaseConfig, isE2eMode } from "@/lib/data-source-guard";
 
-const E2E = process.env.E2E_TEST === "1" || (process.env.DATABASE_URL ?? "").includes("USER:PASSWORD");
+const E2E = isE2eMode();
 
 export async function GET(
   _req: NextRequest,
@@ -26,6 +27,9 @@ export async function GET(
         },
       ],
     });
+  }
+  if (!hasRealDatabaseConfig()) {
+    return NextResponse.json({ plans: [], warning: "No live database configured" }, { status: 503 });
   }
 
   const { id: merchantId } = await params;

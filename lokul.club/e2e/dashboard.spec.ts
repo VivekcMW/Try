@@ -43,21 +43,21 @@ test.describe("Admin dashboard (/admin/dashboard)", () => {
   });
 
   test("Sign out returns the user to the login page", async ({ adminPage: page }) => {
-    // Confirm we are actually signed in before sign-out.
-    const before = await page.request.get("/api/auth/session").then((r) => r.json());
-    expect(before).toHaveProperty("user");
+    // The app authenticates admins via a local `admin_session` cookie (not
+    // NextAuth's own session endpoint, which is unused/stale here), so verify
+    // sign-in/out state by inspecting that cookie directly.
+    const cookiesBefore = await page.context().cookies();
+    expect(cookiesBefore.some((c) => c.name === "admin_session" && c.value === "authenticated")).toBe(true);
 
     await page.getByRole("button", { name: /sign out/i }).click();
 
-    // Poll the session endpoint until next-auth has cleared the cookie. This is
-    // resilient to Turbopack hot-reload glitches during the redirect chain.
     await expect.poll(
       async () => {
-        const res = await page.request.get("/api/auth/session");
-        return await res.json();
+        const cookiesAfter = await page.context().cookies();
+        return cookiesAfter.some((c) => c.name === "admin_session" && c.value === "authenticated");
       },
       { timeout: 15_000, intervals: [200, 400, 800] },
-    ).toEqual({});
+    ).toBe(false);
 
     // With the session cleared, a protected route must redirect to the login page.
     await page.goto("/admin/dashboard", { waitUntil: "domcontentloaded" });

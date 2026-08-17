@@ -35,8 +35,16 @@ export const FEATURE_FLAGS = {
   ITEM_BORROWING: 'item_borrowing',
   RWA_MANAGEMENT: 'rwa_management',
 
+  // Merchant back-office (admin-controlled, off switch for abuse/spam)
+  MERCHANT_BROADCASTS: 'merchant_broadcasts',
+  MERCHANT_COUPONS: 'merchant_coupons',
+  MERCHANT_SUBSCRIPTIONS: 'merchant_subscriptions',
+  MERCHANT_BRANCHES: 'merchant_branches',
+  MERCHANT_PAGES: 'merchant_pages',
+
   // Phase 3+: Advanced features
   SOS_ALERTS: 'sos_alerts',
+  SOS_BROADCAST: 'sos_broadcast',
   STORIES: 'stories',
   VIDEO_CALLS: 'video_calls',
   HEADER_ADS: 'header_ads',
@@ -46,6 +54,9 @@ export const FEATURE_FLAGS = {
   REALESTATE: 'realestate',
   AMENITY_BOOKING: 'amenity_booking',
   DOMESTIC_HELP: 'domestic_help',
+
+  // Identity / trust
+  KYC_GOLD_TIER: 'kyc_gold_tier',
 } as const;
 
 /**
@@ -220,5 +231,47 @@ export const FEATURE_METADATA: Record<
     description: 'Maid/cook/driver directory',
     phase: 3,
     category: 'Services',
+  },
+  merchant_broadcasts: {
+    name: 'Merchant Broadcasts',
+    description: 'Lets merchants push messages to their past customers — disable to pause a merchant or the whole channel during abuse review',
+    phase: 1,
+    category: 'Merchant',
+  },
+  merchant_coupons: {
+    name: 'Merchant Coupons',
+    description: 'Lets merchants create their own discount codes',
+    phase: 1,
+    category: 'Merchant',
+  },
+  merchant_subscriptions: {
+    name: 'Merchant Subscriptions',
+    description: 'Lets merchants sell recurring subscription plans (e.g. daily milk/tiffin)',
+    phase: 1,
+    category: 'Merchant',
+  },
+  merchant_branches: {
+    name: 'Merchant Branches',
+    description: 'Lets merchants add multiple business locations',
+    phase: 1,
+    category: 'Merchant',
+  },
+  merchant_pages: {
+    name: 'Merchant Storefronts',
+    description: 'Public merchant directory/storefront listings shown to residents',
+    phase: 1,
+    category: 'Merchant',
+  },
+  sos_broadcast: {
+    name: 'SOS Post Type',
+    description: 'Lets residents publish the emergency "sos" post type in the feed',
+    phase: 3,
+    category: 'Safety',
+  },
+  kyc_gold_tier: {
+    name: 'Gold KYC Tier',
+    description: 'Aadhaar liveness/face-match verification flow that upgrades a user to gold KYC tier',
+    phase: 2,
+    category: 'Trust',
   },
 };

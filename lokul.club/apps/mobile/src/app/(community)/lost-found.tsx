@@ -6,12 +6,21 @@ import { ArrowLeft, Plus } from 'lucide-react-native';
 import { Badge, Card, HStack, Text, VStack } from '@/components/ui';
 import { useOnboardingStore } from '@/store/onboardingStore';
 import { colors, spacing } from '@lokul/ui-tokens';
+import { FeatureGate } from '@/components/FeatureGate';
 
 const BASE = process.env.EXPO_PUBLIC_API_BASE ?? '';
 
 type ApiPost = { id: string; type: string; body?: string; createdAt: string; author: { name: string }; tags: string[] };
 
 export default function LostFoundScreen() {
+  return (
+    <FeatureGate featureKey="lost_found">
+      <LostFoundScreenInner />
+    </FeatureGate>
+  );
+}
+
+function LostFoundScreenInner() {
   const router  = useRouter();
   const pinCode = useOnboardingStore((s) => s.pin);
   const [filter,  setFilter]  = useState<'all' | 'lost' | 'found'>('all');

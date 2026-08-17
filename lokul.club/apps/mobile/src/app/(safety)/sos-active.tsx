@@ -14,10 +14,19 @@ import { useOnboardingStore } from '@/store/onboardingStore';
 import { useWalletStore } from '@/store/walletStore';
 import { reportCurrentLocation } from '@/lib/locationTracker';
 import { colors, spacing } from '@lokul/ui-tokens';
+import { FeatureGate } from '@/components/FeatureGate';
 
 const BASE = process.env.EXPO_PUBLIC_API_BASE ?? '';
 
 export default function SosActiveScreen() {
+  return (
+    <FeatureGate featureKey="sos_alerts">
+      <SosActiveScreenInner />
+    </FeatureGate>
+  );
+}
+
+function SosActiveScreenInner() {
   const router   = useRouter();
   const userId   = useWalletStore((s) => s.userId);
   const pinCode  = useOnboardingStore((s) => s.pin);

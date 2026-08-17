@@ -6,10 +6,10 @@
  *   - Live ad campaign count
  *   - Referral funnel + credits paid (from ReferralRecord)
  *   - Top-performing PIN codes by approved ad-booking revenue
+ *   - Merchant GMV (all-time + last 7 days, from MerchantOrder) + top merchants
  *
- * There is no subscription/billing system in this app yet (no Subscription
- * model, no recurring billing) — MRR/ARR/subscriber-tier charts were removed
- * rather than left wired to nonexistent data.
+ * There is no platform commission/take-rate field on MerchantOrder yet —
+ * figures below are gross merchandise value (GMV), not platform revenue.
  */
 import { getServerUser } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";

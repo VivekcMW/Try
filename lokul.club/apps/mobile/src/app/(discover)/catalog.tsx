@@ -9,6 +9,7 @@ import { useCatalog } from '@/hooks/useCatalog';
 import { useOnboardingStore } from '@/store/onboardingStore';
 import { useWalletStore } from '@/store/walletStore';
 import { colors, radius, spacing } from '@lokul/ui-tokens';
+import { FeatureGate } from '@/components/FeatureGate';
 
 const CATEGORIES = [
   { id: 'all', label: 'All', emoji: '🏪' },
@@ -452,6 +453,14 @@ const DEMO_MERCHANTS = [
 ];
 
 export default function CatalogScreen() {
+  return (
+    <FeatureGate featureKey="services">
+      <CatalogScreenInner />
+    </FeatureGate>
+  );
+}
+
+function CatalogScreenInner() {
   const router = useRouter();
   const userId = useWalletStore((s) => s.userId) ?? undefined;
   const pinCode = useOnboardingStore((s) => s.pin);

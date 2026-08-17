@@ -5,9 +5,9 @@ import { usePathname, useRouter } from "next/navigation";
 import {
   LayoutDashboard, Users, LogOut, Menu, X, ChevronDown, ChevronLeft,
   ShieldAlert, Building2, Store, Megaphone, Flag, ScrollText, ListChecks, Plug,
-  ShoppingBag, UsersRound, Package, FileCheck, BadgeCheck,
+  ShoppingBag, ShoppingCart, UsersRound, Package, FileCheck, BadgeCheck,
   FileText, Clapperboard, CalendarDays, MessageSquare, Gift, Car,
-  Tag, Wallet, Siren, MapPin, Vote, Star, Wrench,
+  Tag, Wallet, Siren, MapPin, Vote, Star, Wrench, Ticket, GitBranch, ClipboardList,
   Activity, HeartHandshake, CalendarCheck, Receipt, TrendingUp,
   Phone, Route, UserCheck, Stethoscope, TriangleAlert, Presentation,
 } from "lucide-react";
@@ -38,16 +38,23 @@ const NAV_GROUPS = [
   {
     label: "Economy",
     items: [
-      { href: "/admin/merchants",        label: "Merchants",        Icon: Store       },
-      { href: "/admin/orders",           label: "Orders",           Icon: ShoppingBag },
-      { href: "/admin/appointments",     label: "Appointments",     Icon: CalendarCheck },
-      { href: "/admin/quotes",           label: "Quotes",           Icon: Receipt     },
-      { href: "/admin/peer-roles",       label: "Peer Roles",       Icon: BadgeCheck  },
-      { href: "/admin/service-listings", label: "Service Listings", Icon: Wrench      },
-      { href: "/admin/group-buys",       label: "Group Buys",       Icon: Package     },
-      { href: "/admin/wallet",           label: "Wallet / Txns",    Icon: Wallet      },
-      { href: "/admin/classifieds",      label: "Classifieds",      Icon: Tag         },
-      { href: "/admin/ratings",          label: "Ratings",          Icon: Star        },
+      { href: "/admin/merchants",          label: "Merchants",              Icon: Store       },
+      { href: "/admin/merchant-orders",    label: "Merchant Orders",        Icon: ShoppingCart },
+      { href: "/admin/merchant-catalog",   label: "Merchant Catalog",       Icon: Package     },
+      { href: "/admin/merchant-offers",    label: "Merchant Offers",        Icon: Tag         },
+      { href: "/admin/merchant-coupons",   label: "Merchant Coupons",       Icon: Ticket      },
+      { href: "/admin/merchant-subscriptions", label: "Merchant Subscriptions", Icon: ClipboardList },
+      { href: "/admin/merchant-broadcasts",label: "Merchant Broadcasts",    Icon: Megaphone   },
+      { href: "/admin/merchant-branches",  label: "Merchant Branches",      Icon: GitBranch   },
+      { href: "/admin/orders",             label: "Orders (Classifieds)",   Icon: ShoppingBag },
+      { href: "/admin/appointments",       label: "Appointments",           Icon: CalendarCheck },
+      { href: "/admin/quotes",             label: "Quotes",                 Icon: Receipt     },
+      { href: "/admin/peer-roles",         label: "Peer Roles",             Icon: BadgeCheck  },
+      { href: "/admin/service-listings",   label: "Service Listings",       Icon: Wrench      },
+      { href: "/admin/group-buys",         label: "Group Buys",             Icon: Package     },
+      { href: "/admin/wallet",             label: "Wallet / Txns",          Icon: Wallet      },
+      { href: "/admin/classifieds",        label: "Classifieds",            Icon: Tag         },
+      { href: "/admin/ratings",            label: "Ratings",                Icon: Star        },
     ],
   },
   {
@@ -120,7 +127,11 @@ export default function AdminShell({
   const [collapsed, setCollapsed] = useState(false); // desktop collapse
 
   const handleSignOut = async () => {
-    await supabase.auth.signOut();
+    // Clears both auth paths: Supabase session and the local/dev admin_session cookie.
+    await Promise.all([
+      supabase.auth.signOut(),
+      fetch("/api/admin/auth/logout", { method: "POST" }),
+    ]);
     router.push('/admin/login');
     router.refresh();
   };

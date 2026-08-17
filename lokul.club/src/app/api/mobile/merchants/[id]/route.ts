@@ -11,8 +11,12 @@ export async function GET(
   const { id } = await params;
 
   try {
-    const merchant = await prisma.merchant.findUnique({
-      where: { id, isBlacklisted: false },
+    const merchant = await prisma.merchant.findFirst({
+      where: {
+        id,
+        status: "active",
+        isBlacklisted: false,
+      },
       include: {
         owner: { select: { id: true, name: true, avatarUrl: true, kycTier: true, trustScore: true } },
       },

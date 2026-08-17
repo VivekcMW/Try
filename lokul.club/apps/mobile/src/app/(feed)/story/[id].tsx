@@ -20,6 +20,7 @@ import { useOnboardingStore } from '@/store/onboardingStore';
 import { useWalletStore } from '@/store/walletStore';
 import { colors, spacing } from '@lokul/ui-tokens';
 import type { ApiStory } from '@/components/ui/StoriesRow';
+import { FeatureGate } from '@/components/FeatureGate';
 
 const { width: SW, height: SH } = Dimensions.get('window');
 const BASE = process.env.EXPO_PUBLIC_API_BASE ?? '';
@@ -55,6 +56,14 @@ function StoryProgressBar({
 
 // ─── Main screen ──────────────────────────────────────────────────────────────
 export default function StoryViewerScreen() {
+  return (
+    <FeatureGate featureKey="stories">
+      <StoryViewerScreenInner />
+    </FeatureGate>
+  );
+}
+
+function StoryViewerScreenInner() {
   const router   = useRouter();
   const params   = useLocalSearchParams<{ storyId: string; stories?: string }>();
   const pinCode  = useOnboardingStore((s) => s.pin);

@@ -4,8 +4,10 @@
  */
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { hasRealDatabaseConfig, isE2eMode } from "@/lib/data-source-guard";
+import { isFeatureEnabled } from "@/lib/feature-flags-server";
 
-const E2E = process.env.E2E_TEST === "1" || (process.env.DATABASE_URL ?? "").includes("USER:PASSWORD");
+const E2E = isE2eMode();
 
 export async function GET(req: NextRequest) {
   const userId = req.nextUrl.searchParams.get("userId");
@@ -14,6 +16,9 @@ export async function GET(req: NextRequest) {
   }
 
   if (E2E) return NextResponse.json({ subscriptions: [] });
+  if (!hasRealDatabaseConfig()) {
+    return NextResponse.json({ subscriptions: [], warning: "No live database configured" }, { status: 503 });
+  }
 
   try {
     const subscriptions = await prisma.subscription.findMany({
@@ -35,6 +40,10 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const { userId, planId, quantity = 1 } = body;
+
+    if (!(await isFeatureEnabled("merchant_subscriptions", { userId }))) {
+      return NextResponse.json({ error: "Subscriptions are currently unavailable" }, { status: 403 });
+    }
 
     if (!userId || !planId) {
       return NextResponse.json({ error: "userId and planId required" }, { status: 400 });

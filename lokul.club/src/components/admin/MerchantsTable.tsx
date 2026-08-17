@@ -4,7 +4,8 @@ import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { useCallback, useTransition, useState } from "react";
 import { Search, Store, ChevronDown } from "lucide-react";
 import { Badge, Button, EmptyState, Input, Pagination, Select } from "@/components/ui";
-import { approveMerchant, rejectMerchant, suspendMerchant, toggleEndorsement } from "@/app/admin/merchants/actions";
+import { approveMerchant, rejectMerchant, suspendMerchant, toggleEndorsement, syncMerchantWorkflow } from "@/app/admin/merchants/actions";
+import { getProfileFromCategory, PROFILE_WORKFLOW_CONFIG } from "@/lib/merchant-profiles";
 import type { AdminMerchant } from "@/lib/admin-platform";
 
 const STATUS_TONES: Record<string, "warning" | "success" | "danger" | "neutral"> = {
@@ -13,6 +14,10 @@ const STATUS_TONES: Record<string, "warning" | "success" | "danger" | "neutral">
 const STATUS_LABELS: Record<string, string> = {
   pending_verification: "Pending", active: "Active", suspended: "Suspended", rejected: "Rejected",
 };
+
+function workflowLabel(profile: string): string {
+  return PROFILE_WORKFLOW_CONFIG[profile as keyof typeof PROFILE_WORKFLOW_CONFIG]?.label ?? profile;
+}
 
 export default function MerchantsTable({
   merchants, total, pages, page, search, status,
@@ -48,6 +53,17 @@ export default function MerchantsTable({
     setLoadingId(null);
   }
 
+  async function runSyncWorkflow(id: string, category: string) {
+    setLoadingId(id);
+    await syncMerchantWorkflow(id, category);
+    setLoadingId(null);
+  }
+
+  const workflowIssues = merchants.filter((m) => {
+    if (!m.workflowProfile) return true;
+    return m.workflowProfile !== getProfileFromCategory(m.category);
+  }).length;
+
   return (
     <div className="space-y-4">
       {/* Toolbar */}
@@ -74,6 +90,11 @@ export default function MerchantsTable({
         {(search || status) ? " matching filters" : " total"}
         {isPending && " · Loading…"}
       </p>
+      {workflowIssues > 0 && (
+        <p className="text-xs font-medium text-warning">
+          {workflowIssues} {workflowIssues === 1 ? "merchant needs" : "merchants need"} workflow review (missing or mismatched profile)
+        </p>
+      )}
 
       {/* Table */}
       <div className="overflow-x-auto rounded-[6px] border border-border bg-surface shadow-sm">
@@ -85,6 +106,7 @@ export default function MerchantsTable({
               <th className="px-4 py-3 text-left">Category</th>
               <th className="px-4 py-3 text-left">Location</th>
               <th className="px-4 py-3 text-left">Status</th>
+              <th className="px-4 py-3 text-left">Workflow</th>
               <th className="px-4 py-3 text-left">Flags</th>
               <th className="px-4 py-3 text-left">Applied</th>
               <th className="px-4 py-3 text-left">Actions</th>
@@ -93,7 +115,7 @@ export default function MerchantsTable({
           <tbody className="divide-y divide-border">
             {merchants.length === 0 ? (
               <tr>
-                <td colSpan={8} className="px-4 py-10">
+                <td colSpan={9} className="px-4 py-10">
                   <EmptyState
                     icon={<Store size={28} />}
                     title="No merchants found"
@@ -112,6 +134,42 @@ export default function MerchantsTable({
                     <Badge tone={STATUS_TONES[m.status] ?? "neutral"} variant="soft" size="sm">
                       {STATUS_LABELS[m.status] ?? m.status}
                     </Badge>
+                  </td>
+                  <td className="px-4 py-3">
+                    {(() => {
+                      const expected = getProfileFromCategory(m.category);
+                      if (!m.workflowProfile) {
+                        return (
+                          <div className="flex items-center gap-1.5">
+                            <Badge tone="danger" variant="soft" size="sm" title={`Expected: ${workflowLabel(expected)}`}>
+                              Missing
+                            </Badge>
+                            <Button size="xs" variant="outline" loading={loadingId === m.id}
+                              onClick={() => runSyncWorkflow(m.id, m.category)}>
+                              Sync
+                            </Button>
+                          </div>
+                        );
+                      }
+                      if (m.workflowProfile !== expected) {
+                        return (
+                          <div className="flex items-center gap-1.5">
+                            <Badge tone="warning" variant="soft" size="sm" title={`Expected: ${workflowLabel(expected)}`}>
+                              {workflowLabel(m.workflowProfile)} ≠ {workflowLabel(expected)}
+                            </Badge>
+                            <Button size="xs" variant="outline" loading={loadingId === m.id}
+                              onClick={() => runSyncWorkflow(m.id, m.category)}>
+                              Sync
+                            </Button>
+                          </div>
+                        );
+                      }
+                      return (
+                        <Badge tone="neutral" variant="soft" size="sm">
+                          {workflowLabel(m.workflowProfile)}
+                        </Badge>
+                      );
+                    })()}
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex gap-1.5">

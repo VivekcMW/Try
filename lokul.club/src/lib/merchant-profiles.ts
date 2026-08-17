@@ -43,6 +43,16 @@ export interface ProfileLabels {
   bookings: string;
 }
 
+export interface WorkflowDefinition {
+  label: string;
+  catalogTitle: string;
+  catalogItemLabel: string;
+  orderTitle: string;
+  offerTitle: string;
+  defaultCatalogKind: "product" | "menu_item" | "service" | "consultation" | "class_batch";
+  defaultInsight: string;
+}
+
 // ── Category → Profile mapping ──────────────────────────────────────────────
 // Deprecated: Use getCategoryWorkflow from @/types/merchant-categories instead
 // Kept for backward compatibility only
@@ -113,7 +123,8 @@ export const PROFILE_NAV: Record<WorkflowProfile, NavItem[]> = {
     ...BASE_NAV,
     { icon: Package,      label: "Packages",   href: "/merchant/catalog" },
     { icon: Tag,          label: "Offers",     href: "/merchant/offers" },
-    { icon: Star,         label: "Enquiries",  href: "/merchant/requests" },
+    { icon: Star,         label: "Events",     href: "/merchant/events" },
+    { icon: ClipboardList,label: "Enquiries",  href: "/merchant/requests" },
     { icon: CalendarDays, label: "Bookings",   href: "/merchant/jobs" },
     ...COMMON_TAIL,
   ],
@@ -181,5 +192,62 @@ export const PROFILE_LABELS: Record<WorkflowProfile, ProfileLabels> = {
     requests: "Enquiries",
     jobs: "Bookings",
     bookings: "Bookings",
+  },
+};
+
+export const PROFILE_WORKFLOW_CONFIG: Record<WorkflowProfile, WorkflowDefinition> = {
+  retail: {
+    label: "Retail",
+    catalogTitle: "Catalog",
+    catalogItemLabel: "Product",
+    orderTitle: "Orders",
+    offerTitle: "Offers",
+    defaultCatalogKind: "product",
+    defaultInsight: "Keep your catalog fresh and make sure your top-selling products are always visible.",
+  },
+  food: {
+    label: "Food",
+    catalogTitle: "Menu",
+    catalogItemLabel: "Menu Item",
+    orderTitle: "Orders",
+    offerTitle: "Offers",
+    defaultCatalogKind: "menu_item",
+    defaultInsight: "Keep the menu updated, highlight top sellers, and refresh offers before peak meal times.",
+  },
+  appointments: {
+    label: "Appointments",
+    catalogTitle: "Services",
+    catalogItemLabel: "Service",
+    orderTitle: "Bookings",
+    offerTitle: "Offers",
+    defaultCatalogKind: "service",
+    defaultInsight: "Keep your schedule and service list current so customers can book on time.",
+  },
+  home_services: {
+    label: "Home Services",
+    catalogTitle: "Services",
+    catalogItemLabel: "Service",
+    orderTitle: "Requests",
+    offerTitle: "Offers",
+    defaultCatalogKind: "service",
+    defaultInsight: "Respond quickly to requests and keep service availability updated for nearby customers.",
+  },
+  subscriptions: {
+    label: "Subscriptions",
+    catalogTitle: "Plans",
+    catalogItemLabel: "Plan",
+    orderTitle: "Subscribers",
+    offerTitle: "Offers",
+    defaultCatalogKind: "product",
+    defaultInsight: "Keep recurring plans simple, visible, and easy to renew for your subscribers.",
+  },
+  events: {
+    label: "Events",
+    catalogTitle: "Packages",
+    catalogItemLabel: "Package",
+    orderTitle: "Enquiries",
+    offerTitle: "Offers",
+    defaultCatalogKind: "product",
+    defaultInsight: "Keep packages visible and reply to enquiries quickly so bookings convert faster.",
   },
 };

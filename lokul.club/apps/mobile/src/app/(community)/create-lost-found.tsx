@@ -8,6 +8,7 @@ import { Button, HStack, Text, VStack } from '@/components/ui';
 import { useOnboardingStore } from '@/store/onboardingStore';
 import { useWalletStore } from '@/store/walletStore';
 import { colors, radius, spacing } from '@lokul/ui-tokens';
+import { FeatureGate } from '@/components/FeatureGate';
 
 const BASE = process.env.EXPO_PUBLIC_API_BASE ?? '';
 
@@ -17,6 +18,14 @@ const CATEGORIES = [
 ];
 
 export default function CreateLostFoundScreen() {
+  return (
+    <FeatureGate featureKey="lost_found">
+      <CreateLostFoundScreenInner />
+    </FeatureGate>
+  );
+}
+
+function CreateLostFoundScreenInner() {
   const router   = useRouter();
   const userId   = useWalletStore((s) => s.userId);
   const pinCode  = useOnboardingStore((s) => s.pin);

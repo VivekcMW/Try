@@ -1,4 +1,9 @@
 import { Stack } from 'expo-router';
+import { FeatureGate } from '@/components/FeatureGate';
 export default function WalletLayout() {
-  return <Stack screenOptions={{ headerShown: false }} />;
+  return (
+    <FeatureGate featureKey="wallet">
+      <Stack screenOptions={{ headerShown: false }} />
+    </FeatureGate>
+  );
 }

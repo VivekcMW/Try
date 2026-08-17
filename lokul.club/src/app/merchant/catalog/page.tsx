@@ -3,7 +3,8 @@
 import { useEffect, useState, useCallback } from "react";
 import { Plus, Package, Edit2, Trash2, X, Loader2, RefreshCw, Upload, Download, CheckCircle, AlertCircle } from "lucide-react";
 import Image from "next/image";
-import { useMerchantProfile, useProfileLabels } from "@/lib/merchant-profile-context";
+import { useMerchantProfile, useProfileLabels, useMerchantWorkflowConfig } from "@/lib/merchant-profile-context";
+import { useToast } from "@/components/ui";
 
 type CatalogItem = {
   id: string;
@@ -74,6 +75,8 @@ const EMPTY_FORM: NewItemForm = {
 export default function CatalogPage() {
   const profile = useMerchantProfile();
   const labels = useProfileLabels();
+  const workflowConfig = useMerchantWorkflowConfig();
+  const toast = useToast();
   const isFood = profile === "food";
   const isAppointments = profile === "appointments";
 
@@ -85,7 +88,7 @@ export default function CatalogPage() {
   const [resetting, setResetting] = useState(false);
   const [newItem, setNewItem] = useState<NewItemForm>({
     ...EMPTY_FORM,
-    kind: isFood ? "menu_item" : "product",
+    kind: workflowConfig.defaultCatalogKind,
   });
 
   const [editingItem, setEditingItem] = useState<CatalogItem | null>(null);
@@ -150,11 +153,11 @@ export default function CatalogPage() {
 
       if (!res.ok) throw new Error("Failed to add item");
 
-      setNewItem({ ...EMPTY_FORM, kind: isFood ? "menu_item" : "product" });
+      setNewItem({ ...EMPTY_FORM, kind: workflowConfig.defaultCatalogKind });
       setShowAddModal(false);
       await loadItems();
     } catch (error) {
-      alert("Failed to add item. Please try again.");
+      toast.error("Failed to add item", "Please try again");
       console.error(error);
     } finally {
       setSaving(false);
@@ -191,7 +194,7 @@ export default function CatalogPage() {
       setEditingItem(null);
       await loadItems();
     } catch (error) {
-      alert("Failed to save changes. Please try again.");
+      toast.error("Failed to save changes", "Please try again");
       console.error(error);
     } finally {
       setSaving(false);
@@ -303,13 +306,16 @@ export default function CatalogPage() {
       const res = await fetch("/api/merchant/catalog/import", { method: "POST", body: formData });
       const data = await res.json();
       if (!res.ok) {
-        alert(data.error || "Import failed");
+        toast.error(data.error || "Import failed");
         return;
       }
       setImportResult(data);
-      if (data.created > 0) await loadItems();
+      if (data.created > 0) {
+        await loadItems();
+        toast.success("Import complete", `${data.created} item${data.created === 1 ? "" : "s"} added`);
+      }
     } catch {
-      alert("Import failed. Please check your file and try again.");
+      toast.error("Import failed", "Please check your file and try again");
     } finally {
       setImporting(false);
     }

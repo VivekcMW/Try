@@ -1,0 +1,71 @@
+{
+  "title": "ವ್ಯಾಪಾರಿ ಡ್ಯಾಶ್‌ಬೋರ್ಡ್",
+  "overview": "ಅವಲೋಕನ",
+  "orders": "ಆರ್ಡರ್‌ಗಳು",
+  "inventory": "ಇನ್ವೆಂಟರಿ",
+  "settings": "ಸೆಟ್ಟಿಂಗ್‌ಗಳು",
+  "language": "ಭಾಷೆ",
+  "tabs": {
+    "overview": "ಅವಲೋಕನ",
+    "bookings": "ಬುಕ್‌ಮಾಡಿಕೆ",
+    "revenue": "ಆದಾಯ",
+    "funnel": "ಫನ್‌ನೆಲ್"
+  },
+  "stats": {
+    "pageViews": "ಪುಟ ವೀಕ್ಷಣೆಗಳು",
+    "weeklyBookings": "ವಾರದ ಬುಕ್‌ಮಾಡಿಕೆ",
+    "monthlyBookings": "ಮಾಸಿಕ ಬುಕ್‌ಮಾಡಿಕೆ",
+    "revenueThisMonth": "ಈ ತಿಂಗಳ ಆದಾಯ",
+    "avgRating": "ಸರಾಸರಿ ರೇಟಿಂಗ್",
+    "totalReviews": "ಒಟ್ಟು ವಿಮರ್ಶೆಗಳು",
+    "newCustomers": "ಹೊಸ ಗ್ರಾಹಕರು",
+    "repeatCustomers": "ಮರುಕಳಿಸುವ ಗ್ರಾಹಕರು",
+    "topProduct": "ಅಗ್ರ ಉತ್ಪನ್ನ"
+  },
+  "status": {
+    "newOrder": "ಹೊಸ ಆರ್ಡರ್",
+    "accepted": "ಸ್ವೀಕರಿಸಲಾಗಿದೆ",
+    "preparing": "ತಯಾರಿಸಲಾಗುತ್ತಿದೆ",
+    "ready": "ಸಿದ್ಧ",
+    "delivered": "ತಲುಪಿಸಲಾಗಿದೆ",
+    "rejected": "ತಿರಸ್ಕರಿಸಲಾಗಿದೆ",
+    "cancelled": "ರದ್ದುಗೊಳಿಸಲಾಗಿದೆ",
+    "pending": "ಬಾಕಿ"
+  },
+  "auth": {
+    "login": "ಲಾಗಿನ್",
+    "phoneNumber": "ಫೋನ್ ಸಂಖ್ಯೆ",
+    "continue": "ಮುಂದುವರಿಸಿ",
+    "otpVerification": "OTP ಪರಿಶೀಲನೆ",
+    "verifyOtp": "OTP ಪರಿಶೀಲಿಸಿ",
+    "resendCode": "ಕೋಡ್ ಮರುಹೊಂದಿಸಿ",
+    "invalidOtp": "ಅಮಾನ್ಯ OTP",
+    "welcomeBack": "ಮರಳಿ ಸ್ವಾಗತ",
+    "networkError": "ನೆಟ್‌ವರ್ಕ್ ದೋಷ"
+  },
+  "inventory": {
+    "addProduct": "ಉತ್ಪನ್ನ ಸೇರಿಸಿ",
+    "editProduct": "ಉತ್ಪನ್ನ ರಚಿಸಿ",
+    "stock": "ಸ್ಟಾಕ್",
+    "price": "ದರ",
+    "quantity": "ಪ್ರಮಾಣ",
+    "category": "ವರ್ಗ",
+    "save": "ಉಳಿಸಿ",
+    "publish": "ಪ್ರಕಟಿಸಿ",
+    "draft": "ಡ್ರಾಫ್ಟ್",
+    "outOfStock": "ಸ್ಟಾಕ್ खत्मವಾಗಿದೆ",
+    "lowStock": "ಕಡಿಮೆ ಸ್ಟಾಕ್"
+  },
+  "empty": {
+    "noOrders": "ಇನ್ನೂ ಆರ್ಡರ್‌ಗಳು ಇಲ್ಲ",
+    "noInventory": "ಇನ್ನೂ ಇನ್ವೆಂಟರಿ ಐಟಂ‌ಗಳು ಇಲ್ಲ",
+    "noNotifications": "ಅಧಿಸೂಚನೆಗಳು ಇಲ್ಲ",
+    "noResults": "ಫಲಿತಾಂಶಗಳಿಲ್ಲ"
+  },
+  "errors": {
+    "somethingWentWrong": "ಏನೋ ತಪ್ಪಾಗಿದೆ",
+    "tryAgain": "ಮರುಪ್ರಯತ್ನಿಸಿ",
+    "sessionExpired": "ಸೆಷನ್ ಮುಗಿಯಿತು",
+    "permissionRequired": "ಅನುಮತಿ ಅಗತ್ಯವಿದೆ"
+  }
+}

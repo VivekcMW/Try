@@ -4,6 +4,7 @@
  */
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { isFeatureEnabled } from "@/lib/feature-flags-server";
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id: tripId } = await params;
@@ -13,6 +14,9 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
     const trip = await prisma.carpoolTrip.findUnique({ where: { id: tripId } });
     if (!trip) return NextResponse.json({ error: "Trip not found" }, { status: 404 });
+    if (!(await isFeatureEnabled("carpool", { pinCode: trip.pinCode, userId: passengerId }))) {
+      return NextResponse.json({ error: "Carpooling is currently unavailable" }, { status: 403 });
+    }
     if (trip.status !== "open") return NextResponse.json({ error: "Trip not open" }, { status: 409 });
     if (trip.driverId === passengerId) return NextResponse.json({ error: "Driver cannot join own trip" }, { status: 409 });
 
